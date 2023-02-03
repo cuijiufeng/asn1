@@ -1,0 +1,15 @@
+<configuration>
+    <Properties>
+        <Property name="pattern" value="[%d{yyyy-MM-dd HH:mm:ss:SSS}] [%level] [%t] : %msg%xEx%n" />
+    </Properties>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${pattern}"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Root level="DEBUG">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+</configuration>
