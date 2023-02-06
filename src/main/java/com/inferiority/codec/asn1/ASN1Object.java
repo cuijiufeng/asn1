@@ -5,6 +5,7 @@ import com.inferiority.codec.ASN1OutputStream;
 import com.inferiority.codec.Codeable;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * @author cuijiufeng
@@ -13,14 +14,13 @@ import java.io.IOException;
  */
 public abstract class ASN1Object implements Codeable {
 
-    protected ASN1Object() {
-    }
-
-    public ASN1Object(byte[] data) throws IOException {
+    public <T> T fromByteArray(byte[] data) throws IOException {
         this.decode(new ASN1InputStream(data));
+        //noinspection unchecked
+        return (T) this;
     }
 
-    public byte[] getEncoded() throws IOException {
+    public byte[] getEncoded() {
         ASN1OutputStream os = new ASN1OutputStream();
         this.encode(os);
         return os.toByteArray();

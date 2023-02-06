@@ -16,12 +16,11 @@ public class ASN1Boolean extends ASN1Object {
 
     private boolean value;
 
-    public ASN1Boolean(boolean data) {
-        this.value = data;
+    public ASN1Boolean() {
     }
 
-    public ASN1Boolean(byte[] data) throws IOException {
-        super(data);
+    public ASN1Boolean(boolean data) {
+        this.value = data;
     }
 
     @Override
@@ -35,7 +34,7 @@ public class ASN1Boolean extends ASN1Object {
 
     @Override
     protected void decode(ASN1InputStream is) throws IOException {
-        if (is.length() != 1) {
+        if (is.available() != 1) {
             throw new IllegalArgumentException("BOOLEAN value should have 1 byte in it");
         }
         this.value = FALSE_VALUE != is.readByte();
@@ -56,10 +55,5 @@ public class ASN1Boolean extends ASN1Object {
     @Override
     public int hashCode() {
         return (value ? 1 : 0);
-    }
-
-    public String toString()
-    {
-        return isTrue() ? "TRUE" : "FALSE";
     }
 }

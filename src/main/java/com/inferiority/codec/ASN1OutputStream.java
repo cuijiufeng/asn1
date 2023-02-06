@@ -9,9 +9,9 @@ import java.math.BigInteger;
  * @Date 2023/2/3 16:11
  */
 public class ASN1OutputStream extends ByteArrayOutputStream {
-    public void writeLengthDetermine(long length) {
+    public void writeLengthDetermine(int length) {
         if (length < 128) {
-            write((int)length);
+            write(length);
         } else {
             BigInteger bigInteger = BigInteger.valueOf(length);
             byte[] lengthBytes = bigInteger.toByteArray();

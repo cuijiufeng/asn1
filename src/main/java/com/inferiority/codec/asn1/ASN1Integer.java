@@ -13,38 +13,74 @@ import java.util.Objects;
  * @Date 2023/2/3 13:45
  */
 public class ASN1Integer extends ASN1Object {
-    private static final BigInteger BYTE_UNSIGNED_MAX = new BigInteger("FF", 16);
-    private static final BigInteger WORD_UNSIGNED_MAX = new BigInteger("FFFF", 16);
-    private static final BigInteger D_WORD_UNSIGNED_MAX = new BigInteger("FFFFFFFF", 16);
-    private static final BigInteger Q_WORD_UNSIGNED_MAX = new BigInteger("FFFFFFFFFFFFFFFF", 16);
-    private static final BigInteger BYTE_SIGNED_MIN = new BigInteger("80", 16);
-    private static final BigInteger BYTE_SIGNED_MAX = new BigInteger("7F", 16);
-    private static final BigInteger WORD_SIGNED_MIN = new BigInteger("8000", 16);
-    private static final BigInteger WORD_SIGNED_MAX = new BigInteger("7FFF", 16);
-    private static final BigInteger D_WORD_SIGNED_MIN = new BigInteger("80000000", 16);
-    private static final BigInteger D_WORD_SIGNED_MAX = new BigInteger("7FFFFFFF", 16);
-    private static final BigInteger Q_WORD_SIGNED_MIN = new BigInteger("8000000000000000", 16);
-    private static final BigInteger Q_WORD_SIGNED_MAX = new BigInteger("7FFFFFFFFFFFFFFF", 16);
+    private static final BigInteger BYTE_UNSIGNED_MAX = new BigInteger("+FF", 16);
+    private static final BigInteger WORD_UNSIGNED_MAX = new BigInteger("+FFFF", 16);
+    private static final BigInteger D_WORD_UNSIGNED_MAX = new BigInteger("+FFFFFFFF", 16);
+    private static final BigInteger Q_WORD_UNSIGNED_MAX = new BigInteger("+FFFFFFFFFFFFFFFF", 16);
+    private static final BigInteger BYTE_SIGNED_MIN = new BigInteger("-80", 16);
+    private static final BigInteger BYTE_SIGNED_MAX = new BigInteger("+7F", 16);
+    private static final BigInteger WORD_SIGNED_MIN = new BigInteger("-8000", 16);
+    private static final BigInteger WORD_SIGNED_MAX = new BigInteger("+7FFF", 16);
+    private static final BigInteger D_WORD_SIGNED_MIN = new BigInteger("-80000000", 16);
+    private static final BigInteger D_WORD_SIGNED_MAX = new BigInteger("+7FFFFFFF", 16);
+    private static final BigInteger Q_WORD_SIGNED_MIN = new BigInteger("-8000000000000000", 16);
+    private static final BigInteger Q_WORD_SIGNED_MAX = new BigInteger("+7FFFFFFFFFFFFFFF", 16);
 
     private BigInteger value;
-    private BigInteger minValue;
-    private BigInteger maxValue;
+    private final BigInteger minValue;
+    private final BigInteger maxValue;
 
-    public ASN1Integer(Long value, Long minValue, Long maxValue) {
-        //min要<=value,max要>=value
+    public ASN1Integer(long value, Long minValue, Long maxValue) {
+        if (Objects.nonNull(minValue) && Objects.nonNull(maxValue) && minValue.compareTo(maxValue) > 0) {
+            throw new IllegalArgumentException(String.format("the minimum value of %d is greater than the maximum value of %d", value, minValue));
+        }
+        if (Objects.nonNull(minValue)) {
+            if (value < minValue) {
+                throw new IllegalArgumentException(String.format("%d is less than the minimum value of %d", value, minValue));
+            }
+            if (value > maxValue) {
+                throw new IllegalArgumentException(String.format("%d is greater than the maximum value of %d", value, maxValue));
+            }
+        }
         this.value = BigInteger.valueOf(value);
         this.minValue = BigInteger.valueOf(minValue);
         this.maxValue = BigInteger.valueOf(maxValue);
     }
 
     public ASN1Integer(BigInteger value, BigInteger minValue, BigInteger maxValue) {
+        if (Objects.isNull(value)) {
+            throw new IllegalArgumentException("value must not be empty");
+        }
+        if (Objects.nonNull(minValue) && Objects.nonNull(maxValue) && minValue.compareTo(maxValue) > 0) {
+            throw new IllegalArgumentException(String.format("the minimum value of %s is greater than the maximum value of %s", value, minValue));
+        }
+        if (Objects.nonNull(minValue)) {
+            if (value.compareTo(minValue) < 0) {
+                throw new IllegalArgumentException(String.format("%s is less than the minimum value of %s", value, minValue));
+            }
+            if (value.compareTo(maxValue) > 0) {
+                throw new IllegalArgumentException(String.format("%s is greater than the maximum value of %s", value, maxValue));
+            }
+        }
         this.value = value;
         this.minValue = minValue;
         this.maxValue = maxValue;
     }
 
-    public ASN1Integer(byte[] data) throws IOException {
-        super(data);
+    public ASN1Integer(Long minValue, Long maxValue) {
+        if (Objects.nonNull(minValue) && Objects.nonNull(maxValue) && minValue > maxValue) {
+            throw new IllegalArgumentException(String.format("the minimum value of %d is greater than the maximum value of %d", value, minValue));
+        }
+        this.minValue = BigInteger.valueOf(minValue);
+        this.maxValue = BigInteger.valueOf(maxValue);
+    }
+
+    public ASN1Integer(BigInteger minValue, BigInteger maxValue) {
+        if (Objects.nonNull(minValue) && Objects.nonNull(maxValue) && minValue.compareTo(maxValue) > 0) {
+            throw new IllegalArgumentException(String.format("the minimum value of %s is greater than the maximum value of %s", value, minValue));
+        }
+        this.minValue = minValue;
+        this.maxValue = maxValue;
     }
 
     @Override
@@ -57,20 +93,38 @@ public class ASN1Integer extends ASN1Object {
         }
         //填充字节,大端序先填充高位
         while (fillOctets-- > 0) {
-            os.write(0);
+            if (this.value.signum() == -1) {
+                os.write(-1);
+            } else {
+                os.write(0);
+            }
         }
         os.write(valueBytes, signedOctets, valueBytes.length - signedOctets);
     }
 
     @Override
-    protected void decode(ASN1InputStream is) {
+    protected void decode(ASN1InputStream is) throws IOException {
+        byte[] valueBytes;
+        if (Objects.isNull(minValue) || Objects.isNull(maxValue) || determineOctets() < 0) {
+            valueBytes = new byte[is.readLengthDetermine()];
+        } else {
+            valueBytes = new byte[determineOctets()];
+        }
+        is.read(valueBytes);
+        if (isUnsigned()) {
+            this.value = new BigInteger(1, valueBytes);
+        } else {
+            this.value = new BigInteger(valueBytes);
+        }
+    }
 
+    public boolean isUnsigned() {
+        return Objects.nonNull(minValue) && minValue.compareTo(BigInteger.ZERO) >= 0;
     }
 
     /**
      * 此integer确定占用几个字节长度
      * @return int 返回-1时表示不确定的
-     * @throws
     */
     private int determineOctets() {
         if(minValue.compareTo(BigInteger.ZERO) >=0 && maxValue.compareTo(BYTE_UNSIGNED_MAX) <= 0
@@ -87,5 +141,43 @@ public class ASN1Integer extends ASN1Object {
             return 8;
         }
         return -1;
+    }
+
+    public BigInteger getValue() {
+        return this.value;
+    }
+
+    public int intValue() {
+        if (this.value.compareTo(BigInteger.valueOf(Integer.MIN_VALUE)) < 0 || this.value.compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) > 0) {
+            throw new IllegalArgumentException(String.format("%s is out of the integer value range", this.value));
+        }
+        return this.value.intValue();
+    }
+
+    public long longValue() {
+        if (this.value.compareTo(BigInteger.valueOf(Long.MIN_VALUE)) < 0 || this.value.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0) {
+            throw new IllegalArgumentException(String.format("%s is out of the integer long range", this.value));
+        }
+        return this.value.longValue();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ASN1Integer that = (ASN1Integer) o;
+
+        if (!Objects.equals(maxValue, that.maxValue)) return false;
+        if (!Objects.equals(minValue, that.minValue)) return false;
+        return Objects.equals(value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = value != null ? value.hashCode() : 0;
+        result = 31 * result + (minValue != null ? minValue.hashCode() : 0);
+        result = 31 * result + (maxValue != null ? maxValue.hashCode() : 0);
+        return result;
     }
 }
