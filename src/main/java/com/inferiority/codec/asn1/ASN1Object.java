@@ -5,7 +5,6 @@ import com.inferiority.codec.ASN1OutputStream;
 import com.inferiority.codec.Codeable;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 /**
  * @author cuijiufeng
