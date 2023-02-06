@@ -1,4 +1,4 @@
-package com.inferiority.asn1.codec;
+package com.inferiority.codec;
 
 import java.io.ByteArrayInputStream;
 import java.io.EOFException;

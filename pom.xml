@@ -46,6 +46,20 @@
             <version>1.15</version>
             <scope>test</scope>
         </dependency>
+        <!--easysec asn1-->
+        <dependency>
+            <groupId>cn.com.easysec.v2x</groupId>
+            <artifactId>v2x-common</artifactId>
+            <version>1.0.4-RELEASE</version>
+            <scope>test</scope>
+        </dependency>
+        <!--bc asn1-->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>1.70</version>
+            <scope>test</scope>
+        </dependency>
         <!--junit-->
         <dependency>
             <groupId>junit</groupId>

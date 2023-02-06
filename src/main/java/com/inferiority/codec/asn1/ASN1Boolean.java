@@ -1,8 +1,7 @@
-package com.inferiority.asn1.codec.oer;
+package com.inferiority.codec.asn1;
 
-import com.inferiority.asn1.codec.ASN1InputStream;
-import com.inferiority.asn1.codec.ASN1Object;
-import com.inferiority.asn1.codec.ASN1OutputStream;
+import com.inferiority.codec.ASN1InputStream;
+import com.inferiority.codec.ASN1OutputStream;
 
 import java.io.IOException;
 
@@ -17,12 +16,12 @@ public class ASN1Boolean extends ASN1Object {
 
     private boolean value;
 
-    private ASN1Boolean(byte[] data) throws IOException {
-        super(data);
-    }
-
     public ASN1Boolean(boolean data) {
         this.value = data;
+    }
+
+    public ASN1Boolean(byte[] data) throws IOException {
+        super(data);
     }
 
     @Override
