@@ -128,11 +128,11 @@ public class CodecTest {
     @Test
     public void testBitString() throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        COERBitString esBitString = new COERBitString(0xff, 24, true);
+        COERBitString esBitString = new COERBitString(0, 24, false);
         esBitString.encode(new DataOutputStream(baos));
         log.debug("es bitString: {}", Hex.encodeHexString(baos.toByteArray()));
 
-        ASN1BitString bitString = new ASN1BitString("11111111", 24);
+        ASN1BitString bitString = new ASN1BitString("0000000000110000", null);
         log.debug("   bitString: {}", Hex.encodeHexString(bitString.getEncoded()));
         Assert.assertArrayEquals(baos.toByteArray(), bitString.getEncoded());
     }

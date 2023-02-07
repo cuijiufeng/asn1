@@ -32,10 +32,44 @@ public class ASN1BitString extends ASN1Object {
     @Override
     public void encode(ASN1OutputStream os) {
         if (Objects.nonNull(bitSize)) {
-            BigInteger bitData = this.bits.shiftLeft(8 - this.bitSize % 8);
             //固定大小
-            byte[] valueBytes = bitData.toByteArray();
+            //将bitSize调整到8的倍数
+            int bitSize = (this.bitSize + 7) & ~7;
+            if (this.bits.equals(BigInteger.ZERO)) {
+                //处理BigInteger等于0的情况
+                for (int i = 0; i < bitSize / 8; i++) {
+                    os.write(0);
+                }
+            } else {
+                BigInteger bitData = this.bits.shiftLeft(bitSize - this.bits.bitLength());
+                byte[] valueBytes = bitData.toByteArray();
+                int signedOctets = valueBytes[0] == 0 && valueBytes.length > 1 ? 1 : 0;
+                os.write(valueBytes, signedOctets, valueBytes.length - signedOctets);
+            }
+        } else {
+            //00000000 00110000=03 04 00 30
+            //00000000 00000011=03 00 00 03
+
+            //00000000 00000000=01 00
+
+            //00000011 0000    =02 00 03    00000011
+            //00001100 00      =02 02 0C    00001100
+            //00000011 00      =02 00 03
+            //00000000 11      =03 06 00 C0
+
+            //非固定大小
+            byte[] valueBytes = this.bits.toByteArray();
             int signedOctets = valueBytes[0] == 0 && valueBytes.length > 1 ? 1 : 0;
+            //1.length prefix
+            os.writeLengthDetermine(this.bits.equals(BigInteger.ZERO) ? valueBytes.length - signedOctets : valueBytes.length - signedOctets + 1);
+            //2.unused-bit count prefix
+            if (!this.bits.equals(BigInteger.ZERO)) {
+                // TODO: 2023/2/7
+                os.write(0);
+            }
+            //3.bit data
+            //填充高字节0
+
             os.write(valueBytes, signedOctets, valueBytes.length - signedOctets);
         }
     }
