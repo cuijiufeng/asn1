@@ -2,7 +2,6 @@ package com.inferiority.codec;
 
 import java.io.ByteArrayInputStream;
 import java.io.EOFException;
-import java.io.IOException;
 import java.math.BigInteger;
 
 /**
@@ -15,30 +14,32 @@ public class ASN1InputStream extends ByteArrayInputStream {
         super(buf);
     }
 
-    public byte readByte() throws IOException {
+    public byte readByte() throws EOFException {
         int ch = super.read();
         if (ch < 0)
             throw new EOFException();
         return (byte)(ch);
     }
 
-    public int readLengthPrefix() throws IOException {
+    public int readLengthPrefix() throws EOFException {
         int firstOctet = read();
         if (firstOctet < 128) {
             return firstOctet;
         } else {
             byte[] lengthValue = new byte[firstOctet & 127];
-            //noinspection ResultOfMethodCallIgnored
-            read(lengthValue);
+            int expectLength;
+            if (lengthValue.length != (expectLength = read(lengthValue, 0, lengthValue.length))) {
+                throw new EOFException(String.format("read %d bytes from the input stream, expect %d", expectLength, lengthValue.length));
+            }
             return new BigInteger(1, lengthValue).intValue();
         }
     }
 
-    public int readLengthDetermine() throws IOException {
+    public int readLengthDetermine() throws EOFException {
         return readLengthPrefix();
     }
 
-    public int readEnumeratedValue() throws IOException {
+    public int readEnumeratedValue() throws EOFException {
         return readLengthPrefix();
     }
 }

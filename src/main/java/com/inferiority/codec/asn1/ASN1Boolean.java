@@ -2,6 +2,7 @@ package com.inferiority.codec.asn1;
 
 import com.inferiority.codec.ASN1InputStream;
 import com.inferiority.codec.ASN1OutputStream;
+import com.inferiority.codec.Codeable;
 
 import java.io.IOException;
 
@@ -24,7 +25,7 @@ public class ASN1Boolean extends ASN1Object {
     }
 
     @Override
-    protected void encode(ASN1OutputStream os) {
+    public void encode(ASN1OutputStream os) {
         if (this.value) {
             os.write(TRUE_VALUE);
         } else {
@@ -33,7 +34,7 @@ public class ASN1Boolean extends ASN1Object {
     }
 
     @Override
-    protected void decode(ASN1InputStream is) throws IOException {
+    public void decode(ASN1InputStream is) throws IOException {
         if (is.available() != 1) {
             throw new IllegalArgumentException("BOOLEAN value should have 1 byte in it");
         }
@@ -46,10 +47,11 @@ public class ASN1Boolean extends ASN1Object {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        return value == ((ASN1Boolean) o).value;
+    public boolean asn1Equals(Codeable obj) {
+        if (!(obj instanceof ASN1Boolean)) {
+            return false;
+        }
+        return value == ((ASN1Boolean) obj).value;
     }
 
     @Override

@@ -2,8 +2,9 @@ package com.inferiority.codec.asn1;
 
 import com.inferiority.codec.ASN1InputStream;
 import com.inferiority.codec.ASN1OutputStream;
+import com.inferiority.codec.Codeable;
 
-import java.io.IOException;
+import java.io.EOFException;
 import java.util.Objects;
 
 /**
@@ -25,12 +26,12 @@ public class ASN1Enumerated extends ASN1Object {
     }
 
     @Override
-    protected void encode(ASN1OutputStream os) {
+    public void encode(ASN1OutputStream os) {
         os.writeEnumeratedValue(this.enumerated.ordinal());
     }
 
     @Override
-    protected void decode(ASN1InputStream is) throws IOException {
+    public void decode(ASN1InputStream is) throws EOFException {
         int ordinal = is.readEnumeratedValue();
         for (Enum<? extends Enum<?>> constant : this.enumClass.getEnumConstants()) {
             if (ordinal == constant.ordinal()) {
@@ -46,11 +47,11 @@ public class ASN1Enumerated extends ASN1Object {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ASN1Enumerated that = (ASN1Enumerated) o;
-        return Objects.equals(enumerated, that.enumerated);
+    public boolean asn1Equals(Codeable obj) {
+        if (!(obj instanceof ASN1Enumerated)) {
+            return false;
+        }
+        return Objects.equals(enumerated, ((ASN1Enumerated) obj).enumerated);
     }
 
     @Override

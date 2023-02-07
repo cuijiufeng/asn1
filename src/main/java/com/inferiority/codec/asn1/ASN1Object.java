@@ -13,19 +13,32 @@ import java.io.IOException;
  */
 public abstract class ASN1Object implements Codeable {
 
+    /**
+     * 解码
+     * @param data
+     * @return T
+    */
     public <T extends ASN1Object> T fromByteArray(byte[] data) throws IOException {
         this.decode(new ASN1InputStream(data));
         //noinspection unchecked
         return (T) this;
     }
 
+    /**
+     * 编码
+     * @return byte[]
+    */
     public byte[] getEncoded() {
         ASN1OutputStream os = new ASN1OutputStream();
         this.encode(os);
         return os.toByteArray();
     }
 
-    protected abstract void encode(ASN1OutputStream os);
-
-    protected abstract void decode(ASN1InputStream is) throws IOException;
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        return (obj instanceof Codeable) && asn1Equals((Codeable)obj);
+    }
 }

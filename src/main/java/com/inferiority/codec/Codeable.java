@@ -8,7 +8,12 @@ import java.io.IOException;
  * @author: cuijiufeng
  */
 public interface Codeable {
-    byte[] getEncoded() throws IOException;
+
+    void encode(ASN1OutputStream os);
+
+    void decode(ASN1InputStream is) throws IOException;
+
+    boolean asn1Equals(Codeable obj);
 
     //TODO 2023/2/3 14:36 通过配置支持打印多种格式，xml,json,simple对象
     String toString();

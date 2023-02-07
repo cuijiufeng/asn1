@@ -2,7 +2,9 @@ package com.inferiority.codec.asn1;
 
 import com.inferiority.codec.ASN1InputStream;
 import com.inferiority.codec.ASN1OutputStream;
+import com.inferiority.codec.Codeable;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Objects;
@@ -32,7 +34,7 @@ public class ASN1Integer extends ASN1Object {
 
     public ASN1Integer(long value, long minValue, long maxValue) {
         if (minValue > maxValue) {
-            throw new IllegalArgumentException(String.format("the minimum value of %d is greater than the maximum value of %d", value, minValue));
+            throw new IllegalArgumentException(String.format("the minimum value of %d is greater than the maximum value of %d", minValue, maxValue));
         }
         if (value < minValue) {
             throw new IllegalArgumentException(String.format("%d is less than the minimum value of %d", value, minValue));
@@ -47,18 +49,16 @@ public class ASN1Integer extends ASN1Object {
 
     public ASN1Integer(BigInteger value, BigInteger minValue, BigInteger maxValue) {
         if (Objects.isNull(value)) {
-            throw new IllegalArgumentException("value must not be empty");
+            throw new IllegalArgumentException("value cannot be null");
+        }
+        if (Objects.nonNull(minValue) && value.compareTo(minValue) < 0) {
+            throw new IllegalArgumentException(String.format("%s is less than the minimum value of %s", value, minValue));
+        }
+        if (Objects.nonNull(maxValue) && value.compareTo(maxValue) > 0) {
+            throw new IllegalArgumentException(String.format("%s is greater than the maximum value of %s", value, maxValue));
         }
         if (Objects.nonNull(minValue) && Objects.nonNull(maxValue) && minValue.compareTo(maxValue) > 0) {
-            throw new IllegalArgumentException(String.format("the minimum value of %s is greater than the maximum value of %s", value, minValue));
-        }
-        if (Objects.nonNull(minValue)) {
-            if (value.compareTo(minValue) < 0) {
-                throw new IllegalArgumentException(String.format("%s is less than the minimum value of %s", value, minValue));
-            }
-            if (value.compareTo(maxValue) > 0) {
-                throw new IllegalArgumentException(String.format("%s is greater than the maximum value of %s", value, maxValue));
-            }
+            throw new IllegalArgumentException(String.format("the minimum value of %s is greater than the maximum value of %s", minValue, maxValue));
         }
         this.value = value;
         this.minValue = minValue;
@@ -67,7 +67,7 @@ public class ASN1Integer extends ASN1Object {
 
     public ASN1Integer(long minValue, long maxValue) {
         if (minValue > maxValue) {
-            throw new IllegalArgumentException(String.format("the minimum value of %d is greater than the maximum value of %d", value, minValue));
+            throw new IllegalArgumentException(String.format("the minimum value of %d is greater than the maximum value of %d", minValue, maxValue));
         }
         this.minValue = BigInteger.valueOf(minValue);
         this.maxValue = BigInteger.valueOf(maxValue);
@@ -75,14 +75,14 @@ public class ASN1Integer extends ASN1Object {
 
     public ASN1Integer(BigInteger minValue, BigInteger maxValue) {
         if (Objects.nonNull(minValue) && Objects.nonNull(maxValue) && minValue.compareTo(maxValue) > 0) {
-            throw new IllegalArgumentException(String.format("the minimum value of %s is greater than the maximum value of %s", value, minValue));
+            throw new IllegalArgumentException(String.format("the minimum value of %s is greater than the maximum value of %s", minValue, maxValue));
         }
         this.minValue = minValue;
         this.maxValue = maxValue;
     }
 
     @Override
-    protected void encode(ASN1OutputStream os) {
+    public void encode(ASN1OutputStream os) {
         byte[] valueBytes = value.toByteArray();
         int signedOctets = valueBytes[0] == 0 && valueBytes.length > 1 ? 1 : 0;
         int fillOctets = -1;
@@ -101,14 +101,17 @@ public class ASN1Integer extends ASN1Object {
     }
 
     @Override
-    protected void decode(ASN1InputStream is) throws IOException {
+    public void decode(ASN1InputStream is) throws IOException {
         byte[] valueBytes;
         if (Objects.isNull(minValue) || Objects.isNull(maxValue) || determineOctets() < 0) {
             valueBytes = new byte[is.readLengthDetermine()];
         } else {
             valueBytes = new byte[determineOctets()];
         }
-        is.read(valueBytes);
+        int expectLength;
+        if (valueBytes.length != (expectLength = is.read(valueBytes, 0, valueBytes.length))) {
+            throw new EOFException(String.format("read %d bytes from the input stream, expect %d", expectLength, valueBytes.length));
+        }
         if (isUnsigned()) {
             this.value = new BigInteger(1, valueBytes);
         } else {
@@ -160,12 +163,11 @@ public class ASN1Integer extends ASN1Object {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        ASN1Integer that = (ASN1Integer) o;
-
+    public boolean asn1Equals(Codeable obj) {
+        if (!(obj instanceof ASN1Integer)) {
+            return false;
+        }
+        ASN1Integer that = (ASN1Integer) obj;
         if (!Objects.equals(maxValue, that.maxValue)) return false;
         if (!Objects.equals(minValue, that.minValue)) return false;
         return Objects.equals(value, that.value);
