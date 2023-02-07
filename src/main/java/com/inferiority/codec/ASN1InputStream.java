@@ -22,7 +22,7 @@ public class ASN1InputStream extends ByteArrayInputStream {
         return (byte)(ch);
     }
 
-    public int readLengthDetermine() throws IOException {
+    public int readLengthPrefix() throws IOException {
         int firstOctet = read();
         if (firstOctet < 128) {
             return firstOctet;
@@ -32,5 +32,13 @@ public class ASN1InputStream extends ByteArrayInputStream {
             read(lengthValue);
             return new BigInteger(1, lengthValue).intValue();
         }
+    }
+
+    public int readLengthDetermine() throws IOException {
+        return readLengthPrefix();
+    }
+
+    public int readEnumeratedValue() throws IOException {
+        return readLengthPrefix();
     }
 }

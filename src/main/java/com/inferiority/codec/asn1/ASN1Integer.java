@@ -30,17 +30,15 @@ public class ASN1Integer extends ASN1Object {
     private final BigInteger minValue;
     private final BigInteger maxValue;
 
-    public ASN1Integer(long value, Long minValue, Long maxValue) {
-        if (Objects.nonNull(minValue) && Objects.nonNull(maxValue) && minValue.compareTo(maxValue) > 0) {
+    public ASN1Integer(long value, long minValue, long maxValue) {
+        if (minValue > maxValue) {
             throw new IllegalArgumentException(String.format("the minimum value of %d is greater than the maximum value of %d", value, minValue));
         }
-        if (Objects.nonNull(minValue)) {
-            if (value < minValue) {
-                throw new IllegalArgumentException(String.format("%d is less than the minimum value of %d", value, minValue));
-            }
-            if (value > maxValue) {
-                throw new IllegalArgumentException(String.format("%d is greater than the maximum value of %d", value, maxValue));
-            }
+        if (value < minValue) {
+            throw new IllegalArgumentException(String.format("%d is less than the minimum value of %d", value, minValue));
+        }
+        if (value > maxValue) {
+            throw new IllegalArgumentException(String.format("%d is greater than the maximum value of %d", value, maxValue));
         }
         this.value = BigInteger.valueOf(value);
         this.minValue = BigInteger.valueOf(minValue);
@@ -67,8 +65,8 @@ public class ASN1Integer extends ASN1Object {
         this.maxValue = maxValue;
     }
 
-    public ASN1Integer(Long minValue, Long maxValue) {
-        if (Objects.nonNull(minValue) && Objects.nonNull(maxValue) && minValue > maxValue) {
+    public ASN1Integer(long minValue, long maxValue) {
+        if (minValue > maxValue) {
             throw new IllegalArgumentException(String.format("the minimum value of %d is greater than the maximum value of %d", value, minValue));
         }
         this.minValue = BigInteger.valueOf(minValue);

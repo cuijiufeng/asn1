@@ -13,7 +13,7 @@ import java.io.IOException;
  */
 public abstract class ASN1Object implements Codeable {
 
-    public <T> T fromByteArray(byte[] data) throws IOException {
+    public <T extends ASN1Object> T fromByteArray(byte[] data) throws IOException {
         this.decode(new ASN1InputStream(data));
         //noinspection unchecked
         return (T) this;

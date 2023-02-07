@@ -9,7 +9,7 @@ import java.math.BigInteger;
  * @Date 2023/2/3 16:11
  */
 public class ASN1OutputStream extends ByteArrayOutputStream {
-    public void writeLengthDetermine(int length) {
+    public void writeLengthPrefix(int length) {
         if (length < 128) {
             write(length);
         } else {
@@ -20,5 +20,13 @@ public class ASN1OutputStream extends ByteArrayOutputStream {
             write((lengthBytes.length - signedOctets) | 0x80);
             write(lengthBytes, signedOctets, lengthBytes.length - signedOctets);
         }
+    }
+
+    public void writeLengthDetermine(int length) {
+        writeLengthPrefix(length);
+    }
+
+    public void writeEnumeratedValue(int value) {
+        writeLengthPrefix(value);
     }
 }
