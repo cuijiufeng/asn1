@@ -1,6 +1,7 @@
 package com.inferiority.codec.asn1;
 
 import com.inferiority.codec.Codeable;
+import com.inferiority.codec.utils.Nullable;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -19,11 +20,11 @@ public class ASN1IA5String extends ASN1String {
         }
     }
 
-    public ASN1IA5String(Integer minimum, Integer maximum) {
+    public ASN1IA5String(@Nullable Integer minimum, @Nullable Integer maximum) {
         super(minimum, maximum);
     }
 
-    public ASN1IA5String(String string, Integer minimum, Integer maximum) {
+    public ASN1IA5String(String string, @Nullable Integer minimum, @Nullable Integer maximum) {
         super(string, minimum, maximum);
         if (notIA5String(string)) {
             throw new IllegalArgumentException(String.format("%s contains illegal characters", string));

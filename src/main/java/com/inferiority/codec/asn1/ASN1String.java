@@ -2,6 +2,7 @@ package com.inferiority.codec.asn1;
 
 import com.inferiority.codec.ASN1InputStream;
 import com.inferiority.codec.ASN1OutputStream;
+import com.inferiority.codec.utils.Nullable;
 
 import java.io.EOFException;
 import java.util.Arrays;
@@ -24,7 +25,7 @@ public abstract class ASN1String extends ASN1Object {
         this.data = toByteArray(string);
     }
 
-    public ASN1String(Integer minimum, Integer maximum) {
+    public ASN1String(@Nullable Integer minimum, @Nullable Integer maximum) {
         if (Objects.nonNull(minimum) && Objects.nonNull(maximum) && minimum > maximum) {
             throw new IllegalArgumentException(String.format("the minimum value of %s is greater than the maximum value of %s", minimum, maximum));
         }
@@ -32,7 +33,7 @@ public abstract class ASN1String extends ASN1Object {
         this.maximum = maximum;
     }
 
-    public ASN1String(String string, Integer minimum, Integer maximum) {
+    public ASN1String(String string, @Nullable Integer minimum, @Nullable Integer maximum) {
         if (string == null) {
             throw new NullPointerException("string cannot be null");
         }

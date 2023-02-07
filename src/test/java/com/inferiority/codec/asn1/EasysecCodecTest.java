@@ -1,5 +1,6 @@
 package com.inferiority.codec.asn1;
 
+import cn.com.easysec.v2x.asn1.coer.COERBitString;
 import cn.com.easysec.v2x.asn1.coer.COERInteger;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Hex;
@@ -68,5 +69,18 @@ public class EasysecCodecTest {
                 "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", 16), BigInteger.ZERO, new BigInteger("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", 16));
         sixteenTimesByte.encode(new DataOutputStream(baosSixteenTimesByte));
         log.info("{} : {}", sixteenTimesByte.getValue(), Hex.encodeHexString(baosSixteenTimesByte.toByteArray()));
+    }
+
+    @Test
+    public void testBitString() throws IOException {
+        ByteArrayOutputStream baosNegTwoByte = new ByteArrayOutputStream();
+        COERBitString bitString = new COERBitString(0xff, 8, true);
+        bitString.encode(new DataOutputStream(baosNegTwoByte));
+        log.info("{} : {}", bitString.getBitString(), Hex.encodeHexString(baosNegTwoByte.toByteArray()));
+
+        baosNegTwoByte = new ByteArrayOutputStream();
+        bitString = new COERBitString(0x0f, 12, true);
+        bitString.encode(new DataOutputStream(baosNegTwoByte));
+        log.info("{} : {}", bitString.getBitString(), Hex.encodeHexString(baosNegTwoByte.toByteArray()));
     }
 }

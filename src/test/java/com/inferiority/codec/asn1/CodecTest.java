@@ -1,5 +1,6 @@
 package com.inferiority.codec.asn1;
 
+import cn.com.easysec.v2x.asn1.coer.COERBitString;
 import cn.com.easysec.v2x.asn1.coer.COERBoolean;
 import cn.com.easysec.v2x.asn1.coer.COEREnumeration;
 import cn.com.easysec.v2x.asn1.coer.COEREnumerationType;
@@ -106,22 +107,34 @@ public class CodecTest {
     @Test
     public void testPrintableString() throws IOException {
         ASN1PrintableString visibleString = new ASN1PrintableString("hello world", 5, null);
-        log.debug("   IA5String: {}", Hex.encodeHexString(visibleString.getEncoded()));
-        log.debug("   IA5String: {}", visibleString.getString());
+        log.debug("   visibleString: {}", Hex.encodeHexString(visibleString.getEncoded()));
+        log.debug("   visibleString: {}", visibleString.getString());
         Assert.assertEquals(visibleString, new ASN1PrintableString(5, null).fromByteArray(visibleString.getEncoded()));
     }
 
     @Test
-    public void testOctetbleString() throws IOException {
+    public void testOctetString() throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         COEROctetStream esOctetStream = new COEROctetStream("hello world".getBytes(), 5, null);
         esOctetStream.encode(new DataOutputStream(baos));
-        log.debug("es IA5String: {}", Hex.encodeHexString(baos.toByteArray()));
+        log.debug("es octetString: {}", Hex.encodeHexString(baos.toByteArray()));
 
         ASN1OctetString octetString = new ASN1OctetString("hello world".getBytes(), 5, null);
-        log.debug("   IA5String: {}", Hex.encodeHexString(octetString.getEncoded()));
+        log.debug("   octetString: {}", Hex.encodeHexString(octetString.getEncoded()));
         Assert.assertEquals(octetString, new ASN1OctetString(5, null).fromByteArray(octetString.getEncoded()));
         Assert.assertArrayEquals(baos.toByteArray(), octetString.getEncoded());
+    }
+
+    @Test
+    public void testBitString() throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        COERBitString esBitString = new COERBitString(0xff, 24, true);
+        esBitString.encode(new DataOutputStream(baos));
+        log.debug("es bitString: {}", Hex.encodeHexString(baos.toByteArray()));
+
+        ASN1BitString bitString = new ASN1BitString("11111111", 24);
+        log.debug("   bitString: {}", Hex.encodeHexString(bitString.getEncoded()));
+        Assert.assertArrayEquals(baos.toByteArray(), bitString.getEncoded());
     }
 
     enum EnumeratedType implements COEREnumerationType {

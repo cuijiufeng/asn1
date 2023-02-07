@@ -1,6 +1,7 @@
 package com.inferiority.codec.asn1;
 
 import com.inferiority.codec.Codeable;
+import com.inferiority.codec.utils.Nullable;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -16,11 +17,11 @@ public class ASN1VisibleString extends ASN1String {
         super(string);
     }
 
-    public ASN1VisibleString(Integer minimum, Integer maximum) {
+    public ASN1VisibleString(@Nullable Integer minimum, @Nullable Integer maximum) {
         super(minimum, maximum);
     }
 
-    public ASN1VisibleString(String string, Integer minimum, Integer maximum) {
+    public ASN1VisibleString(String string, @Nullable Integer minimum, @Nullable Integer maximum) {
         super(string, minimum, maximum);
     }
 

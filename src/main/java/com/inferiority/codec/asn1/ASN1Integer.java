@@ -3,6 +3,7 @@ package com.inferiority.codec.asn1;
 import com.inferiority.codec.ASN1InputStream;
 import com.inferiority.codec.ASN1OutputStream;
 import com.inferiority.codec.Codeable;
+import com.inferiority.codec.utils.Nullable;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -47,7 +48,7 @@ public class ASN1Integer extends ASN1Object {
         this.maxValue = BigInteger.valueOf(maxValue);
     }
 
-    public ASN1Integer(BigInteger value, BigInteger minValue, BigInteger maxValue) {
+    public ASN1Integer(BigInteger value, @Nullable BigInteger minValue, @Nullable BigInteger maxValue) {
         if (Objects.isNull(value)) {
             throw new IllegalArgumentException("value cannot be null");
         }
@@ -73,7 +74,7 @@ public class ASN1Integer extends ASN1Object {
         this.maxValue = BigInteger.valueOf(maxValue);
     }
 
-    public ASN1Integer(BigInteger minValue, BigInteger maxValue) {
+    public ASN1Integer(@Nullable BigInteger minValue, @Nullable BigInteger maxValue) {
         if (Objects.nonNull(minValue) && Objects.nonNull(maxValue) && minValue.compareTo(maxValue) > 0) {
             throw new IllegalArgumentException(String.format("the minimum value of %s is greater than the maximum value of %s", minValue, maxValue));
         }

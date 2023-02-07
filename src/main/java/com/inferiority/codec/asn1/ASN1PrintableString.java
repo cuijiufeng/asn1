@@ -1,6 +1,7 @@
 package com.inferiority.codec.asn1;
 
 import com.inferiority.codec.Codeable;
+import com.inferiority.codec.utils.Nullable;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -19,11 +20,11 @@ public class ASN1PrintableString extends ASN1String {
         }
     }
 
-    public ASN1PrintableString(Integer minimum, Integer maximum) {
+    public ASN1PrintableString(@Nullable Integer minimum, @Nullable Integer maximum) {
         super(minimum, maximum);
     }
 
-    public ASN1PrintableString(String string, Integer minimum, Integer maximum) {
+    public ASN1PrintableString(String string, @Nullable Integer minimum, @Nullable Integer maximum) {
         super(string, minimum, maximum);
         if (notPrintableString(string)) {
             throw new IllegalArgumentException("string contains illegal characters");
