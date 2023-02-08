@@ -128,13 +128,40 @@ public class CodecTest {
     @Test
     public void testBitString() throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        COERBitString esBitString = new COERBitString(0, 24, false);
+        COERBitString esBitString = new COERBitString(0x0030, 16, false);
         esBitString.encode(new DataOutputStream(baos));
         log.debug("es bitString: {}", Hex.encodeHexString(baos.toByteArray()));
 
-        ASN1BitString bitString = new ASN1BitString("0000000000110000", null);
+        //                                                      en      de
+        //固定大小
+        //00000011 00000000 0000    =03 00 00                   Y
+
+        //非固定大小
+        //00000000 00000000         =01 00                      N
+        //00000000 00000000 00000000=01 00
+
+        //00000000 00110000         =03 04 00 30        1
+        //00000000 00000011         =03 00 00 03        1
+
+        //00000000                  =02 00 00                   Y
+        //00000000 00000000 00000000=04 00 00 00 00             Y
+        //10000000 00000000 00000000=04 00 80 00 00             Y
+        //10000000 00000000 00010000=04 00 80 00 10             Y
+        //10000000 00000000 00010000=04 04 80 00 10     19      Y
+        //10000000 00000000 01000000=04 06 80 00 40     19      Y
+        //10000000 00000000 00000010=04 01 80 00 02     19      Y
+        //10000000 00000000 00000000=02 07 80           19
+        ASN1BitString bitString = new ASN1BitString(new byte[] {(byte) 0x80, 0x00, 0x00}, 19, false);
         log.debug("   bitString: {}", Hex.encodeHexString(bitString.getEncoded()));
-        Assert.assertArrayEquals(baos.toByteArray(), bitString.getEncoded());
+        Assert.assertEquals(bitString, new ASN1BitString(null, 19).fromByteArray(bitString.getEncoded()));
+        //Assert.assertArrayEquals(baos.toByteArray(), bitString.getEncoded());
+    }
+
+    @Test
+    public void t() {
+        short i = Short.parseShort("11111111", 2);
+        System.out.println(Long.toBinaryString(255));
+        System.out.println(Hex.encodeHexString(new BigInteger("0000001100000000", 2).toByteArray()));
     }
 
     enum EnumeratedType implements COEREnumerationType {

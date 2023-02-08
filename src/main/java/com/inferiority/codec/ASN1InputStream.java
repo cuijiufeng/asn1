@@ -27,9 +27,8 @@ public class ASN1InputStream extends ByteArrayInputStream {
             return firstOctet;
         } else {
             byte[] lengthValue = new byte[firstOctet & 127];
-            int expectLength;
-            if (lengthValue.length != (expectLength = read(lengthValue, 0, lengthValue.length))) {
-                throw new EOFException(String.format("read %d bytes from the input stream, expect %d", expectLength, lengthValue.length));
+            if (lengthValue.length != read(lengthValue, 0, lengthValue.length)) {
+                throw new EOFException(String.format("expected to read %s bytes", lengthValue.length));
             }
             return new BigInteger(1, lengthValue).intValue();
         }

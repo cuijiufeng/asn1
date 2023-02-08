@@ -23,7 +23,7 @@ public class ASN1OctetString extends ASN1Object {
         if (data == null) {
             throw new NullPointerException("string cannot be null");
         }
-        this.data = data;
+        this.data = Arrays.copyOf(data, data.length);
     }
 
     public ASN1OctetString(@Nullable Integer minimum, @Nullable Integer maximum) {
@@ -47,7 +47,7 @@ public class ASN1OctetString extends ASN1Object {
         if (Objects.nonNull(minimum) && Objects.nonNull(maximum) && minimum > maximum) {
             throw new IllegalArgumentException(String.format("the minimum value of %s is greater than the maximum value of %s", minimum, maximum));
         }
-        this.data = data;
+        this.data = Arrays.copyOf(data, data.length);;
         this.minimum = minimum;
         this.maximum = maximum;
     }
@@ -69,9 +69,8 @@ public class ASN1OctetString extends ASN1Object {
             length = this.minimum;
         }
         this.data = new byte[length];
-        int expectLength;
-        if (length != (expectLength = is.read(this.data, 0, length))) {
-            throw new EOFException(String.format("read %d bytes from the input stream, expect %d", expectLength, length));
+        if (length != is.read(this.data, 0, length)) {
+            throw new EOFException(String.format("expected to read %s bytes", length));
         }
     }
 

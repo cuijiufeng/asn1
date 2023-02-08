@@ -68,9 +68,8 @@ public abstract class ASN1String extends ASN1Object {
             length = this.minimum;
         }
         this.data = new byte[length];
-        int expectLength;
-        if (length != (expectLength = is.read(this.data, 0, length))) {
-            throw new EOFException(String.format("read %d bytes from the input stream, expect %d", expectLength, length));
+        if (length != is.read(this.data, 0, length)) {
+            throw new EOFException(String.format("expected to read %s bytes", length));
         }
     }
 

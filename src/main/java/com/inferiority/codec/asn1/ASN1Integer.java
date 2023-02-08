@@ -103,15 +103,15 @@ public class ASN1Integer extends ASN1Object {
 
     @Override
     public void decode(ASN1InputStream is) throws IOException {
-        byte[] valueBytes;
+        int length;
         if (Objects.isNull(minValue) || Objects.isNull(maxValue) || determineOctets() < 0) {
-            valueBytes = new byte[is.readLengthDetermine()];
+            length = is.readLengthDetermine();
         } else {
-            valueBytes = new byte[determineOctets()];
+            length = determineOctets();
         }
-        int expectLength;
-        if (valueBytes.length != (expectLength = is.read(valueBytes, 0, valueBytes.length))) {
-            throw new EOFException(String.format("read %d bytes from the input stream, expect %d", expectLength, valueBytes.length));
+        byte[] valueBytes = new byte[length];
+        if (length != is.read(valueBytes, 0, length)) {
+            throw new EOFException(String.format("expected to read %s bytes", length));
         }
         if (isUnsigned()) {
             this.value = new BigInteger(1, valueBytes);
