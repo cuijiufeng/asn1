@@ -18,17 +18,22 @@ import java.util.Objects;
 public class ASN1BitString extends ASN1Object {
     //大端序存储数据
     private byte[] bits;
-    private Integer bytes;
-    private Integer maxVaildBit;
+    private final Integer bytes;
+    private Integer maxValidBit;
 
-    public ASN1BitString(@Nullable Integer bytes, @Nullable Integer maxVaildBit) {
-        this.bytes = bytes;
-        this.maxVaildBit = maxVaildBit;
+    public ASN1BitString(byte b) {
+        this.bytes = 1;
+        this.bits = new byte[1];
     }
 
-    public ASN1BitString(byte[] bits, @Nullable Integer maxVaildBit, boolean fixed) {
+    public ASN1BitString(@Nullable Integer bytes, @Nullable Integer maxValidBit) {
+        this.bytes = bytes;
+        this.maxValidBit = maxValidBit;
+    }
+
+    public ASN1BitString(byte[] bits, @Nullable Integer maxValidBit, boolean fixed) {
         this.bytes = fixed ? bits.length : null;
-        this.maxVaildBit = maxVaildBit;
+        this.maxValidBit = maxValidBit;
         this.bits = Arrays.copyOf(bits, bits.length);
     }
 
@@ -39,7 +44,7 @@ public class ASN1BitString extends ASN1Object {
             os.write(this.bits, 0, this.bits.length);
         } else {
             //非固定大小
-            if (Objects.isNull(maxVaildBit)) {
+            if (Objects.isNull(maxValidBit)) {
                 //1.length prefix
                 os.writeLengthDetermine(this.bits.length + 1);
                 //2.unused-bit count prefix
@@ -48,19 +53,10 @@ public class ASN1BitString extends ASN1Object {
                 os.write(this.bits, 0, this.bits.length);
             } else {
                 int lastValidIdx = this.bits.length - 1;
-                while (this.bits[lastValidIdx] == 0) {
+                while (lastValidIdx >= 0 && this.bits[lastValidIdx] == 0) {
                     lastValidIdx--;
                 }
-                int count = 0;
-                byte b = this.bits[lastValidIdx];
-                for (int i = 0; i < 8; i++) {
-                    if ((b & 0x01) == 0) {
-                        count++;
-                    } else {
-                        break;
-                    }
-                    b >>>= 1;
-                }
+                int count = unusedBitCountPrefix(lastValidIdx != -1 ? this.bits[lastValidIdx] : 0);
                 //1.length prefix
                 os.writeLengthDetermine(lastValidIdx + 1 + 1);
                 //2.unused-bit count prefix
@@ -83,14 +79,53 @@ public class ASN1BitString extends ASN1Object {
         } else {
             //非固定大小
             int length = is.readLengthDetermine();
-            if (length > 1) {
-                is.read();
+            this.bits = new byte[length - 1];
+            long ignore = is.skip(1);
+            if (this.bits.length != 0 && this.bits.length != is.read(this.bits, 0, length - 1)) {
+                throw new EOFException(String.format("expected to read %s bytes", length - 1));
             }
-            this.bits = new byte[length > 1 ? length - 1 : length];
-            if (this.bits.length != is.read(this.bits, 0, this.bits.length)) {
-                throw new EOFException(String.format("expected to read %s bytes", this.bits.length));
+            if (Objects.nonNull(maxValidBit)) {
+                this.bits = Arrays.copyOf(this.bits, Math.max(length - 1, ((maxValidBit + 7) & ~7) / 8));
             }
         }
+    }
+
+    public boolean getBit(int position) {
+        if (position < 0) {
+            throw new IllegalArgumentException("position cannot be less than 0");
+        }
+        int i = position / 8;
+        int b = 7 - position % 8;
+        return (this.bits[i] & 1 << b) != 0;
+    }
+
+    public void setBit(int position, boolean flag) {
+        if (position < 0) {
+            throw new IllegalArgumentException("position cannot be less than 0");
+        }
+        int i = position / 8;
+        int b = 7 - position % 8;
+        if (flag) {
+            this.bits[i] |= (1 << b);
+        } else {
+            this.bits[i] &= (~(1 << b));
+        }
+    }
+
+    private int unusedBitCountPrefix(byte b) {
+        if (b == 0) {
+            return 0;
+        }
+        int count = 0;
+        for (int i = 0; i < 8; i++) {
+            if ((b & 0x01) == 0) {
+                count++;
+            } else {
+                break;
+            }
+            b >>>= 1;
+        }
+        return count;
     }
 
     @Override
@@ -100,7 +135,15 @@ public class ASN1BitString extends ASN1Object {
         }
         ASN1BitString that = (ASN1BitString) obj;
         if (!Objects.equals(bytes, that.bytes)) return false;
-        if (!Objects.equals(maxVaildBit, that.maxVaildBit)) return false;
+        if (!Objects.equals(maxValidBit, that.maxValidBit)) return false;
         return Arrays.equals(bits, that.bits);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Arrays.hashCode(bits);
+        result = 31 * result + (bytes != null ? bytes.hashCode() : 0);
+        result = 31 * result + (maxValidBit != null ? maxValidBit.hashCode() : 0);
+        return result;
     }
 }
