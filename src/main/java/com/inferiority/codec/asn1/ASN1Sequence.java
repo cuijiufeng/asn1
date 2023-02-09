@@ -5,6 +5,10 @@ import com.inferiority.codec.ASN1OutputStream;
 import com.inferiority.codec.Codeable;
 
 import java.io.IOException;
+import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author cuijiufeng
@@ -13,7 +17,8 @@ import java.io.IOException;
  */
 public class ASN1Sequence extends ASN1Object {
     private boolean extensible;
-    private Codeable[] elements;
+    private List<Component> components;
+    private List<Component> extensions;
 
     @Override
     public void encode(ASN1OutputStream os) {
@@ -40,17 +45,22 @@ public class ASN1Sequence extends ASN1Object {
         }
         byte preamble = 0;
         //a) extension bit (optional);
-        if (!extensible && hashExtensible()) {
+        if (!extensible && hashExtensions()) {
             preamble |= 0x80;
         }
         //b) root component presence bitmap (zero or more bits); and
         //c) unused bits (zero or more bits).
-
-        ASN1BitString
     }
 
     @Override
     public boolean asn1Equals(Codeable obj) {
         return false;
+    }
+
+    protected static class Component extends ArrayList<Codeable> {
+        boolean optional;
+        private Codeable component;
+        Codeable defaultValue;
+        Codeable emptyValue;
     }
 }

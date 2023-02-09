@@ -219,6 +219,18 @@ public class CodecTest {
          * */
 
         /*
+         * Rocket ::= SEQUENCE { a BOOLEAN, b INTEGER (0..255) DEFAULT 64 }
+         * rec1value Rocket ::= { a TRUE }
+         * 00 FF
+         * */
+
+        /*
+         * Rocket ::= SEQUENCE { a BOOLEAN, b INTEGER (0..255) DEFAULT 64 }
+         * rec1value Rocket ::= { a TRUE }
+         * 00 FF
+         * */
+
+        /*
          * Rocket ::= SEQUENCE { a BOOLEAN, b INTEGER (0..255) OPTIONAL }
          * rec1value Rocket ::= { a TRUE }
          * 00 FF
@@ -240,6 +252,24 @@ public class CodecTest {
          * Rocket ::= SEQUENCE { a BOOLEAN, b INTEGER (0..255), ..., c BOOLEAN, d BOOLEAN }
          * rec1value Rocket ::= { a FALSE, b 255 }
          * 00 00 FF
+         * */
+
+        /*
+         * Rocket ::= SEQUENCE { a BOOLEAN, b INTEGER (0..255), ..., c BOOLEAN DEFAULT FALSE, d BOOLEAN }
+         * rec1value Rocket ::= { a FALSE, b 255 }
+         * 00 00 FF
+         * */
+
+        /*
+         * Rocket ::= SEQUENCE { a BOOLEAN, b INTEGER (0..255) OPTIONAL, ..., c BOOLEAN, d BOOLEAN }
+         * rec1value Rocket ::= { a FALSE, b 255, c TRUE }
+         * C0 00 FF 02 06 80 01 FF
+         * */
+
+        /*
+         * Rocket ::= SEQUENCE { a BOOLEAN, b INTEGER (0..255) OPTIONAL, e INTEGER (0..255) OPTIONAL, ..., c BOOLEAN, d BOOLEAN }
+         * rec1value Rocket ::= { a FALSE, b 255, e 127, c TRUE }
+         * E0 00 FF 7F 02 06 80 01  FF
          * */
 
         /*
