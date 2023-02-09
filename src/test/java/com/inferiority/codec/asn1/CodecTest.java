@@ -7,6 +7,7 @@ import cn.com.easysec.v2x.asn1.coer.COEREnumerationType;
 import cn.com.easysec.v2x.asn1.coer.COERIA5String;
 import cn.com.easysec.v2x.asn1.coer.COERInteger;
 import cn.com.easysec.v2x.asn1.coer.COEROctetStream;
+import cn.com.easysec.v2x.asn1.coer.COERSequence;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Hex;
 import org.junit.Assert;
@@ -158,10 +159,55 @@ public class CodecTest {
     }
 
     @Test
-    public void t() {
-        short i = Short.parseShort("11111111", 2);
-        System.out.println(Long.toBinaryString(255));
-        System.out.println(Hex.encodeHexString(new BigInteger("0000001100000000", 2).toByteArray()));
+    public void testSequence() throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        COERSequence esSequence = new COERSequence(false);
+        esSequence.addField(0, new COERBoolean(false), false, new COERBoolean(true), new COERBoolean());
+        esSequence.addField(1, new COERInteger(255, 0, 255), true, null, new COERInteger(0, 255));
+        esSequence.encode(new DataOutputStream(baos));
+        log.debug("es sequence: {}", Hex.encodeHexString(baos.toByteArray()));
+
+        /*
+         * Rocket ::= SEQUENCE { a BOOLEAN, b INTEGER (0..255) }
+         * rec1value Rocket ::= { a TRUE, b 255 }
+         * ff ff
+         * */
+
+        /*
+         * Rocket ::= SEQUENCE { a BOOLEAN, b INTEGER (0..255) OPTIONAL }
+         * rec1value Rocket ::= { a TRUE, b 255 }
+         * 80 FF FF
+         * */
+
+        /*
+         * Rocket ::= SEQUENCE { a BOOLEAN, b INTEGER (0..255) OPTIONAL }
+         * rec1value Rocket ::= { a TRUE }
+         * 00 FF
+         * */
+
+        /*
+         * Rocket ::= SEQUENCE { a BOOLEAN, b INTEGER (0..255) OPTIONAL, ... }
+         * rec1value Rocket ::= { a TRUE, b 255 }
+         * 40 FF FF
+         * */
+
+        /*
+         * Rocket ::= SEQUENCE { a BOOLEAN, b INTEGER (0..255), ... }
+         * rec1value Rocket ::= { a FALSE, b 255 }
+         * 00 00 FF
+         * */
+
+        /*
+         * Rocket ::= SEQUENCE { a BOOLEAN, b INTEGER (0..255), ..., c BOOLEAN, d BOOLEAN }
+         * rec1value Rocket ::= { a FALSE, b 255 }
+         * 00 00 FF
+         * */
+
+        /*
+         * Rocket ::= SEQUENCE { a BOOLEAN, b INTEGER (0..255), ..., c BOOLEAN, d BOOLEAN }
+         * rec1value Rocket ::= { a FALSE, b 255, c TRUE, d FALSE }
+         * 80 00 FF 02 06 C0 01 FF  01 00
+         * */
     }
 
     enum EnumeratedType implements COEREnumerationType {
