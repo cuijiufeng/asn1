@@ -1,6 +1,5 @@
 package com.inferiority.codec.asn1;
 
-import cn.com.easysec.v2x.asn1.coer.COERBitString;
 import cn.com.easysec.v2x.asn1.coer.COERBoolean;
 import cn.com.easysec.v2x.asn1.coer.COEREnumeration;
 import cn.com.easysec.v2x.asn1.coer.COEREnumerationType;
@@ -209,62 +208,129 @@ public class CodecTest {
         /*
          * Rocket ::= SEQUENCE { a BOOLEAN, b INTEGER (0..255) }
          * rec1value Rocket ::= { a TRUE, b 255 }
-         * ff ff
+         * FF FF
          * */
+        ASN1Sequence sequence0 = new ASN1Sequence(false);
+        sequence0.setElement(0, false, false, new ASN1Boolean(true), null);
+        sequence0.setElement(1, false, false, new ASN1Integer(255, 0, 255), null);
+        log.debug("   sequence: {}", Hex.encodeHexString(sequence0.getEncoded()));
+        Assert.assertEquals(Hex.encodeHexString(sequence0.getEncoded(), false), "FF FF".replaceAll(" ", ""));
 
         /*
          * Rocket ::= SEQUENCE { a BOOLEAN, b INTEGER (0..255) OPTIONAL }
          * rec1value Rocket ::= { a TRUE, b 255 }
          * 80 FF FF
          * */
+        ASN1Sequence sequence1 = new ASN1Sequence(false);
+        sequence1.setElement(0, false, false, new ASN1Boolean(true), null);
+        sequence1.setElement(1, false, true, new ASN1Integer(255, 0, 255), null);
+        log.debug("   sequence: {}", Hex.encodeHexString(sequence1.getEncoded()));
+        Assert.assertEquals(Hex.encodeHexString(sequence1.getEncoded(), false), "80 FF FF".replaceAll(" ", ""));
 
         /*
          * Rocket ::= SEQUENCE { a BOOLEAN, b INTEGER (0..255) DEFAULT 64 }
          * rec1value Rocket ::= { a TRUE }
          * 00 FF
          * */
+        ASN1Sequence sequence2 = new ASN1Sequence(false);
+        sequence2.setElement(0, false, false, new ASN1Boolean(true), null);
+        sequence2.setElement(1, false, false, null, new ASN1Integer(64, 0, 255));
+        log.debug("   sequence: {}", Hex.encodeHexString(sequence2.getEncoded()));
+        Assert.assertEquals(Hex.encodeHexString(sequence2.getEncoded(), false), "00 FF".replaceAll(" ", ""));
 
         /*
          * Rocket ::= SEQUENCE { a BOOLEAN, b INTEGER (0..255) DEFAULT 64 }
-         * rec1value Rocket ::= { a TRUE }
-         * 00 FF
+         * rec1value Rocket ::= { a TRUE, b 127 }
+         * 80 FF 7F
          * */
+        ASN1Sequence sequence3 = new ASN1Sequence(false);
+        sequence3.setElement(0, false, false, new ASN1Boolean(true), null);
+        sequence3.setElement(1, false, false, new ASN1Integer(127, 0, 255), new ASN1Integer(64, 0, 255));
+        log.debug("   sequence: {}", Hex.encodeHexString(sequence3.getEncoded()));
+        Assert.assertEquals(Hex.encodeHexString(sequence3.getEncoded(), false), "80 FF 7F".replaceAll(" ", ""));
+
+        /*
+         * Rocket ::= SEQUENCE { a BOOLEAN DEFAULT TRUE, b INTEGER (0..255) }
+         * rec1value Rocket ::= { a TRUE, b 128 }
+         * 80 FF 80
+         * */
+        ASN1Sequence sequence4 = new ASN1Sequence(false);
+        sequence4.setElement(0, false, false, new ASN1Boolean(true), new ASN1Boolean(true));
+        sequence4.setElement(1, false, false, new ASN1Integer(128, 0, 255), null);
+        log.debug("   sequence: {}", Hex.encodeHexString(sequence4.getEncoded()));
+        Assert.assertEquals(Hex.encodeHexString(sequence4.getEncoded(), false), "80 FF 80".replaceAll(" ", ""));
 
         /*
          * Rocket ::= SEQUENCE { a BOOLEAN, b INTEGER (0..255) OPTIONAL }
          * rec1value Rocket ::= { a TRUE }
          * 00 FF
          * */
+        ASN1Sequence sequence5 = new ASN1Sequence(false);
+        sequence5.setElement(0, false, false, new ASN1Boolean(true), null);
+        sequence5.setElement(1, false, true, null, null);
+        log.debug("   sequence: {}", Hex.encodeHexString(sequence5.getEncoded()));
+        Assert.assertEquals(Hex.encodeHexString(sequence5.getEncoded(), false), "00 FF".replaceAll(" ", ""));
 
         /*
          * Rocket ::= SEQUENCE { a BOOLEAN, b INTEGER (0..255) OPTIONAL, ... }
          * rec1value Rocket ::= { a TRUE, b 255 }
          * 40 FF FF
          * */
+        ASN1Sequence sequence6 = new ASN1Sequence(true);
+        sequence6.setElement(0, false, false, new ASN1Boolean(true), null);
+        sequence6.setElement(1, false, true, new ASN1Integer(255, 0, 255), null);
+        log.debug("   sequence: {}", Hex.encodeHexString(sequence6.getEncoded()));
+        Assert.assertEquals(Hex.encodeHexString(sequence6.getEncoded(), false), "40 FF FF".replaceAll(" ", ""));
 
         /*
          * Rocket ::= SEQUENCE { a BOOLEAN, b INTEGER (0..255), ... }
          * rec1value Rocket ::= { a FALSE, b 255 }
          * 00 00 FF
          * */
+        ASN1Sequence sequence7 = new ASN1Sequence(true);
+        sequence7.setElement(0, false, false, new ASN1Boolean(false), null);
+        sequence7.setElement(1, false, false, new ASN1Integer(255, 0, 255), null);
+        log.debug("   sequence: {}", Hex.encodeHexString(sequence7.getEncoded()));
+        Assert.assertEquals(Hex.encodeHexString(sequence7.getEncoded(), false), "00 00 FF".replaceAll(" ", ""));
 
         /*
          * Rocket ::= SEQUENCE { a BOOLEAN, b INTEGER (0..255), ..., c BOOLEAN, d BOOLEAN }
          * rec1value Rocket ::= { a FALSE, b 255 }
          * 00 00 FF
          * */
+        ASN1Sequence sequence8 = new ASN1Sequence(true);
+        sequence8.setElement(0, false, false, new ASN1Boolean(false), null);
+        sequence8.setElement(1, false, false, new ASN1Integer(255, 0, 255), null);
+        sequence8.setElement(0, true, false, null, null);
+        sequence8.setElement(1, true, false, null, null);
+        log.debug("   sequence: {}", Hex.encodeHexString(sequence8.getEncoded()));
+        Assert.assertEquals(Hex.encodeHexString(sequence8.getEncoded(), false), "00 00 FF".replaceAll(" ", ""));
 
         /*
          * Rocket ::= SEQUENCE { a BOOLEAN, b INTEGER (0..255), ..., c BOOLEAN DEFAULT FALSE, d BOOLEAN }
          * rec1value Rocket ::= { a FALSE, b 255 }
          * 00 00 FF
          * */
+        ASN1Sequence sequence9 = new ASN1Sequence(true);
+        sequence9.setElement(0, false, false, new ASN1Boolean(false), null);
+        sequence9.setElement(1, false, false, new ASN1Integer(255, 0, 255), null);
+        sequence9.setElement(0, true, false, null, new ASN1Boolean(false));
+        sequence9.setElement(1, true, false, null, null);
+        log.debug("   sequence: {}", Hex.encodeHexString(sequence9.getEncoded()));
+        Assert.assertEquals(Hex.encodeHexString(sequence9.getEncoded(), false), "00 00 FF".replaceAll(" ", ""));
 
         /*
          * Rocket ::= SEQUENCE { a BOOLEAN, b INTEGER (0..255) OPTIONAL, ..., c BOOLEAN, d BOOLEAN }
          * rec1value Rocket ::= { a FALSE, b 255, c TRUE }
          * C0 00 FF 02 06 80 01 FF
          * */
+        ASN1Sequence sequence10 = new ASN1Sequence(true);
+        sequence10.setElement(0, false, false, new ASN1Boolean(false), null);
+        sequence10.setElement(1, false, true, new ASN1Integer(255, 0, 255), null);
+        sequence10.setElement(0, true, false, new ASN1Boolean(true), null);
+        sequence10.setElement(1, true, false, null, null);
+        log.debug("   sequence: {}", Hex.encodeHexString(sequence10.getEncoded()));
+        Assert.assertEquals(Hex.encodeHexString(sequence10.getEncoded(), false), "C0 00 FF 02 06 80 01 FF".replaceAll(" ", ""));
 
         /*
          * Rocket ::= SEQUENCE { a BOOLEAN, b INTEGER (0..255) OPTIONAL, e INTEGER (0..255) OPTIONAL, ..., c BOOLEAN, d BOOLEAN }
@@ -274,6 +340,12 @@ public class CodecTest {
 
         /*
          * Rocket ::= SEQUENCE { a BOOLEAN, b INTEGER (0..255), ..., c BOOLEAN, d BOOLEAN }
+         * rec1value Rocket ::= { a FALSE, b 255, c TRUE, d FALSE }
+         * 80 00 FF 02 06 C0 01 FF  01 00
+         * */
+
+        /*
+         * Rocket ::= SEQUENCE { a BOOLEAN, b INTEGER (0..255), ..., c BOOLEAN OPTIONAL, d BOOLEAN DEFAULT TRUE }
          * rec1value Rocket ::= { a FALSE, b 255, c TRUE, d FALSE }
          * 80 00 FF 02 06 C0 01 FF  01 00
          * */
