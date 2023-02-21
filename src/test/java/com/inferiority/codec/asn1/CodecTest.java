@@ -337,18 +337,53 @@ public class CodecTest {
          * rec1value Rocket ::= { a FALSE, b 255, e 127, c TRUE }
          * E0 00 FF 7F 02 06 80 01  FF
          * */
+        ASN1Sequence sequence11 = new ASN1Sequence(true);
+        sequence11.setElement(0, false, false, new ASN1Boolean(false), null);
+        sequence11.setElement(1, false, true, new ASN1Integer(255, 0, 255), null);
+        sequence11.setElement(2, false, true, new ASN1Integer(127, 0, 255), null);
+        sequence11.setElement(0, true, false, new ASN1Boolean(true), null);
+        sequence11.setElement(1, true, false, null, null);
+        log.debug("   sequence: {}", Hex.encodeHexString(sequence11.getEncoded()));
+        Assert.assertEquals(Hex.encodeHexString(sequence11.getEncoded(), false), "E0 00 FF 7F 02 06 80 01  FF".replaceAll(" ", ""));
 
         /*
          * Rocket ::= SEQUENCE { a BOOLEAN, b INTEGER (0..255), ..., c BOOLEAN, d BOOLEAN }
          * rec1value Rocket ::= { a FALSE, b 255, c TRUE, d FALSE }
          * 80 00 FF 02 06 C0 01 FF  01 00
          * */
+        ASN1Sequence sequence12 = new ASN1Sequence(true);
+        sequence12.setElement(0, false, false, new ASN1Boolean(false), null);
+        sequence12.setElement(1, false, false, new ASN1Integer(255, 0, 255), null);
+        sequence12.setElement(0, true, false, new ASN1Boolean(true), null);
+        sequence12.setElement(1, true, false, new ASN1Boolean(false), null);
+        log.debug("   sequence: {}", Hex.encodeHexString(sequence12.getEncoded()));
+        Assert.assertEquals(Hex.encodeHexString(sequence12.getEncoded(), false), "80 00 FF 02 06 C0 01 FF  01 00".replaceAll(" ", ""));
+
+        /*
+         * Rocket ::= SEQUENCE { a BOOLEAN, b INTEGER (0..255), ..., c BOOLEAN OPTIONAL, d BOOLEAN DEFAULT TRUE }
+         * rec1value Rocket ::= { a FALSE, b 255 }
+         * 80 00 FF 02 06 C0 01 FF  01 00
+         * */
+        ASN1Sequence sequence13 = new ASN1Sequence(true);
+        sequence13.setElement(0, false, false, new ASN1Boolean(false), null);
+        sequence13.setElement(1, false, false, new ASN1Integer(255, 0, 255), null);
+        sequence13.setElement(0, true, true, new ASN1Boolean(true), null);
+        sequence13.setElement(1, true, false, new ASN1Boolean(false), new ASN1Boolean(true));
+        log.debug("   sequence: {}", Hex.encodeHexString(sequence13.getEncoded()));
+        Assert.assertEquals(Hex.encodeHexString(sequence13.getEncoded(), false), "80 00 FF 02 06 C0 01 FF  01 00".replaceAll(" ", ""));
 
         /*
          * Rocket ::= SEQUENCE { a BOOLEAN, b INTEGER (0..255), ..., c BOOLEAN OPTIONAL, d BOOLEAN DEFAULT TRUE }
          * rec1value Rocket ::= { a FALSE, b 255, c TRUE, d FALSE }
-         * 80 00 FF 02 06 C0 01 FF  01 00
+         * 00 00 FF
          * */
+        ASN1Sequence sequence14 = new ASN1Sequence(true);
+        sequence14.setElement(0, false, false, new ASN1Boolean(false), null);
+        sequence14.setElement(1, false, false, new ASN1Integer(255, 0, 255), null);
+        sequence14.setElement(0, true, true, null, null);
+        sequence14.setElement(1, true, false, null, new ASN1Boolean(true));
+        log.debug("   sequence: {}", Hex.encodeHexString(sequence14.getEncoded()));
+        Assert.assertEquals(Hex.encodeHexString(sequence14.getEncoded(), false), "00 00 FF".replaceAll(" ", ""));
     }
 
     enum EnumeratedType implements COEREnumerationType {

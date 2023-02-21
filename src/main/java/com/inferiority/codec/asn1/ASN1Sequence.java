@@ -29,9 +29,9 @@ public class ASN1Sequence extends ASN1Object {
         if (optional && Objects.nonNull(defaulted)) {
             throw new IllegalArgumentException("non-optional cannot have default value");
         }
-        //if (!optional && Objects.isNull(value) && Objects.isNull(defaulted)) {
-        //    throw new IllegalArgumentException("non-optional value or default cannot be null");
-        //}
+        if (!optional && Objects.isNull(value) && Objects.isNull(defaulted)) {
+            throw new IllegalArgumentException("optional, value or default cannot be null all");
+        }
         if (extensible) {
             this.extensions.add(position, new Element(optional, value, defaulted));
         } else {
@@ -44,7 +44,7 @@ public class ASN1Sequence extends ASN1Object {
         //a) preamble;
         preamble(os);
         //b) encodings of the components in the extension root;
-        for (Element element : components) {
+        for (Element element : this.components) {
             if (Objects.nonNull(element.component)) {
                 element.component.encode(os);
             }
@@ -52,18 +52,18 @@ public class ASN1Sequence extends ASN1Object {
         //c) extension addition presence bitmap (optional); and
         extensionBitmap(os);
         //d) encodings of the extension additions (optional)
-    }
-
-    @Override
-    public void decode(ASN1InputStream is) throws IOException {
-
+        for (Element element : this.extensions) {
+            if (Objects.nonNull(element.component)) {
+                os.writeOpenType((ASN1Object) element.component);
+            }
+        }
     }
 
     /**
      * For a sequence type definition that has no extension marker and no components marked OPTIONAL or DEFAULT, the
      * preamble will be empty.
      * @param os
-    */
+     */
     private void preamble(ASN1OutputStream os) {
         Element[] optionalsAndDefaults = this.components.stream()
                 .filter(element -> element.optional || Objects.nonNull(element.defaulted))
@@ -89,6 +89,25 @@ public class ASN1Sequence extends ASN1Object {
     }
 
     private void extensionBitmap(ASN1OutputStream os) {
+        //contains an extension marker and the extension bit in the preamble is set to 1
+        if (extensible && this.extensions.stream().anyMatch(element -> Objects.nonNull(element.component))) {
+            int bits = this.extensions.size();
+            int bytes = ((bits + 7) & ~7) / 8;
+            //a length determinant(comprise both the initial octet and the subsequent octets)
+            os.writeLengthDetermine(1 + bytes);
+            //initial octet
+            os.write(8 - (bits & 7));
+            //subsequent octets
+            ASN1BitString bitmap = new ASN1BitString(new byte[bytes], null, true);
+            for (int i = 0; i < this.extensions.size(); i++) {
+                bitmap.setBit(i, Objects.nonNull(this.extensions.get(i).component));
+            }
+            bitmap.encode(os);
+        }
+    }
+
+    @Override
+    public void decode(ASN1InputStream is) throws IOException {
 
     }
 

@@ -1,5 +1,7 @@
 package com.inferiority.codec;
 
+import com.inferiority.codec.asn1.ASN1Object;
+
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 
@@ -28,5 +30,11 @@ public class ASN1OutputStream extends ByteArrayOutputStream {
 
     public void writeEnumeratedValue(int value) {
         writeLengthPrefix(value);
+    }
+
+    public void writeOpenType(ASN1Object object) {
+        byte[] bytes = object.getEncoded();
+        writeLengthDetermine(bytes.length);
+        write(bytes, 0, bytes.length);
     }
 }
