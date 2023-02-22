@@ -1,7 +1,10 @@
 package com.inferiority.codec;
 
+import com.inferiority.codec.asn1.ASN1Object;
+
 import java.io.ByteArrayInputStream;
 import java.io.EOFException;
+import java.io.IOException;
 import java.math.BigInteger;
 
 /**
@@ -40,5 +43,14 @@ public class ASN1InputStream extends ByteArrayInputStream {
 
     public int readEnumeratedValue() throws EOFException {
         return readLengthPrefix();
+    }
+
+    public void readOpenType(ASN1Object object) throws IOException {
+        int determine = readLengthDetermine();
+        byte[] bytes = new byte[determine];
+        if (determine != read(bytes, 0, determine)) {
+            throw new EOFException(String.format("expected to read %s bytes", determine));
+        }
+        object.decode(new ASN1InputStream(bytes));
     }
 }

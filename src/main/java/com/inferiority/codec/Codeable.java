@@ -17,4 +17,6 @@ public interface Codeable {
 
     //TODO 2023/2/3 14:36 通过配置支持打印多种格式，xml,json,simple对象
     String toString();
+
+    //TODO 2023/2/22 9:09 编解码异常
 }

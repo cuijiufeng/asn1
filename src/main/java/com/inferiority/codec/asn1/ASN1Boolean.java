@@ -35,9 +35,6 @@ public class ASN1Boolean extends ASN1Object {
 
     @Override
     public void decode(ASN1InputStream is) throws IOException {
-        if (is.available() != 1) {
-            throw new IllegalArgumentException("BOOLEAN value should have 1 byte in it");
-        }
         this.value = FALSE_VALUE != is.readByte();
     }
 
