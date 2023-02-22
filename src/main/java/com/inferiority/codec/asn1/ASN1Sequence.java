@@ -16,9 +16,9 @@ import java.util.Objects;
  * @Date 2023/2/9 9:30
  */
 public class ASN1Sequence extends ASN1Object {
-    private boolean extensible;
-    private List<Element> components;
-    private List<Element> extensions;
+    private final boolean extensible;
+    private final List<Element> components;
+    private final List<Element> extensions;
 
     public ASN1Sequence(boolean extensible) {
         this.extensible = extensible;
@@ -181,8 +181,8 @@ public class ASN1Sequence extends ASN1Object {
     @Override
     public int hashCode() {
         int result = (extensible ? 1 : 0);
-        result = 31 * result + (components != null ? components.hashCode() : 0);
-        result = 31 * result + (extensions != null ? extensions.hashCode() : 0);
+        result = 31 * result + components.hashCode();
+        result = 31 * result + extensions.hashCode();
         return result;
     }
 

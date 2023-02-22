@@ -7,6 +7,7 @@ import cn.com.easysec.v2x.asn1.coer.COERIA5String;
 import cn.com.easysec.v2x.asn1.coer.COERInteger;
 import cn.com.easysec.v2x.asn1.coer.COEROctetStream;
 import cn.com.easysec.v2x.asn1.coer.COERSequence;
+import cn.com.easysec.v2x.asn1.coer.COERSequenceOf;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Hex;
 import org.junit.Assert;
@@ -18,6 +19,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Arrays;
 
 @Slf4j
 public class CodecTest {
@@ -459,6 +461,14 @@ public class CodecTest {
         decodeSequence14.setElement(0, true, true, null, null);
         decodeSequence14.setElement(1, true, false, null, new ASN1Boolean(true));
         Assert.assertEquals(sequence14, decodeSequence14.fromByteArray(sequence14.getEncoded()));
+    }
+
+    @Test
+    public void testSequenceOf() throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        COERSequenceOf esSequenceOf = new COERSequenceOf(Arrays.asList(new COERBoolean(true)));
+        esSequenceOf.encode(new DataOutputStream(baos));
+        log.debug("es sequence-of: {}", Hex.encodeHexString(baos.toByteArray()));
     }
 
     enum EnumeratedType implements COEREnumerationType {
