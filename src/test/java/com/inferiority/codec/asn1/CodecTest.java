@@ -466,9 +466,14 @@ public class CodecTest {
     @Test
     public void testSequenceOf() throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        COERSequenceOf esSequenceOf = new COERSequenceOf(Arrays.asList(new COERBoolean(true)));
+        COERSequenceOf esSequenceOf = new COERSequenceOf(Arrays.asList(new COERBoolean(true), new COERBoolean(false)));
         esSequenceOf.encode(new DataOutputStream(baos));
         log.debug("es sequence-of: {}", Hex.encodeHexString(baos.toByteArray()));
+
+        ASN1SequenceOf<ASN1Boolean> sequenceOf = new ASN1SequenceOf<>(new ASN1Boolean[]{ new ASN1Boolean(true), new ASN1Boolean(false) });
+        log.debug("   sequence-of: {}", Hex.encodeHexString(sequenceOf.getEncoded()));
+        Assert.assertEquals(sequenceOf, new ASN1SequenceOf<>(ASN1Boolean::new).fromByteArray(sequenceOf.getEncoded()));
+        Assert.assertArrayEquals(baos.toByteArray(), sequenceOf.getEncoded());
     }
 
     enum EnumeratedType implements COEREnumerationType {
