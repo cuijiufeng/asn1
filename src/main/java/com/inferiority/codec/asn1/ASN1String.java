@@ -19,9 +19,7 @@ public abstract class ASN1String extends ASN1Object {
     private Integer maximum;
 
     public ASN1String(String string) {
-        if (string == null) {
-            throw new NullPointerException("string cannot be null");
-        }
+        Objects.requireNonNull(string, "string cannot be null");
         this.data = toByteArray(string);
     }
 

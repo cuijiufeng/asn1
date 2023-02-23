@@ -32,6 +32,7 @@ public class ASN1BitString extends ASN1Object {
     }
 
     public ASN1BitString(byte[] bits, @Nullable Integer maxValidBit, boolean fixed) {
+        Objects.requireNonNull(bits, "bits cannot be null");
         this.bytes = fixed ? bits.length : null;
         this.maxValidBit = maxValidBit;
         this.bits = Arrays.copyOf(bits, bits.length);

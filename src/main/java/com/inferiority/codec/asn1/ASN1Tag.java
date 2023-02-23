@@ -5,6 +5,7 @@ import com.inferiority.codec.ASN1OutputStream;
 import com.inferiority.codec.Codeable;
 
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * @author cuijiufeng
@@ -19,6 +20,7 @@ public class ASN1Tag extends ASN1Object {
     }
 
     public ASN1Tag(TagClass tagClass, long tagNumber) {
+        Objects.requireNonNull(tagClass, "tag class cannot be null");
         this.tagClass = tagClass;
         this.tagNumber = tagNumber;
     }

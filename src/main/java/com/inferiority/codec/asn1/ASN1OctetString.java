@@ -20,9 +20,7 @@ public class ASN1OctetString extends ASN1Object {
     private Integer maximum;
 
     public ASN1OctetString(byte[] data) {
-        if (data == null) {
-            throw new NullPointerException("string cannot be null");
-        }
+        Objects.requireNonNull(data, "string cannot be null");
         this.data = Arrays.copyOf(data, data.length);
     }
 
@@ -35,9 +33,7 @@ public class ASN1OctetString extends ASN1Object {
     }
 
     public ASN1OctetString(byte[] data, @Nullable Integer minimum, @Nullable Integer maximum) {
-        if (data == null) {
-            throw new NullPointerException("string cannot be null");
-        }
+        Objects.requireNonNull(data, "string cannot be null");
         if (Objects.nonNull(minimum) && data.length < minimum) {
             throw new IllegalArgumentException(String.format("%d length is less than %d", data.length, minimum));
         }

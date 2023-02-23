@@ -9,6 +9,7 @@ import java.lang.reflect.Array;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
@@ -21,10 +22,12 @@ public class ASN1SequenceOf<T extends ASN1Object> extends ASN1Object implements 
     private Supplier<T> instance;
 
     public ASN1SequenceOf(Supplier<T> instance) {
+        Objects.requireNonNull(instance, "instance cannot be null");
         this.instance = instance;
     }
 
     public ASN1SequenceOf(T[] sequences) {
+        Objects.requireNonNull(sequences, "sequences cannot be null");
         this.sequences = sequences;
     }
 

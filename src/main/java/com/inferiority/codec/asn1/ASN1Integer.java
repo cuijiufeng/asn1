@@ -49,9 +49,7 @@ public class ASN1Integer extends ASN1Object {
     }
 
     public ASN1Integer(BigInteger value, @Nullable BigInteger minValue, @Nullable BigInteger maxValue) {
-        if (Objects.isNull(value)) {
-            throw new IllegalArgumentException("value cannot be null");
-        }
+        Objects.requireNonNull(value, "value cannot be null");
         if (Objects.nonNull(minValue) && value.compareTo(minValue) < 0) {
             throw new IllegalArgumentException(String.format("%s is less than the minimum value of %s", value, minValue));
         }

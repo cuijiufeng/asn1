@@ -18,10 +18,13 @@ public class ASN1Choice extends ASN1Object {
     private ASN1Object value;
 
     public ASN1Choice(Class<? extends Enum<? extends ASN1ChoiceEnum>> choiceClass) {
+        Objects.requireNonNull(choiceClass, "choice class cannot be null");
         this.choiceClass = choiceClass;
     }
 
     public ASN1Choice(Enum<? extends ASN1ChoiceEnum> choice, ASN1Object value) {
+        Objects.requireNonNull(choice, "choice cannot be null");
+        Objects.requireNonNull(value, "value cannot be null");
         this.choice = choice;
         this.value = value;
         this.choiceClass = choice.getDeclaringClass();

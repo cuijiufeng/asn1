@@ -17,10 +17,12 @@ public class ASN1Enumerated extends ASN1Object {
     private final Class<? extends Enum<?>> enumClass;
 
     public ASN1Enumerated(Class<? extends Enum<?>> enumClass) {
+        Objects.requireNonNull(enumClass, "enum class cannot be null");
         this.enumClass = enumClass;
     }
 
     public ASN1Enumerated(Enum<? extends Enum<?>> enumerated) {
+        Objects.requireNonNull(enumerated, "enumerated cannot be null");
         this.enumerated = enumerated;
         this.enumClass = enumerated.getDeclaringClass();
     }
