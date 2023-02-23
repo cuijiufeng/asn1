@@ -3,6 +3,7 @@ package com.inferiority.codec.asn1;
 import com.inferiority.codec.ASN1InputStream;
 import com.inferiority.codec.ASN1OutputStream;
 import com.inferiority.codec.Codeable;
+import com.inferiority.codec.CodecException;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
@@ -32,7 +33,7 @@ public class ASN1SequenceOf<T extends ASN1Object> extends ASN1Object implements 
     }
 
     @Override
-    public void encode(ASN1OutputStream os) {
+    public void encode(ASN1OutputStream os) throws CodecException {
         ASN1Integer quantity = new ASN1Integer(BigInteger.valueOf(sequences.length), BigInteger.ZERO, null);
         quantity.encode(os);
         for (T sequence : this.sequences) {

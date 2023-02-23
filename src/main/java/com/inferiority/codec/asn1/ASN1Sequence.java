@@ -3,6 +3,7 @@ package com.inferiority.codec.asn1;
 import com.inferiority.codec.ASN1InputStream;
 import com.inferiority.codec.ASN1OutputStream;
 import com.inferiority.codec.Codeable;
+import com.inferiority.codec.CodecException;
 import com.inferiority.codec.utils.Nullable;
 
 import java.io.EOFException;
@@ -28,6 +29,9 @@ public class ASN1Sequence extends ASN1Object {
     }
 
     public void setElement(int position, boolean extensible, boolean optional, @Nullable ASN1Object value, @Nullable ASN1Object defaulted) {
+        if (!this.extensible && extensible) {
+            throw new IllegalArgumentException("please new ASN1Sequence(true)");
+        }
         if (optional && Objects.nonNull(defaulted)) {
             throw new IllegalArgumentException("non-optional cannot have default value");
         }
@@ -53,7 +57,7 @@ public class ASN1Sequence extends ASN1Object {
     }
 
     @Override
-    public void encode(ASN1OutputStream os) {
+    public void encode(ASN1OutputStream os) throws CodecException {
         //a) preamble;
         preamble(os);
         //b) encodings of the components in the extension root;

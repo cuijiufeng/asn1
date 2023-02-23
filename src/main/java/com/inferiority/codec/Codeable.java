@@ -9,7 +9,7 @@ import java.io.IOException;
  */
 public interface Codeable {
 
-    void encode(ASN1OutputStream os);
+    void encode(ASN1OutputStream os) throws CodecException;
 
     void decode(ASN1InputStream is) throws IOException;
 

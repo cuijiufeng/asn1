@@ -3,8 +3,7 @@ package com.inferiority.codec.asn1;
 import com.inferiority.codec.ASN1InputStream;
 import com.inferiority.codec.ASN1OutputStream;
 import com.inferiority.codec.Codeable;
-
-import java.io.IOException;
+import com.inferiority.codec.CodecException;
 
 /**
  * @author cuijiufeng
@@ -18,8 +17,12 @@ public abstract class ASN1Object implements Codeable {
      * @param data
      * @return T
     */
-    public <T extends ASN1Object> T fromByteArray(byte[] data) throws IOException {
-        this.decode(new ASN1InputStream(data));
+    public <T extends ASN1Object> T fromByteArray(byte[] data) throws CodecException {
+        try {
+            this.decode(new ASN1InputStream(data));
+        } catch (Exception e) {
+            throw new CodecException("decoding", this, e);
+        }
         //noinspection unchecked
         return (T) this;
     }
@@ -28,9 +31,13 @@ public abstract class ASN1Object implements Codeable {
      * 编码
      * @return byte[]
     */
-    public byte[] getEncoded() {
+    public byte[] getEncoded() throws CodecException {
         ASN1OutputStream os = new ASN1OutputStream();
-        this.encode(os);
+        try {
+            this.encode(os);
+        } catch (Exception e) {
+            throw new CodecException("encoding", this, e);
+        }
         return os.toByteArray();
     }
 

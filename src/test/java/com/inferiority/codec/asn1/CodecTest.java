@@ -9,6 +9,7 @@ import cn.com.easysec.v2x.asn1.coer.COEROctetStream;
 import cn.com.easysec.v2x.asn1.coer.COERSequence;
 import cn.com.easysec.v2x.asn1.coer.COERSequenceOf;
 import cn.com.easysec.v2x.asn1.coer.COERTag;
+import com.inferiority.codec.CodecException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Hex;
 import org.junit.Assert;
@@ -26,7 +27,7 @@ import java.util.Arrays;
 public class CodecTest {
 
     @Test
-    public void TestBoolean() throws IOException {
+    public void TestBoolean() throws CodecException, IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         COERBoolean esTrue = new COERBoolean(false);
         esTrue.encode(new DataOutputStream(baos));
@@ -39,7 +40,7 @@ public class CodecTest {
     }
 
     @Test
-    public void testInteger() throws IOException {
+    public void testInteger() throws IOException, CodecException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         COERInteger esInt = new COERInteger(new BigInteger(
                     "7FFFFFFFFFFFFFFF7FFFFFFFFFFFFFFF" +
@@ -72,7 +73,7 @@ public class CodecTest {
     }
 
     @Test
-    public void testEnumerated() throws IOException {
+    public void testEnumerated() throws IOException, CodecException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         COEREnumeration esEnumerated = new COEREnumeration(EnumeratedType.B);
         esEnumerated.encode(new DataOutputStream(baos));
@@ -86,7 +87,7 @@ public class CodecTest {
     }
 
     @Test
-    public void testIA5String() throws IOException {
+    public void testIA5String() throws IOException, CodecException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         COERIA5String esIa5String = new COERIA5String("hello world", 5, null);
         esIa5String.encode(new DataOutputStream(baos));
@@ -100,7 +101,7 @@ public class CodecTest {
     }
 
     @Test
-    public void testVisibleString() throws IOException {
+    public void testVisibleString() throws CodecException {
         ASN1VisibleString visibleString = new ASN1VisibleString("hello world\u0080", 5, null);
         log.debug("   IA5String: {}", Hex.encodeHexString(visibleString.getEncoded()));
         log.debug("   IA5String: {}", visibleString.getString());
@@ -108,7 +109,7 @@ public class CodecTest {
     }
 
     @Test
-    public void testPrintableString() throws IOException {
+    public void testPrintableString() throws CodecException {
         ASN1PrintableString visibleString = new ASN1PrintableString("hello world", 5, null);
         log.debug("   visibleString: {}", Hex.encodeHexString(visibleString.getEncoded()));
         log.debug("   visibleString: {}", visibleString.getString());
@@ -116,7 +117,7 @@ public class CodecTest {
     }
 
     @Test
-    public void testOctetString() throws IOException {
+    public void testOctetString() throws IOException, CodecException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         COEROctetStream esOctetStream = new COEROctetStream("hello world".getBytes(), 5, null);
         esOctetStream.encode(new DataOutputStream(baos));
@@ -129,7 +130,7 @@ public class CodecTest {
     }
 
     @Test
-    public void testBitString() throws IOException {
+    public void testBitString() throws CodecException {
         //固定大小
         //00000011 00000000 00000000=03 00 00                   Y       Y
         ASN1BitString bitString0 = new ASN1BitString(new byte[] {0x03,0x00,0x00}, null, true);
@@ -200,7 +201,7 @@ public class CodecTest {
     }
 
     @Test
-    public void testSequence() throws IOException {
+    public void testSequence() throws IOException, CodecException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         COERSequence esSequence = new COERSequence(false);
         esSequence.addField(0, new COERBoolean(false), false, new COERBoolean(true), new COERBoolean());
@@ -465,7 +466,7 @@ public class CodecTest {
     }
 
     @Test
-    public void testSequenceOf() throws IOException {
+    public void testSequenceOf() throws IOException, CodecException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         COERSequenceOf esSequenceOf = new COERSequenceOf(Arrays.asList(new COERBoolean(true), new COERBoolean(false)));
         esSequenceOf.encode(new DataOutputStream(baos));
@@ -478,7 +479,7 @@ public class CodecTest {
     }
 
     @Test
-    public void testTag() throws IOException {
+    public void testTag() throws IOException, CodecException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         COERTag esTag = new COERTag(128, 16512);
         esTag.encode(new DataOutputStream(baos));
@@ -491,7 +492,7 @@ public class CodecTest {
     }
 
     @Test
-    public void testChoice() throws IOException {
+    public void testChoice() throws CodecException {
         ASN1Choice choice = new ASN1Choice(EnumeratedType.B, new ASN1Boolean(true));
         log.debug("   choice: {}", Hex.encodeHexString(choice.getEncoded()));
         Assert.assertEquals(choice, new ASN1Choice(EnumeratedType.class).fromByteArray(choice.getEncoded()));

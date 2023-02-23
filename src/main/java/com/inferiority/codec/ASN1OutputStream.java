@@ -32,7 +32,7 @@ public class ASN1OutputStream extends ByteArrayOutputStream {
         writeLengthPrefix(value);
     }
 
-    public void writeOpenType(ASN1Object object) {
+    public void writeOpenType(ASN1Object object) throws CodecException {
         byte[] bytes = object.getEncoded();
         writeLengthDetermine(bytes.length);
         write(bytes, 0, bytes.length);

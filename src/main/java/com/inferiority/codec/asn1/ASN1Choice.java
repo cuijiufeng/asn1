@@ -3,6 +3,7 @@ package com.inferiority.codec.asn1;
 import com.inferiority.codec.ASN1InputStream;
 import com.inferiority.codec.ASN1OutputStream;
 import com.inferiority.codec.Codeable;
+import com.inferiority.codec.CodecException;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -31,7 +32,7 @@ public class ASN1Choice extends ASN1Object {
     }
 
     @Override
-    public void encode(ASN1OutputStream os) {
+    public void encode(ASN1OutputStream os) throws CodecException {
         ASN1Tag tag = new ASN1Tag(ASN1Tag.TagClass.CONTEXT_SPECIFIC, this.choice.ordinal());
         tag.encode(os);
         if (((ASN1ChoiceEnum) this.choice).isExtension()) {
