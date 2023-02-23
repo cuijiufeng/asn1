@@ -86,6 +86,11 @@ public class ASN1Tag extends ASN1Object {
     }
 
     @Override
+    public String toObjectString() {
+        return null;
+    }
+
+    @Override
     public int hashCode() {
         int result = tagClass != null ? tagClass.hashCode() : 0;
         result = 31 * result + (int) (tagNumber ^ (tagNumber >>> 32));

@@ -48,4 +48,14 @@ public abstract class ASN1Object implements Codeable {
         }
         return (obj instanceof Codeable) && asn1Equals((Codeable)obj);
     }
+
+    @Override
+    public String toString() {
+        switch (System.getProperty("asn1.print.format", "object")) {
+            case "xml": return toXmlString();
+            case "json": return toJsonString();
+            case "object":
+            default: return toObjectString();
+        }
+    }
 }

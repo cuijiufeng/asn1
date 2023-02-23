@@ -81,6 +81,11 @@ public class ASN1Choice extends ASN1Object {
     }
 
     @Override
+    public String toObjectString() {
+        return null;
+    }
+
+    @Override
     public int hashCode() {
         int result = choice != null ? choice.hashCode() : 0;
         result = 31 * result + (value != null ? value.hashCode() : 0);

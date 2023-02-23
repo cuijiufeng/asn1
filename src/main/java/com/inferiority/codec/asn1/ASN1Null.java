@@ -29,6 +29,11 @@ public class ASN1Null extends ASN1Object{
     }
 
     @Override
+    public String toObjectString() {
+        return null;
+    }
+
+    @Override
     public int hashCode()
     {
         return -1;

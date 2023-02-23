@@ -173,6 +173,11 @@ public class ASN1Integer extends ASN1Object {
     }
 
     @Override
+    public String toObjectString() {
+        return null;
+    }
+
+    @Override
     public int hashCode() {
         int result = value != null ? value.hashCode() : 0;
         result = 31 * result + (minValue != null ? minValue.hashCode() : 0);

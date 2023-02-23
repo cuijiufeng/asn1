@@ -136,6 +136,7 @@ public class CodecTest {
         ASN1BitString bitString0 = new ASN1BitString(new byte[] {0x03,0x00,0x00}, null, true);
         log.debug("   bitString: {}", Hex.encodeHexString(bitString0.getEncoded()));
         Assert.assertEquals(bitString0, new ASN1BitString(3, null).fromByteArray(bitString0.getEncoded()));
+        log.debug(bitString0.toString());
 
         //非固定大小
         //00000000                  =01 00              2       N

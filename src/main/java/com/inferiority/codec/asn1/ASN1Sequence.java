@@ -184,6 +184,11 @@ public class ASN1Sequence extends ASN1Object {
     }
 
     @Override
+    public String toObjectString() {
+        return null;
+    }
+
+    @Override
     public int hashCode() {
         int result = (extensible ? 1 : 0);
         result = 31 * result + components.hashCode();

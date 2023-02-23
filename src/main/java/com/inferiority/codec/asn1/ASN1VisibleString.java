@@ -35,4 +35,9 @@ public class ASN1VisibleString extends ASN1String {
         if (!Objects.equals(getMaximum(), that.getMaximum())) return false;
         return Arrays.equals(getData(), that.getData());
     }
+
+    @Override
+    public String toObjectString() {
+        return null;
+    }
 }

@@ -141,6 +141,15 @@ public class ASN1BitString extends ASN1Object {
     }
 
     @Override
+    public String toObjectString() {
+        return "ASN1BitString{" +
+                "bits=" + Arrays.toString(bits) +
+                ", bytes=" + bytes +
+                ", maxValidBit=" + maxValidBit +
+                '}';
+    }
+
+    @Override
     public int hashCode() {
         int result = Arrays.hashCode(bits);
         result = 31 * result + (bytes != null ? bytes.hashCode() : 0);

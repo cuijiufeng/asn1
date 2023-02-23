@@ -42,6 +42,11 @@ public class ASN1PrintableString extends ASN1String {
         return Arrays.equals(getData(), that.getData());
     }
 
+    @Override
+    public String toObjectString() {
+        return null;
+    }
+
     public static boolean notPrintableString(String str) {
         for (char ch : str.toCharArray()) {
             if (ch > 0x7f) {

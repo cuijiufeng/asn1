@@ -57,6 +57,11 @@ public class ASN1Enumerated extends ASN1Object {
     }
 
     @Override
+    public String toObjectString() {
+        return null;
+    }
+
+    @Override
     public int hashCode() {
         return enumerated != null ? enumerated.hashCode() : 0;
     }

@@ -71,6 +71,11 @@ public class ASN1SequenceOf<T extends ASN1Object> extends ASN1Object implements 
     }
 
     @Override
+    public String toObjectString() {
+        return null;
+    }
+
+    @Override
     public int hashCode() {
         return Arrays.hashCode(sequences);
     }

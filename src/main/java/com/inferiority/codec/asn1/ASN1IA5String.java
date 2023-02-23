@@ -42,6 +42,11 @@ public class ASN1IA5String extends ASN1String {
         return Arrays.equals(getData(), that.getData());
     }
 
+    @Override
+    public String toObjectString() {
+        return null;
+    }
+
     public static boolean notIA5String(String str) {
         for (char ch : str.toCharArray()) {
             if (ch > 0x7f) {

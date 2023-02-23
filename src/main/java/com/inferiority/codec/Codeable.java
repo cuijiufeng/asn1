@@ -15,8 +15,13 @@ public interface Codeable {
 
     boolean asn1Equals(Codeable obj);
 
-    //TODO 2023/2/3 14:36 通过配置支持打印多种格式，xml,json,simple对象
-    String toString();
+    String toObjectString();
 
-    //TODO 2023/2/22 9:09 编解码异常
+    default String toXmlString() {
+        return toObjectString();
+    }
+
+    default String toJsonString() {
+        return toObjectString();
+    }
 }

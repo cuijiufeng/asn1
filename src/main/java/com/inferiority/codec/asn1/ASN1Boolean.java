@@ -52,6 +52,11 @@ public class ASN1Boolean extends ASN1Object {
     }
 
     @Override
+    public String toObjectString() {
+        return null;
+    }
+
+    @Override
     public int hashCode() {
         return (value ? 1 : 0);
     }
