@@ -1,9 +1,6 @@
 package com.inferiority.codec.asn1;
 
 import cn.com.easysec.v2x.asn1.coer.COERBoolean;
-import cn.com.easysec.v2x.asn1.coer.COERChoice;
-import cn.com.easysec.v2x.asn1.coer.COERChoiceEnumeration;
-import cn.com.easysec.v2x.asn1.coer.COEREncodable;
 import cn.com.easysec.v2x.asn1.coer.COEREnumeration;
 import cn.com.easysec.v2x.asn1.coer.COEREnumerationType;
 import cn.com.easysec.v2x.asn1.coer.COERIA5String;
@@ -495,27 +492,33 @@ public class CodecTest {
 
     @Test
     public void testChoice() throws IOException {
-        COERChoiceEnumeration enumeration = new COERChoiceEnumeration() {
+        ASN1Choice choice = new ASN1Choice(EnumeratedType.B, new ASN1Boolean(true));
+        log.debug("   choice: {}", Hex.encodeHexString(choice.getEncoded()));
+        Assert.assertEquals(choice, new ASN1Choice(EnumeratedType.class).fromByteArray(choice.getEncoded()));
+        EnumeratedType choice1 = choice.getChoice();
+        ASN1Boolean component = choice.getValue();
+    }
+
+    enum EnumeratedType implements COEREnumerationType, ASN1Choice.ASN1ChoiceEnum {
+        A {
             @Override
-            public COEREncodable getEmptyCOEREncodable() throws IOException {
-                return null;
+            public ASN1Object getInstance() {
+                return new ASN1Boolean();
             }
             @Override
             public boolean isExtension() {
                 return false;
             }
+        },
+        B {
             @Override
-            public int ordinal() {
-                return 0;
+            public ASN1Object getInstance() {
+                return new ASN1Boolean();
+            }
+            @Override
+            public boolean isExtension() {
+                return true;
             }
         };
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        COERChoice esChoice = new COERChoice(enumeration, new COERBoolean(true));
-        esChoice.encode(new DataOutputStream(baos));
-        log.debug("es choice: {}", Hex.encodeHexString(baos.toByteArray()));
-    }
-
-    enum EnumeratedType implements COEREnumerationType {
-        A,B
     }
 }
