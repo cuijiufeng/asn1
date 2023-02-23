@@ -1,6 +1,9 @@
 package com.inferiority.codec.asn1;
 
 import cn.com.easysec.v2x.asn1.coer.COERBoolean;
+import cn.com.easysec.v2x.asn1.coer.COERChoice;
+import cn.com.easysec.v2x.asn1.coer.COERChoiceEnumeration;
+import cn.com.easysec.v2x.asn1.coer.COEREncodable;
 import cn.com.easysec.v2x.asn1.coer.COEREnumeration;
 import cn.com.easysec.v2x.asn1.coer.COEREnumerationType;
 import cn.com.easysec.v2x.asn1.coer.COERIA5String;
@@ -8,6 +11,7 @@ import cn.com.easysec.v2x.asn1.coer.COERInteger;
 import cn.com.easysec.v2x.asn1.coer.COEROctetStream;
 import cn.com.easysec.v2x.asn1.coer.COERSequence;
 import cn.com.easysec.v2x.asn1.coer.COERSequenceOf;
+import cn.com.easysec.v2x.asn1.coer.COERTag;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Hex;
 import org.junit.Assert;
@@ -474,6 +478,41 @@ public class CodecTest {
         log.debug("   sequence-of: {}", Hex.encodeHexString(sequenceOf.getEncoded()));
         Assert.assertEquals(sequenceOf, new ASN1SequenceOf<>(ASN1Boolean::new).fromByteArray(sequenceOf.getEncoded()));
         Assert.assertArrayEquals(baos.toByteArray(), sequenceOf.getEncoded());
+    }
+
+    @Test
+    public void testTag() throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        COERTag esTag = new COERTag(128, 16512);
+        esTag.encode(new DataOutputStream(baos));
+        log.debug("es tag: {}", Hex.encodeHexString(baos.toByteArray()));
+
+        ASN1Tag tag = new ASN1Tag(ASN1Tag.TagClass.CONTEXT_SPECIFIC, 16512);
+        log.debug("   tag: {}", Hex.encodeHexString(tag.getEncoded()));
+        Assert.assertEquals(tag, new ASN1Tag().fromByteArray(tag.getEncoded()));
+        Assert.assertArrayEquals(baos.toByteArray(), tag.getEncoded());
+    }
+
+    @Test
+    public void testChoice() throws IOException {
+        COERChoiceEnumeration enumeration = new COERChoiceEnumeration() {
+            @Override
+            public COEREncodable getEmptyCOEREncodable() throws IOException {
+                return null;
+            }
+            @Override
+            public boolean isExtension() {
+                return false;
+            }
+            @Override
+            public int ordinal() {
+                return 0;
+            }
+        };
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        COERChoice esChoice = new COERChoice(enumeration, new COERBoolean(true));
+        esChoice.encode(new DataOutputStream(baos));
+        log.debug("es choice: {}", Hex.encodeHexString(baos.toByteArray()));
     }
 
     enum EnumeratedType implements COEREnumerationType {
