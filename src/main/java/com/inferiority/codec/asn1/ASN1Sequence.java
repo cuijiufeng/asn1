@@ -26,7 +26,7 @@ public class ASN1Sequence extends ASN1Object {
         this.extensions = new ArrayList<>();
     }
 
-    public void setElement(int position, boolean extensible, boolean optional, Codeable value, Codeable defaulted) {
+    public void setElement(int position, boolean extensible, boolean optional, ASN1Object value, ASN1Object defaulted) {
         if (optional && Objects.nonNull(defaulted)) {
             throw new IllegalArgumentException("non-optional cannot have default value");
         }
@@ -66,7 +66,7 @@ public class ASN1Sequence extends ASN1Object {
         //d) encodings of the extension additions (optional)
         for (Element element : this.extensions) {
             if (Objects.nonNull(element.component)) {
-                os.writeOpenType((ASN1Object) element.component);
+                os.writeOpenType(element.component);
             }
         }
     }
@@ -77,14 +77,14 @@ public class ASN1Sequence extends ASN1Object {
      * @param os
      */
     private void preamble(ASN1OutputStream os) {
-        Element[] optionalsAndDefaults = this.components.stream()
+        Element[] markeds = this.components.stream()
                 .filter(element -> element.optional || Objects.nonNull(element.defaulted))
                 .toArray(Element[]::new);
-        if (!extensible && optionalsAndDefaults.length < 1) {
+        if (!extensible && markeds.length < 1) {
             return;
         }
 
-        int bits = extensible ? optionalsAndDefaults.length + 1 : optionalsAndDefaults.length;
+        int bits = extensible ? markeds.length + 1 : markeds.length;
         ASN1BitString preamble = new ASN1BitString(new byte[((bits + 7) & ~7) / 8], null, true);
         int bitIdx = 0;
         //a) extension bit (optional);
@@ -92,7 +92,7 @@ public class ASN1Sequence extends ASN1Object {
             preamble.setBit(bitIdx++, this.extensions.stream().anyMatch(element -> Objects.nonNull(element.component)));
         }
         //b) root component presence bitmap (zero or more bits); and
-        for (Element element : optionalsAndDefaults) {
+        for (Element element : markeds) {
             preamble.setBit(bitIdx++, Objects.nonNull(element.component));
         }
         //c) unused bits (zero or more bits).
@@ -135,20 +135,20 @@ public class ASN1Sequence extends ASN1Object {
         for (int i = 0; Objects.nonNull(bitmap) && i < this.extensions.size(); i++) {
             Element element = this.extensions.get(i);
             if (bitmap.getBit(i)) {
-                is.readOpenType((ASN1Object) element.component);
+                is.readOpenType(element.component);
             }
         }
     }
 
     private ASN1BitString preamble(ASN1InputStream is) throws IOException {
-        Element[] optionalsAndDefaults = this.components.stream()
+        Element[] markeds = this.components.stream()
                 .filter(element -> element.optional || Objects.nonNull(element.defaulted))
                 .toArray(Element[]::new);
-        if (!extensible && optionalsAndDefaults.length < 1) {
+        if (!extensible && markeds.length < 1) {
             return null;
         }
 
-        int bits = extensible ? optionalsAndDefaults.length + 1 : optionalsAndDefaults.length;
+        int bits = extensible ? markeds.length + 1 : markeds.length;
         ASN1BitString preamble = new ASN1BitString(new byte[((bits + 7) & ~7) / 8], null, true);
         preamble.decode(is);
         return preamble;
@@ -188,10 +188,10 @@ public class ASN1Sequence extends ASN1Object {
 
     protected static class Element {
         boolean optional;
-        Codeable component;
-        Codeable defaulted;
+        ASN1Object component;
+        ASN1Object defaulted;
 
-        public Element(boolean optional, Codeable component, Codeable defaulted) {
+        public Element(boolean optional, ASN1Object component, ASN1Object defaulted) {
             this.optional = optional;
             this.component = component;
             this.defaulted = defaulted;
