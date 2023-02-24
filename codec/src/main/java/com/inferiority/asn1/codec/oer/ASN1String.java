@@ -89,12 +89,12 @@ public abstract class ASN1String extends ASN1Object {
 
     @Override
     public String toObjectString() {
-        return getString();
+        return Objects.nonNull(this.data) ? new String(this.data) : "";
     }
 
     @Override
     public String toJsonString() {
-        return "\"" + getString() + "\"";
+        return "\"" + (Objects.nonNull(this.data) ? new String(this.data) : "") + "\"";
     }
 
     @Override

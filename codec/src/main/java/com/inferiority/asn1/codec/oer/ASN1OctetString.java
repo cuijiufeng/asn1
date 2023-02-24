@@ -96,12 +96,12 @@ public class ASN1OctetString extends ASN1Object {
 
     @Override
     public String toObjectString() {
-        return "'" + HexEncoder.encodeString(this.data) + "'H";
+        return "'" + HexEncoder.encodeString(Objects.nonNull(this.data) ? this.data : new byte[0]) + "'H";
     }
 
     @Override
     public String toJsonString() {
-        return "\"" + HexEncoder.encodeString(this.data) + "\"";
+        return "\"" + HexEncoder.encodeString(Objects.nonNull(this.data) ? this.data : new byte[0]) + "\"";
     }
 
     @Override
