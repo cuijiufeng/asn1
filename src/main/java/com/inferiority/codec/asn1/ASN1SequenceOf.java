@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * @author cuijiufeng
@@ -72,7 +73,22 @@ public class ASN1SequenceOf<T extends ASN1Object> extends ASN1Object implements 
 
     @Override
     public String toObjectString() {
-        return null;
+        return "{" +
+                Arrays.stream(this.sequences)
+                        .map(ASN1Object::toObjectString)
+                        .map(str -> "\t" + str)
+                        .collect(Collectors.joining(",\n", "\n", "\n"))
+                + "}";
+    }
+
+    @Override
+    public String toJsonString() {
+        return "[" +
+                Arrays.stream(this.sequences)
+                        .map(ASN1Object::toJsonString)
+                        .map(str -> "\t" + str)
+                        .collect(Collectors.joining(",\n", "\n", "\n"))
+                + "]";
     }
 
     @Override

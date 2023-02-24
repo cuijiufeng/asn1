@@ -87,7 +87,12 @@ public class ASN1Tag extends ASN1Object {
 
     @Override
     public String toObjectString() {
-        return null;
+        return String.valueOf(this.tagNumber);
+    }
+
+    @Override
+    public String toJsonString() {
+        return String.valueOf(this.tagNumber);
     }
 
     @Override

@@ -58,7 +58,12 @@ public class ASN1Enumerated extends ASN1Object {
 
     @Override
     public String toObjectString() {
-        return null;
+        return enumerated.name();
+    }
+
+    @Override
+    public String toJsonString() {
+        return "\"" + enumerated.name() + "\"";
     }
 
     @Override

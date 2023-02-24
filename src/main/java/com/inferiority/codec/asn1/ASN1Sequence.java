@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author cuijiufeng
@@ -29,6 +31,10 @@ public class ASN1Sequence extends ASN1Object {
     }
 
     public void setElement(int position, boolean extensible, boolean optional, @Nullable ASN1Object value, @Nullable ASN1Object defaulted) {
+        this.setElement("Label", position, extensible, optional, value, defaulted);
+    }
+
+    public void setElement(String label, int position, boolean extensible, boolean optional, @Nullable ASN1Object value, @Nullable ASN1Object defaulted) {
         if (!this.extensible && extensible) {
             throw new IllegalArgumentException("please new ASN1Sequence(true)");
         }
@@ -39,21 +45,16 @@ public class ASN1Sequence extends ASN1Object {
             throw new IllegalArgumentException("optional, value or default cannot be null all");
         }
         if (extensible) {
-            this.extensions.add(position, new Element(optional, value, defaulted));
+            this.extensions.add(position, new Element(label, optional, value, defaulted));
         } else {
-            this.components.add(position, new Element(optional, value, defaulted));
+            this.components.add(position, new Element(label, optional, value, defaulted));
         }
     }
 
-    @SuppressWarnings("unchecked")
     public <T extends ASN1Object> T getElement(int position, boolean extensible) {
-        if (extensible) {
-            Element element = this.extensions.get(position);
-            return (T) (Objects.nonNull(element.component) ? element.component : element.defaulted);
-        } else {
-            Element element = this.components.get(position);
-            return (T) (Objects.nonNull(element.component) ? element.component : element.defaulted);
-        }
+        return extensible
+                ? this.extensions.get(position).getComponent()
+                : this.components.get(position).getComponent();
     }
 
     @Override
@@ -185,7 +186,20 @@ public class ASN1Sequence extends ASN1Object {
 
     @Override
     public String toObjectString() {
-        return null;
+        return "{" +
+                Stream.concat(this.components.stream(), this.extensions.stream())
+                        .map(Element::toObjectString)
+                        .collect(Collectors.joining(",\n", "\n", "\n"))
+                + "}";
+    }
+
+    @Override
+    public String toJsonString() {
+        return "{" +
+                Stream.concat(this.components.stream(), this.extensions.stream())
+                        .map(Element::toJsonString)
+                        .collect(Collectors.joining(",\n", "\n", "\n"))
+                + "}";
     }
 
     @Override
@@ -197,14 +211,29 @@ public class ASN1Sequence extends ASN1Object {
     }
 
     protected static class Element {
+        private final String label;
         boolean optional;
         ASN1Object component;
         ASN1Object defaulted;
 
-        public Element(boolean optional, ASN1Object component, ASN1Object defaulted) {
+        public Element(String label, boolean optional, ASN1Object component, ASN1Object defaulted) {
+            this.label = label;
             this.optional = optional;
             this.component = component;
             this.defaulted = defaulted;
+        }
+
+        public <T extends ASN1Object> T getComponent() {
+            //noinspection unchecked
+            return (T) (Objects.nonNull(component) ? component : defaulted);
+        }
+
+        public String toObjectString() {
+            return "\t" + label + ":" + getComponent();
+        }
+
+        public String toJsonString() {
+            return "\t\"" + label + "\":" + getComponent();
         }
 
         @Override

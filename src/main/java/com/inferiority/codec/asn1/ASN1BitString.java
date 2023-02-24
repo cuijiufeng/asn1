@@ -3,6 +3,7 @@ package com.inferiority.codec.asn1;
 import com.inferiority.codec.ASN1InputStream;
 import com.inferiority.codec.ASN1OutputStream;
 import com.inferiority.codec.Codeable;
+import com.inferiority.codec.utils.HexEncoder;
 import com.inferiority.codec.utils.Nullable;
 
 import java.io.EOFException;
@@ -142,11 +143,12 @@ public class ASN1BitString extends ASN1Object {
 
     @Override
     public String toObjectString() {
-        return "ASN1BitString{" +
-                "bits=" + Arrays.toString(bits) +
-                ", bytes=" + bytes +
-                ", maxValidBit=" + maxValidBit +
-                '}';
+        return "'" + HexEncoder.encodeString(this.bits) + "'H";
+    }
+
+    @Override
+    public String toJsonString() {
+        return "\"" + HexEncoder.encodeString(this.bits) + "\"";
     }
 
     @Override

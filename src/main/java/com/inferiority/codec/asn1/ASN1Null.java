@@ -30,7 +30,12 @@ public class ASN1Null extends ASN1Object{
 
     @Override
     public String toObjectString() {
-        return null;
+        return "NULL";
+    }
+
+    @Override
+    public String toJsonString() {
+        return "null";
     }
 
     @Override

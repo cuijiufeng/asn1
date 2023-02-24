@@ -35,8 +35,11 @@ public class CodecTest {
 
         ASN1Boolean bTrue = new ASN1Boolean(false);
         log.debug("   boolean: {}", Hex.encodeHexString(bTrue.getEncoded()));
-        Assert.assertEquals(bTrue, new ASN1Boolean().fromByteArray(bTrue.getEncoded()));
+        ASN1Boolean decodeAsn1Boolean = new ASN1Boolean();
+        Assert.assertEquals(bTrue, decodeAsn1Boolean.fromByteArray(bTrue.getEncoded()));
         Assert.assertArrayEquals(baos.toByteArray(), bTrue.getEncoded());
+        log.debug(decodeAsn1Boolean.toObjectString());
+        log.debug(decodeAsn1Boolean.toJsonString());
     }
 
     @Test
@@ -68,8 +71,11 @@ public class CodecTest {
                         "7FFFFFFFFFFFFFFF7FFFFFFFFFFFFFFF", 16), null, null);
         log.debug("   integer: {}", Hex.encodeHexString(integer.getEncoded()));
         log.debug("   integer: {}", integer.getValue());
-        Assert.assertEquals(integer, new ASN1Integer(null, null).fromByteArray(integer.getEncoded()));
+        ASN1Integer decodeInteger = new ASN1Integer(null, null);
+        Assert.assertEquals(integer, decodeInteger.fromByteArray(integer.getEncoded()));
         Assert.assertArrayEquals(baos.toByteArray(), integer.getEncoded());
+        log.debug(decodeInteger.toObjectString());
+        log.debug(decodeInteger.toJsonString());
     }
 
     @Test
@@ -82,8 +88,11 @@ public class CodecTest {
         ASN1Enumerated enumerated = new ASN1Enumerated(EnumeratedType.B);
         log.debug("   enumerated: {}", Hex.encodeHexString(enumerated.getEncoded()));
         log.debug("   enumerated: {}", enumerated.getEnumerated());
-        Assert.assertEquals(enumerated, new ASN1Enumerated(EnumeratedType.class).fromByteArray(enumerated.getEncoded()));
+        ASN1Enumerated decodeEnumerated = new ASN1Enumerated(EnumeratedType.class);
+        Assert.assertEquals(enumerated, decodeEnumerated.fromByteArray(enumerated.getEncoded()));
         Assert.assertArrayEquals(baos.toByteArray(), enumerated.getEncoded());
+        log.debug(decodeEnumerated.toObjectString());
+        log.debug(decodeEnumerated.toJsonString());
     }
 
     @Test
@@ -96,8 +105,11 @@ public class CodecTest {
         ASN1IA5String ia5String = new ASN1IA5String("hello world", 5, null);
         log.debug("   IA5String: {}", Hex.encodeHexString(ia5String.getEncoded()));
         log.debug("   IA5String: {}", ia5String.getString());
-        Assert.assertEquals(ia5String, new ASN1IA5String(5, null).fromByteArray(ia5String.getEncoded()));
+        ASN1IA5String decodeIa5String = new ASN1IA5String(5, null);
+        Assert.assertEquals(ia5String, decodeIa5String.fromByteArray(ia5String.getEncoded()));
         Assert.assertArrayEquals(baos.toByteArray(), ia5String.getEncoded());
+        log.debug(decodeIa5String.toObjectString());
+        log.debug(decodeIa5String.toJsonString());
     }
 
     @Test
@@ -125,8 +137,11 @@ public class CodecTest {
 
         ASN1OctetString octetString = new ASN1OctetString("hello world".getBytes(), 5, null);
         log.debug("   octetString: {}", Hex.encodeHexString(octetString.getEncoded()));
-        Assert.assertEquals(octetString, new ASN1OctetString(5, null).fromByteArray(octetString.getEncoded()));
+        ASN1OctetString decodeOctetString = new ASN1OctetString(5, null);
+        Assert.assertEquals(octetString, decodeOctetString.fromByteArray(octetString.getEncoded()));
         Assert.assertArrayEquals(baos.toByteArray(), octetString.getEncoded());
+        log.debug(decodeOctetString.toObjectString());
+        log.debug(decodeOctetString.toJsonString());
     }
 
     @Test
@@ -135,64 +150,99 @@ public class CodecTest {
         //00000011 00000000 00000000=03 00 00                   Y       Y
         ASN1BitString bitString0 = new ASN1BitString(new byte[] {0x03,0x00,0x00}, null, true);
         log.debug("   bitString: {}", Hex.encodeHexString(bitString0.getEncoded()));
-        Assert.assertEquals(bitString0, new ASN1BitString(3, null).fromByteArray(bitString0.getEncoded()));
-        log.debug(bitString0.toString());
+        ASN1BitString decodeBitString0 = new ASN1BitString(3, null);
+        Assert.assertEquals(bitString0, decodeBitString0.fromByteArray(bitString0.getEncoded()));
+        log.debug(decodeBitString0.toObjectString());
+        log.debug(decodeBitString0.toJsonString());
 
         //非固定大小
         //00000000                  =01 00              2       N
         ASN1BitString bitString1 = new ASN1BitString(new byte[] {0x00}, 2, false);
         log.debug("   bitString: {}", Hex.encodeHexString(bitString1.getEncoded()));
-        Assert.assertEquals(bitString1, new ASN1BitString(null, 2).fromByteArray(bitString1.getEncoded()));
+        ASN1BitString decodeBitString1 = new ASN1BitString(null, 2);
+        Assert.assertEquals(bitString1, decodeBitString1.fromByteArray(bitString1.getEncoded()));
+        log.debug(decodeBitString1.toObjectString());
+        log.debug(decodeBitString1.toJsonString());
 
         //00000000 00110000         =03 04 00 30        2       Y       Y
         ASN1BitString bitString4 = new ASN1BitString(new byte[] {0x00,0x30}, 2, false);
         log.debug("   bitString: {}", Hex.encodeHexString(bitString4.getEncoded()));
-        Assert.assertEquals(bitString4, new ASN1BitString(null, 2).fromByteArray(bitString4.getEncoded()));
+        ASN1BitString decodeBitString4 = new ASN1BitString(null, 2);
+        Assert.assertEquals(bitString4, decodeBitString4.fromByteArray(bitString4.getEncoded()));
+        log.debug(decodeBitString4.toObjectString());
+        log.debug(decodeBitString4.toJsonString());
 
         //00000000 00000011         =03 00 00 03        2       Y       Y
         ASN1BitString bitString5 = new ASN1BitString(new byte[] {0x00,0x03}, 2, false);
         log.debug("   bitString: {}", Hex.encodeHexString(bitString5.getEncoded()));
-        Assert.assertEquals(bitString5, new ASN1BitString(null, 2).fromByteArray(bitString5.getEncoded()));
+        ASN1BitString decodeBitString5 = new ASN1BitString(null, 2);
+        Assert.assertEquals(bitString5, decodeBitString5.fromByteArray(bitString5.getEncoded()));
+        log.debug(decodeBitString5.toObjectString());
+        log.debug(decodeBitString5.toJsonString());
 
         //00000000                  =02 00 00                   Y       Y
         ASN1BitString bitString6 = new ASN1BitString(new byte[] {0x00}, null, false);
         log.debug("   bitString: {}", Hex.encodeHexString(bitString6.getEncoded()));
-        Assert.assertEquals(bitString6, new ASN1BitString(null, null).fromByteArray(bitString6.getEncoded()));
+        ASN1BitString decodeBitString6 = new ASN1BitString(null, null);
+        Assert.assertEquals(bitString6, decodeBitString6.fromByteArray(bitString6.getEncoded()));
+        log.debug(decodeBitString6.toObjectString());
+        log.debug(decodeBitString6.toJsonString());
 
         //00000000 00000000 00000000=04 00 00 00 00             Y       Y
         ASN1BitString bitString7 = new ASN1BitString(new byte[] {(byte) 0x00,0x00,0x00}, null, false);
         log.debug("   bitString: {}", Hex.encodeHexString(bitString7.getEncoded()));
-        Assert.assertEquals(bitString7, new ASN1BitString(null, null).fromByteArray(bitString7.getEncoded()));
+        ASN1BitString decodeBitString7 = new ASN1BitString(null, null);
+        Assert.assertEquals(bitString7, decodeBitString7.fromByteArray(bitString7.getEncoded()));
+        log.debug(decodeBitString7.toObjectString());
+        log.debug(decodeBitString7.toJsonString());
 
         //10000000 00000000 00000000=04 00 80 00 00             Y       Y
         ASN1BitString bitString8 = new ASN1BitString(new byte[] {(byte) 0x80,0x00,0x00}, null, false);
         log.debug("   bitString: {}", Hex.encodeHexString(bitString8.getEncoded()));
-        Assert.assertEquals(bitString8, new ASN1BitString(null, null).fromByteArray(bitString8.getEncoded()));
+        ASN1BitString decodeBitString8 = new ASN1BitString(null, null);
+        Assert.assertEquals(bitString8, decodeBitString8.fromByteArray(bitString8.getEncoded()));
+        log.debug(decodeBitString8.toObjectString());
+        log.debug(decodeBitString8.toJsonString());
 
         //10000000 00000000 00010000=04 00 80 00 10             Y       Y
         ASN1BitString bitString9 = new ASN1BitString(new byte[] {(byte) 0x80,0x00,0x10}, null, false);
         log.debug("   bitString: {}", Hex.encodeHexString(bitString9.getEncoded()));
-        Assert.assertEquals(bitString9, new ASN1BitString(null, null).fromByteArray(bitString9.getEncoded()));
+        ASN1BitString decodeBitString9 = new ASN1BitString(null, null);
+        Assert.assertEquals(bitString9, decodeBitString9.fromByteArray(bitString9.getEncoded()));
+        log.debug(decodeBitString9.toObjectString());
+        log.debug(decodeBitString9.toJsonString());
 
         //10000000 00000000 00010000=04 04 80 00 10     19      Y       Y
         ASN1BitString bitString10 = new ASN1BitString(new byte[] {(byte) 0x80,0x00,0x10}, 19, false);
         log.debug("   bitString: {}", Hex.encodeHexString(bitString10.getEncoded()));
-        Assert.assertEquals(bitString10, new ASN1BitString(null, 19).fromByteArray(bitString10.getEncoded()));
+        ASN1BitString decodeBitString10 = new ASN1BitString(null, 19);
+        Assert.assertEquals(bitString10, decodeBitString10.fromByteArray(bitString10.getEncoded()));
+        log.debug(decodeBitString10.toObjectString());
+        log.debug(decodeBitString10.toJsonString());
 
         //10000000 00000000 01000000=04 06 80 00 40     19      Y       Y
         ASN1BitString bitString11 = new ASN1BitString(new byte[] {(byte) 0x80,0x00,0x40}, 19, false);
         log.debug("   bitString: {}", Hex.encodeHexString(bitString11.getEncoded()));
-        Assert.assertEquals(bitString11, new ASN1BitString(null, 19).fromByteArray(bitString11.getEncoded()));
+        ASN1BitString decodeBitString11 = new ASN1BitString(null, 19);
+        Assert.assertEquals(bitString11, decodeBitString11.fromByteArray(bitString11.getEncoded()));
+        log.debug(decodeBitString11.toObjectString());
+        log.debug(decodeBitString11.toJsonString());
 
         //10000000 00000000 00000010=04 01 80 00 02     19      Y       Y
         ASN1BitString bitString12 = new ASN1BitString(new byte[] {(byte) 0x80,0x00,0x02}, 19, false);
         log.debug("   bitString: {}", Hex.encodeHexString(bitString12.getEncoded()));
-        Assert.assertEquals(bitString12, new ASN1BitString(null, 19).fromByteArray(bitString12.getEncoded()));
+        ASN1BitString decodeBitString12 = new ASN1BitString(null, 19);
+        Assert.assertEquals(bitString12, decodeBitString12.fromByteArray(bitString12.getEncoded()));
+        log.debug(decodeBitString12.toObjectString());
+        log.debug(decodeBitString12.toJsonString());
 
         //10000000 00000000 00000000=02 07 80           19      Y
         ASN1BitString bitString13 = new ASN1BitString(new byte[] {(byte) 0x80,0x00,0x00}, 19, false);
         log.debug("   bitString: {}", Hex.encodeHexString(bitString13.getEncoded()));
-        Assert.assertEquals(bitString13, new ASN1BitString(null, 19).fromByteArray(bitString13.getEncoded()));
+        ASN1BitString decodeBitString13 = new ASN1BitString(null, 19);
+        Assert.assertEquals(bitString13, decodeBitString13.fromByteArray(bitString13.getEncoded()));
+        log.debug(decodeBitString13.toObjectString());
+        log.debug(decodeBitString13.toJsonString());
         log.debug("   bitString pos 0 : {}", bitString13.getBit(0));
         log.debug("   bitString pos 15: {}", bitString13.getBit(15));
         bitString13.setBit(15, true);
@@ -221,9 +271,11 @@ public class CodecTest {
         log.debug("   sequence: {}", Hex.encodeHexString(sequence0.getEncoded()));
         Assert.assertEquals(Hex.encodeHexString(sequence0.getEncoded(), false), "FF FF".replaceAll(" ", ""));
         ASN1Sequence decodeSequence0 = new ASN1Sequence(false);
-        decodeSequence0.setElement(0, false, false, new ASN1Boolean(), null);
-        decodeSequence0.setElement(1, false, false, new ASN1Integer(0, 255), null);
+        decodeSequence0.setElement("a", 0, false, false, new ASN1Boolean(), null);
+        decodeSequence0.setElement("b", 1, false, false, new ASN1Integer(0, 255), null);
         Assert.assertEquals(sequence0, decodeSequence0.fromByteArray(sequence0.getEncoded()));
+        log.debug(decodeSequence0.toObjectString());
+        log.debug(decodeSequence0.toJsonString());
 
         /*
          * Rocket ::= SEQUENCE { a BOOLEAN, b INTEGER (0..255) OPTIONAL }
@@ -464,6 +516,8 @@ public class CodecTest {
         decodeSequence14.setElement(0, true, true, null, null);
         decodeSequence14.setElement(1, true, false, null, new ASN1Boolean(true));
         Assert.assertEquals(sequence14, decodeSequence14.fromByteArray(sequence14.getEncoded()));
+        log.debug(decodeSequence14.toObjectString());
+        log.debug(decodeSequence14.toJsonString());
     }
 
     @Test
@@ -475,8 +529,11 @@ public class CodecTest {
 
         ASN1SequenceOf<ASN1Boolean> sequenceOf = new ASN1SequenceOf<>(new ASN1Boolean[]{ new ASN1Boolean(true), new ASN1Boolean(false) });
         log.debug("   sequence-of: {}", Hex.encodeHexString(sequenceOf.getEncoded()));
-        Assert.assertEquals(sequenceOf, new ASN1SequenceOf<>(ASN1Boolean::new).fromByteArray(sequenceOf.getEncoded()));
+        ASN1SequenceOf<ASN1Boolean> decodeSequenceOf = new ASN1SequenceOf<>(ASN1Boolean::new);
+        Assert.assertEquals(sequenceOf, decodeSequenceOf.fromByteArray(sequenceOf.getEncoded()));
         Assert.assertArrayEquals(baos.toByteArray(), sequenceOf.getEncoded());
+        log.debug(decodeSequenceOf.toObjectString());
+        log.debug(decodeSequenceOf.toJsonString());
     }
 
     @Test
@@ -488,17 +545,23 @@ public class CodecTest {
 
         ASN1Tag tag = new ASN1Tag(ASN1Tag.TagClass.CONTEXT_SPECIFIC, 16512);
         log.debug("   tag: {}", Hex.encodeHexString(tag.getEncoded()));
-        Assert.assertEquals(tag, new ASN1Tag().fromByteArray(tag.getEncoded()));
+        ASN1Tag decodeAsn1Tag = new ASN1Tag();
+        Assert.assertEquals(tag, decodeAsn1Tag.fromByteArray(tag.getEncoded()));
         Assert.assertArrayEquals(baos.toByteArray(), tag.getEncoded());
+        log.debug(decodeAsn1Tag.toObjectString());
+        log.debug(decodeAsn1Tag.toJsonString());
     }
 
     @Test
     public void testChoice() throws CodecException {
         ASN1Choice choice = new ASN1Choice(EnumeratedType.B, new ASN1Boolean(true));
         log.debug("   choice: {}", Hex.encodeHexString(choice.getEncoded()));
-        Assert.assertEquals(choice, new ASN1Choice(EnumeratedType.class).fromByteArray(choice.getEncoded()));
+        ASN1Choice decodeChoice = new ASN1Choice(EnumeratedType.class);
+        Assert.assertEquals(choice, decodeChoice.fromByteArray(choice.getEncoded()));
         EnumeratedType choice1 = choice.getChoice();
         ASN1Boolean component = choice.getValue();
+        log.debug(decodeChoice.toObjectString());
+        log.debug(decodeChoice.toJsonString());
     }
 
     enum EnumeratedType implements COEREnumerationType, ASN1Choice.ASN1ChoiceEnum {

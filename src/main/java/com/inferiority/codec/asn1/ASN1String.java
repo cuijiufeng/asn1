@@ -88,6 +88,16 @@ public abstract class ASN1String extends ASN1Object {
     }
 
     @Override
+    public String toObjectString() {
+        return getString();
+    }
+
+    @Override
+    public String toJsonString() {
+        return "\"" + getString() + "\"";
+    }
+
+    @Override
     public int hashCode() {
         int result = Arrays.hashCode(data);
         result = 31 * result + (minimum != null ? minimum.hashCode() : 0);

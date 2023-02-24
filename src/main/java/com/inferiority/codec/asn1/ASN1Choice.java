@@ -82,7 +82,14 @@ public class ASN1Choice extends ASN1Object {
 
     @Override
     public String toObjectString() {
-        return null;
+        return this.choice.name() + ":" + this.value.toObjectString();
+    }
+
+    @Override
+    public String toJsonString() {
+        return "{" +
+                "\n\t\"" + this.choice.name() + "\":" + this.value.toJsonString() +
+                "\n}";
     }
 
     @Override

@@ -174,7 +174,12 @@ public class ASN1Integer extends ASN1Object {
 
     @Override
     public String toObjectString() {
-        return null;
+        return this.value.toString();
+    }
+
+    @Override
+    public String toJsonString() {
+        return this.value.toString();
     }
 
     @Override

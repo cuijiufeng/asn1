@@ -3,6 +3,7 @@ package com.inferiority.codec.asn1;
 import com.inferiority.codec.ASN1InputStream;
 import com.inferiority.codec.ASN1OutputStream;
 import com.inferiority.codec.Codeable;
+import com.inferiority.codec.utils.HexEncoder;
 import com.inferiority.codec.utils.Nullable;
 
 import java.io.EOFException;
@@ -95,7 +96,12 @@ public class ASN1OctetString extends ASN1Object {
 
     @Override
     public String toObjectString() {
-        return null;
+        return "'" + HexEncoder.encodeString(this.data) + "'H";
+    }
+
+    @Override
+    public String toJsonString() {
+        return "\"" + HexEncoder.encodeString(this.data) + "\"";
     }
 
     @Override

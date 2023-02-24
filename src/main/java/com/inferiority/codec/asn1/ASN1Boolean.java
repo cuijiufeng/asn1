@@ -38,8 +38,7 @@ public class ASN1Boolean extends ASN1Object {
         this.value = FALSE_VALUE != is.readByte();
     }
 
-    public boolean isTrue()
-    {
+    public boolean isTrue() {
         return this.value;
     }
 
@@ -53,7 +52,12 @@ public class ASN1Boolean extends ASN1Object {
 
     @Override
     public String toObjectString() {
-        return null;
+        return this.value ? "TRUE" : "FALSE";
+    }
+
+    @Override
+    public String toJsonString() {
+        return this.value ? "true" : "false";
     }
 
     @Override
