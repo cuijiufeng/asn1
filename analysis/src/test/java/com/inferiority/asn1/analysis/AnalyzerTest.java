@@ -12,7 +12,7 @@ import java.io.InputStream;
 public class AnalyzerTest {
 
     @Test
-    public void analyzer() {
+    public void analyzer() throws AnalysisException {
         InputStream is = AnalyzerTest.class.getClassLoader().getResourceAsStream("test.asn");
         new Analyzer(is).analyzer();
     }

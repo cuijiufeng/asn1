@@ -7,8 +7,8 @@ package com.inferiority.asn1.analysis.common;
  */
 public class Operator {
 
-    public static final String NOTE = "--";
-    public static final String MULTI_NOTE_START = "/*";
-    public static final String MULTI_NOTE_END = "*/";
+    public static final String COMMENT = "--";
+    public static final String MULTI_COMMENT_START = "/*";
+    public static final String MULTI_COMMENT_END = "*/";
     public static final String DEFINITION = "::=";
 }
