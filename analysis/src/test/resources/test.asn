@@ -3,7 +3,11 @@
 --  LTE-V2X Security Base Data Types
 --
 --********************************************************************
-V2XSecBaseTypes DEFINITIONS AUTOMATIC TAGS ::= BEGIN
+V2XSecBaseTypes
+DEFINITIONS
+AUTOMATIC TAGS
+::=
+BEGIN
 
 EXPORTS ALL;
 

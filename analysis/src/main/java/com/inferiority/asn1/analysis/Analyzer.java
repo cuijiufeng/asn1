@@ -1,6 +1,7 @@
 package com.inferiority.asn1.analysis;
 
 import com.inferiority.asn1.analysis.model.Namespace;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import java.util.List;
  * @Class Analyzer
  * @Date 2023/2/24 15:55
  */
+@Slf4j
 public class Analyzer {
     private final InputStream is;
 
@@ -28,7 +30,8 @@ public class Analyzer {
         String line = null;
         FileReader reader = new FileReader(this.is);
         while ((line = reader.nextValidLine()) != null) {
-            System.out.println(line);
+            log.trace(line);
+
         }
     }
 }
