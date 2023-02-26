@@ -25,8 +25,6 @@ public class Analyzer {
     */
     public void analyzer() throws AnalysisException {
         List<Namespace> namespaces = new ArrayList<>(16);
-        String namespaceBegin;
-        String namespaceEnd;
         String line = null;
         FileReader reader = new FileReader(this.is);
         while ((line = reader.nextValidLine()) != null) {

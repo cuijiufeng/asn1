@@ -20,7 +20,8 @@ public class FileReader {
 
     public String nextValidLine() throws AnalysisException {
         while (reader.hasNext()) {
-            String line = reader.nextLine().trim();
+            //String line = reader.nextLine().trim();
+            String line = reader.nextLine();
             //多行注释
             if (multiComment) {
                 int multiCommentIdx = line.indexOf(Operator.MULTI_COMMENT_END);

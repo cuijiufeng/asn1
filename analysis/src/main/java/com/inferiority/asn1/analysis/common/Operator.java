@@ -10,5 +10,7 @@ public class Operator {
     public static final String COMMENT = "--";
     public static final String MULTI_COMMENT_START = "/*";
     public static final String MULTI_COMMENT_END = "*/";
-    public static final String DEFINITION = "::=";
+    public static final String ASSIGNMENT = "::=";
+    public static final String RANGE = "..";
+    public static final String ELLIPSIS = "...";
 }
