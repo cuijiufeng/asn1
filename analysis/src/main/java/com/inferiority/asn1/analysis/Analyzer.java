@@ -1,11 +1,11 @@
 package com.inferiority.asn1.analysis;
 
-import com.inferiority.asn1.analysis.model.Namespace;
+import com.inferiority.asn1.analysis.analyzer.ModuleAnalyzer;
+import com.inferiority.asn1.analysis.model.Module;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * @author cuijiufeng
@@ -15,6 +15,7 @@ import java.util.List;
 @Slf4j
 public class Analyzer {
     private final InputStream is;
+    private final ModuleAnalyzer moduleAnalyzer = new ModuleAnalyzer();
 
     public Analyzer(InputStream is) {
         this.is = is;
@@ -26,12 +27,24 @@ public class Analyzer {
      * @throws
     */
     public void analyzer() throws AnalysisException {
-        List<Namespace> namespaces = new ArrayList<>(16);
-        String line = null;
         FileReader reader = new FileReader(this.is);
-        while ((line = reader.nextValidLine()) != null) {
-            log.trace(line);
-
+        String moduleText = null;
+        while ((moduleText = nextModule(reader)) != null) {
+            log.trace("model text:\n{}", moduleText);
+            Module module = moduleAnalyzer.parse(moduleText);
+            log.debug("model entity:\n{}", module);
         }
+    }
+
+    public String nextModule(FileReader reader) throws AnalysisException {
+        String line = null;
+        StringBuilder module = new StringBuilder();
+        while ((line = reader.nextValidLine()) != null) {
+            module.append(line).append('\n');
+            if (Pattern.matches(ModuleAnalyzer.REGEX_MODULE, module.toString())) {
+                return module.toString().trim();
+            }
+        }
+        return null;
     }
 }
