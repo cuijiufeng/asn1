@@ -3,10 +3,12 @@ package com.inferiority.asn1.analysis.analyzer;
 import com.inferiority.asn1.analysis.AnalysisException;
 import com.inferiority.asn1.analysis.common.Operator;
 import com.inferiority.asn1.analysis.common.Reserved;
+import com.inferiority.asn1.analysis.model.Definition;
 import com.inferiority.asn1.analysis.model.Module;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -148,8 +150,21 @@ public class ModuleAnalyzer {
                     .toArray(String[]::new);
             module.setDependencies(fromArr);
         }
-        String moduleBodyText = moduleText.substring(moduleText.indexOf(Reserved.BEGIN) + Reserved.BEGIN.length(), moduleText.indexOf(Reserved.END));
-        module.setModuleBodyText(moduleBodyText.replaceAll(REGEX_EXPORTS, "").replaceAll(REGEX_IMPORTS, "").trim());
+        String moduleBodyText = moduleText
+                .substring(moduleText.indexOf(Reserved.BEGIN) + Reserved.BEGIN.length(), moduleText.indexOf(Reserved.END))
+                .replaceAll(REGEX_EXPORTS, "")
+                .replaceAll(REGEX_IMPORTS, "")
+                .trim();
+        module.setModuleBodyText(moduleBodyText);
+        module.setDefinitions(parseModuleBody(moduleBodyText));
         return module;
+    }
+
+    public List<Definition> parseModuleBody(final String moduleBodyText) {
+        StringBuilder moduleBody = new StringBuilder(moduleBodyText);
+        Matcher booleanMatcher = AbstractAnalyzer.PATTERN_BOOLEAN.matcher(moduleBody);
+        if (booleanMatcher.find()) {
+        }
+        return null;
     }
 }
