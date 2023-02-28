@@ -7,6 +7,7 @@ import com.inferiority.asn1.analysis.model.Definition;
 import com.inferiority.asn1.analysis.model.Module;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -83,19 +84,18 @@ public class ModuleAnalyzer {
     public static final Pattern PATTERN_TAG_DEFAULT = Pattern.compile(REGEX_TAG_DEFAULT);
 
     public static final String REGEX_EXPORTS = Reserved.EXPORTS + AbstractAnalyzer.CRLF_LEAST +
-            "(" + AbstractAnalyzer.PATTERN_IDENTIFIER + AbstractAnalyzer.CRLF + "," + AbstractAnalyzer.CRLF + ")*" +
-            AbstractAnalyzer.PATTERN_IDENTIFIER + AbstractAnalyzer.CRLF + ";";
+            "(" + AbstractAnalyzer.PATTERN_IDENTIFIER + AbstractAnalyzer.CRLF + Operator.COMMA + AbstractAnalyzer.CRLF + ")*" +
+            AbstractAnalyzer.PATTERN_IDENTIFIER + AbstractAnalyzer.CRLF + Operator.SEMICOLON;
 
     public static final Pattern PATTERN_EXPORTS = Pattern.compile(REGEX_EXPORTS);
 
     public static final String REGEX_IMPORTS = Reserved.IMPORTS + AbstractAnalyzer.CRLF_LEAST +
-            "(" + AbstractAnalyzer.PATTERN_IDENTIFIER + AbstractAnalyzer.CRLF + ","+ AbstractAnalyzer.CRLF +")*" +
+            "(" + AbstractAnalyzer.PATTERN_IDENTIFIER + AbstractAnalyzer.CRLF + Operator.COMMA + AbstractAnalyzer.CRLF +")*" +
             AbstractAnalyzer.PATTERN_IDENTIFIER + AbstractAnalyzer.CRLF_LEAST +
             "(" + Reserved.FROM + AbstractAnalyzer.CRLF_LEAST +
-            "(" + AbstractAnalyzer.PATTERN_IDENTIFIER + AbstractAnalyzer.CRLF + ","+ AbstractAnalyzer.CRLF +")*" +
+            "(" + AbstractAnalyzer.PATTERN_IDENTIFIER + AbstractAnalyzer.CRLF + Operator.COMMA + AbstractAnalyzer.CRLF +")*" +
             AbstractAnalyzer.PATTERN_IDENTIFIER + AbstractAnalyzer.CRLF_LEAST +
-            AbstractAnalyzer.CRLF +
-            ")*;";
+            AbstractAnalyzer.CRLF + ")*" + Operator.SEMICOLON;
 
     public static final Pattern PATTERN_IMPORTS = Pattern.compile(REGEX_IMPORTS);
 
@@ -127,8 +127,8 @@ public class ModuleAnalyzer {
         Matcher exportsMatcher = PATTERN_EXPORTS.matcher(moduleText);
         if (exportsMatcher.find()) {
             String[] exports = exportsMatcher.group()
-                    .replace(Reserved.EXPORTS, "")
-                    .replace(Operator.SEMICOLON, "")
+                    .replaceAll(Reserved.EXPORTS, "")
+                    .replaceAll(Operator.SEMICOLON, "")
                     .split(Operator.COMMA);
             String[] exportArr = Arrays.stream(exports)
                     .map(String::trim)
@@ -138,8 +138,8 @@ public class ModuleAnalyzer {
         Matcher importsMatcher = PATTERN_IMPORTS.matcher(moduleText);
         if (importsMatcher.find()) {
             String imports = importsMatcher.group()
-                    .replace(Reserved.IMPORTS, "")
-                    .replace(Operator.SEMICOLON, "");
+                    .replaceAll(Reserved.IMPORTS, "")
+                    .replaceAll(Operator.SEMICOLON, "");
             String[] froms = imports.split(Reserved.FROM);
             String[] importArr = Arrays.stream(froms[0].split(Operator.COMMA))
                     .map(String::trim)
@@ -160,11 +160,22 @@ public class ModuleAnalyzer {
         return module;
     }
 
-    public List<Definition> parseModuleBody(final String moduleBodyText) {
+    public List<Definition> parseModuleBody(String moduleBodyText) throws AnalysisException {
+        List<Definition> definitions = new ArrayList<>(16);
         StringBuilder moduleBody = new StringBuilder(moduleBodyText);
-        Matcher booleanMatcher = AbstractAnalyzer.PATTERN_BOOLEAN.matcher(moduleBody);
-        if (booleanMatcher.find()) {
+
+        Matcher matcher = null;
+        while ((matcher = BooleanAnalyzer.PATTERN_BOOLEAN.matcher(moduleBody)).find()) {
         }
-        return null;
+        while ((matcher = IntegerAnalyzer.PATTERN_INTEGER.matcher(moduleBody)).find()) {
+            String integerText = matcher.group().trim();
+            log.trace("integer text:\n{}", integerText);
+            Definition definition = AbstractAnalyzer.getInstance(Reserved.INTEGER).parse(integerText, moduleBody);
+            log.debug("integer entity:\n{}", definition);
+            definitions.add(definition);
+            moduleBody.delete(matcher.start(), matcher.end());
+        }
+
+        return definitions;
     }
 }
