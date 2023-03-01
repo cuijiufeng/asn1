@@ -2,10 +2,10 @@ package com.inferiority.asn1.analysis;
 
 import com.inferiority.asn1.analysis.analyzer.ModuleAnalyzer;
 import com.inferiority.asn1.analysis.model.Module;
+import com.inferiority.asn1.analysis.util.RegexUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.InputStream;
-import java.util.regex.Pattern;
 
 /**
  * @author cuijiufeng
@@ -40,9 +40,9 @@ public class Analyzer {
         String line = null;
         StringBuilder module = new StringBuilder();
         while ((line = reader.nextValidLine()) != null) {
-            module.append(line).append('\n');
-            if (Pattern.matches(ModuleAnalyzer.REGEX_MODULE, module.toString())) {
-                return module.toString().trim();
+            module.append(module.length() > 0 ? "\n" : "").append(line);
+            if (RegexUtil.matches(ModuleAnalyzer.REGEX_MODULE, module.toString())) {
+                return module.toString();
             }
         }
         return null;

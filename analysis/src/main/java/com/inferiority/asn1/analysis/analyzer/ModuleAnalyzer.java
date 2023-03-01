@@ -5,13 +5,12 @@ import com.inferiority.asn1.analysis.common.Operator;
 import com.inferiority.asn1.analysis.common.Reserved;
 import com.inferiority.asn1.analysis.model.Definition;
 import com.inferiority.asn1.analysis.model.Module;
+import com.inferiority.asn1.analysis.util.RegexUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author cuijiufeng
@@ -72,84 +71,58 @@ import java.util.regex.Pattern;
 @Slf4j
 public class ModuleAnalyzer {
 
-    public static final String REGEX_EXTENSION_DEFAULT = "(" + Reserved.EXTENSIBILITY + " " + Reserved.IMPLIED + AbstractAnalyzer.CRLF_LEAST + ")";
-
-    public static final Pattern PATTERN_EXTENSION_DEFAULT = Pattern.compile(REGEX_EXTENSION_DEFAULT);
+    public static final String REGEX_EXTENSION_DEFAULT = "(" + Reserved.EXTENSIBILITY + " " + Reserved.IMPLIED + ")";
 
     public static final String REGEX_TAG_DEFAULT = "(" +
-            Reserved.EXPLICIT + " " + Reserved.TAGS + AbstractAnalyzer.CRLF_LEAST + "|" +
-            Reserved.IMPLICIT + " " + Reserved.TAGS + AbstractAnalyzer.CRLF_LEAST + "|" +
-            Reserved.AUTOMATIC + " " + Reserved.TAGS + AbstractAnalyzer.CRLF_LEAST + ")";
+            Reserved.EXPLICIT + " " + Reserved.TAGS + "|" +
+            Reserved.IMPLICIT + " " + Reserved.TAGS + "|" +
+            Reserved.AUTOMATIC + " " + Reserved.TAGS + ")";
 
-    public static final Pattern PATTERN_TAG_DEFAULT = Pattern.compile(REGEX_TAG_DEFAULT);
+    public static final String REGEX_EXPORTS = "(" + Reserved.EXPORTS + AbstractAnalyzer.CRLF_LEAST +
+            "(" + AbstractAnalyzer.REGEX_IDENTIFIER + AbstractAnalyzer.CRLF + Operator.COMMA + AbstractAnalyzer.CRLF + ")*" +
+            AbstractAnalyzer.REGEX_IDENTIFIER + AbstractAnalyzer.CRLF + Operator.SEMICOLON + ")";
 
-    public static final String REGEX_EXPORTS = Reserved.EXPORTS + AbstractAnalyzer.CRLF_LEAST +
-            "(" + AbstractAnalyzer.PATTERN_IDENTIFIER + AbstractAnalyzer.CRLF + Operator.COMMA + AbstractAnalyzer.CRLF + ")*" +
-            AbstractAnalyzer.PATTERN_IDENTIFIER + AbstractAnalyzer.CRLF + Operator.SEMICOLON;
-
-    public static final Pattern PATTERN_EXPORTS = Pattern.compile(REGEX_EXPORTS);
-
-    public static final String REGEX_IMPORTS = Reserved.IMPORTS + AbstractAnalyzer.CRLF_LEAST +
-            "(" + AbstractAnalyzer.PATTERN_IDENTIFIER + AbstractAnalyzer.CRLF + Operator.COMMA + AbstractAnalyzer.CRLF +")*" +
-            AbstractAnalyzer.PATTERN_IDENTIFIER + AbstractAnalyzer.CRLF_LEAST +
+    public static final String REGEX_IMPORTS = "(" + Reserved.IMPORTS + AbstractAnalyzer.CRLF_LEAST +
+            "(" + AbstractAnalyzer.REGEX_IDENTIFIER + AbstractAnalyzer.CRLF + Operator.COMMA + AbstractAnalyzer.CRLF +")*" +
+            AbstractAnalyzer.REGEX_IDENTIFIER + AbstractAnalyzer.CRLF_LEAST +
             "(" + Reserved.FROM + AbstractAnalyzer.CRLF_LEAST +
-            "(" + AbstractAnalyzer.PATTERN_IDENTIFIER + AbstractAnalyzer.CRLF + Operator.COMMA + AbstractAnalyzer.CRLF +")*" +
-            AbstractAnalyzer.PATTERN_IDENTIFIER + AbstractAnalyzer.CRLF_LEAST +
-            AbstractAnalyzer.CRLF + ")*" + Operator.SEMICOLON;
-
-    public static final Pattern PATTERN_IMPORTS = Pattern.compile(REGEX_IMPORTS);
+            "(" + AbstractAnalyzer.REGEX_IDENTIFIER + AbstractAnalyzer.CRLF + Operator.COMMA + AbstractAnalyzer.CRLF +")*" +
+            AbstractAnalyzer.REGEX_IDENTIFIER + AbstractAnalyzer.CRLF_LEAST +
+            AbstractAnalyzer.CRLF + ")*" + Operator.SEMICOLON + ")";
 
     public static final String REGEX_MODULE =
-            AbstractAnalyzer.CRLF +
             AbstractAnalyzer.REGEX_IDENTIFIER + AbstractAnalyzer.CRLF_LEAST +
             Reserved.DEFINITIONS + AbstractAnalyzer.CRLF_LEAST +
             REGEX_TAG_DEFAULT + "?" +
-            REGEX_EXTENSION_DEFAULT + "?" +
+            REGEX_EXTENSION_DEFAULT + "?" + AbstractAnalyzer.CRLF_LEAST +
             Operator.ASSIGNMENT + AbstractAnalyzer.CRLF_LEAST +
-            Reserved.BEGIN + "[\\s\\S]*" + Reserved.END +
-            AbstractAnalyzer.CRLF;
+            Reserved.BEGIN + REGEX_EXPORTS + "?" + REGEX_IMPORTS + "?" + "[\\s\\S]*" + Reserved.END;
 
     public Module parse(String moduleText) throws AnalysisException {
         Module module = new Module();
-        Matcher identifierMatcher = AbstractAnalyzer.PATTERN_IDENTIFIER.matcher(moduleText);
-        if (!identifierMatcher.find()) {
-            throw new AnalysisException("no valid module identifier found");
-        }
-        module.setIdentifier(identifierMatcher.group());
-        Matcher tagDefaultMatcher = PATTERN_TAG_DEFAULT.matcher(moduleText);
-        if (tagDefaultMatcher.find()) {
-            module.setTagDefault(tagDefaultMatcher.group().trim());
-        }
-        Matcher extensionDefaultMatcher = PATTERN_EXTENSION_DEFAULT.matcher(moduleText);
-        if (extensionDefaultMatcher.find()) {
-            module.setExtensionDefault(extensionDefaultMatcher.group().trim());
-        }
-        Matcher exportsMatcher = PATTERN_EXPORTS.matcher(moduleText);
-        if (exportsMatcher.find()) {
-            String[] exports = exportsMatcher.group()
-                    .replaceAll(Reserved.EXPORTS, "")
+
+        module.setIdentifier(RegexUtil.matcher(AbstractAnalyzer.REGEX_IDENTIFIER, moduleText));
+        module.setTagDefault(RegexUtil.matcher(REGEX_TAG_DEFAULT, moduleText));
+        module.setExtensionDefault(RegexUtil.matcher(REGEX_EXTENSION_DEFAULT, moduleText));
+        module.setExports(RegexUtil.matcherFunction(REGEX_EXPORTS, moduleText,
+                str -> Arrays.stream(str.replaceAll(Reserved.EXPORTS, "")
+                        .replaceAll(Operator.SEMICOLON, "")
+                        .split(Operator.COMMA))
+                .map(String::trim)
+                .toArray(String[]::new)));
+        RegexUtil.matcherConsumer(REGEX_IMPORTS, moduleText, str -> {
+            String[] froms = str.replaceAll(Reserved.IMPORTS, "")
                     .replaceAll(Operator.SEMICOLON, "")
-                    .split(Operator.COMMA);
-            String[] exportArr = Arrays.stream(exports)
-                    .map(String::trim)
-                    .toArray(String[]::new);
-            module.setExports(exportArr);
-        }
-        Matcher importsMatcher = PATTERN_IMPORTS.matcher(moduleText);
-        if (importsMatcher.find()) {
-            String imports = importsMatcher.group()
-                    .replaceAll(Reserved.IMPORTS, "")
-                    .replaceAll(Operator.SEMICOLON, "");
-            String[] froms = imports.split(Reserved.FROM);
+                    .split(Reserved.FROM);
             String[] importArr = Arrays.stream(froms[0].split(Operator.COMMA))
                     .map(String::trim)
                     .toArray(String[]::new);
             module.setImports(importArr);
             String[] fromArr = Arrays.stream(Arrays.copyOfRange(froms, 1, froms.length))
-                    .flatMap(str -> Arrays.stream(str.split(Operator.COMMA)).map(String::trim))
+                    .flatMap(s -> Arrays.stream(s.split(Operator.COMMA)).map(String::trim))
                     .toArray(String[]::new);
             module.setDependencies(fromArr);
-        }
+        });
         String moduleBodyText = moduleText
                 .substring(moduleText.indexOf(Reserved.BEGIN) + Reserved.BEGIN.length(), moduleText.indexOf(Reserved.END))
                 .replaceAll(REGEX_EXPORTS, "")
@@ -162,18 +135,16 @@ public class ModuleAnalyzer {
 
     public List<Definition> parseModuleBody(String moduleBodyText) throws AnalysisException {
         List<Definition> definitions = new ArrayList<>(16);
-        StringBuilder moduleBody = new StringBuilder(moduleBodyText);
+        String moduleBody = moduleBodyText;
 
-        Matcher matcher = null;
-        while ((matcher = BooleanAnalyzer.PATTERN_BOOLEAN.matcher(moduleBody)).find()) {
-        }
-        while ((matcher = IntegerAnalyzer.PATTERN_INTEGER.matcher(moduleBody)).find()) {
-            String integerText = matcher.group().trim();
-            log.trace("integer text:\n{}", integerText);
-            Definition definition = AbstractAnalyzer.getInstance(Reserved.INTEGER).parse(integerText, moduleBody);
+        String definitionText = null;
+        while (null != (definitionText = RegexUtil.matcher(AbstractAnalyzer.REGEX_DEFINITION, moduleBody))) {
+            //TODO 2023/3/1 17:51
+            log.trace("integer text:\n{}", definitionText);
+            Definition definition = AbstractAnalyzer.getInstance(Reserved.INTEGER).parse(Reserved.INTEGER, definitionText, moduleBody);
             log.debug("integer entity:\n{}", definition);
             definitions.add(definition);
-            moduleBody.delete(matcher.start(), matcher.end());
+            moduleBody = moduleBody.replace(definitionText, "");
         }
 
         return definitions;
