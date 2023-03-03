@@ -98,7 +98,7 @@ public class ModuleAnalyzer {
             Operator.ASSIGNMENT + AbstractAnalyzer.CRLF_LEAST +
             Reserved.BEGIN + REGEX_EXPORTS + "?" + REGEX_IMPORTS + "?" + "[\\s\\S]*" + Reserved.END;
 
-    public Module parse(String moduleText) throws AnalysisException {
+    public Module parse(List<Module> modules, String moduleText) throws AnalysisException {
         Module module = new Module();
 
         module.setIdentifier(RegexUtil.matcher(AbstractAnalyzer.REGEX_IDENTIFIER, moduleText));
@@ -129,24 +129,33 @@ public class ModuleAnalyzer {
                 .replaceAll(REGEX_IMPORTS, "")
                 .trim();
         module.setModuleBodyText(moduleBodyText);
-        module.setDefinitions(parseModuleBody(moduleBodyText));
+        module.setDefinitions(parseModuleBody(modules, moduleBodyText));
         return module;
     }
 
-    public List<Definition> parseModuleBody(String moduleBodyText) throws AnalysisException {
+    private List<Definition> parseModuleBody(List<Module> modules, String moduleBodyText) throws AnalysisException {
         List<Definition> definitions = new ArrayList<>(16);
-        String moduleBody = moduleBodyText;
 
-        String definitionText = null;
-        while (null != (definitionText = RegexUtil.matcher(AbstractAnalyzer.REGEX_DEFINITION, moduleBody))) {
-            //TODO 2023/3/1 17:51
-            log.trace("integer text:\n{}", definitionText);
-            Definition definition = AbstractAnalyzer.getInstance(Reserved.INTEGER).parse(Reserved.INTEGER, definitionText, moduleBody);
-            log.debug("integer entity:\n{}", definition);
+        for (int idx = 0, start = 0, end = 0; ; idx = start) {
+            end = RegexUtil.end(idx, AbstractAnalyzer.REGEX_DEFINITION, moduleBodyText);
+            start = RegexUtil.start(end, AbstractAnalyzer.REGEX_DEFINITION, moduleBodyText);
+            if (end == -1) {
+                break;
+            }
+            if (start == -1) {
+                String substring = moduleBodyText.substring(idx);
+                Definition definition = AbstractAnalyzer.getInstance(modules, Reserved.INTEGER)
+                        .parse(Reserved.INTEGER, substring, moduleBodyText);
+                log.debug("entity:\n{}", definition);
+                definitions.add(definition);
+                break;
+            }
+            String substring = moduleBodyText.substring(idx, start);
+            Definition definition = AbstractAnalyzer.getInstance(modules, Reserved.INTEGER)
+                    .parse(Reserved.INTEGER, substring, moduleBodyText);
+            log.debug("entity:\n{}", definition);
             definitions.add(definition);
-            moduleBody = moduleBody.replace(definitionText, "");
         }
-
         return definitions;
     }
 }

@@ -6,6 +6,8 @@ import com.inferiority.asn1.analysis.util.RegexUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author cuijiufeng
@@ -26,14 +28,17 @@ public class Analyzer {
      * @return void
      * @throws
     */
-    public void analyzer() throws AnalysisException {
+    public List<Module> analyzer() throws AnalysisException {
         FileReader reader = new FileReader(this.is);
+        List<Module> modules = new ArrayList<>(16);
         String moduleText = null;
         while ((moduleText = nextModule(reader)) != null) {
             log.trace("model text:\n{}", moduleText);
-            Module module = moduleAnalyzer.parse(moduleText);
+            Module module = moduleAnalyzer.parse(modules, moduleText);
+            modules.add(module);
             log.debug("model entity:\n{}", module);
         }
+        return modules;
     }
 
     public String nextModule(FileReader reader) throws AnalysisException {

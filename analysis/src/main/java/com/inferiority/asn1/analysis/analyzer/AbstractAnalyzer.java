@@ -4,6 +4,9 @@ import com.inferiority.asn1.analysis.AnalysisException;
 import com.inferiority.asn1.analysis.common.Operator;
 import com.inferiority.asn1.analysis.common.Reserved;
 import com.inferiority.asn1.analysis.model.Definition;
+import com.inferiority.asn1.analysis.model.Module;
+
+import java.util.List;
 
 /**
  * @author cuijiufeng
@@ -26,7 +29,7 @@ public abstract class AbstractAnalyzer {
 
     public static final String REGEX_DEFINITION = REGEX_IDENTIFIER + CRLF + Operator.ASSIGNMENT + CRLF + REGEX_IDENTIFIER;
 
-    public static AbstractAnalyzer getInstance(String typeReserved) throws AnalysisException {
+    public static AbstractAnalyzer getInstance(List<Module> modules, String typeReserved) throws AnalysisException {
         switch (typeReserved) {
             case Reserved.BOOLEAN: return BooleanAnalyzer.getInstance();
             case Reserved.INTEGER: return IntegerAnalyzer.getInstance();

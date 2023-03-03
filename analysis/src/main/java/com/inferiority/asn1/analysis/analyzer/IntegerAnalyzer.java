@@ -9,8 +9,6 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author cuijiufeng
@@ -69,11 +67,9 @@ public class IntegerAnalyzer extends AbstractAnalyzer {
             definition.setRangeMax(range[range.length - 1]);
         });
         //value
-        Pattern valuePattern = Pattern.compile(String.format(REGEX_INTEGER_VAL, definition.getIdentifier()));
-        Matcher valueMatcher = null;
+        String valueText = null;
         List<AbstractMap.SimpleEntry<String, String>> values = new ArrayList<>(16);
-        while ((valueMatcher = valuePattern.matcher(moduleText)).find()) {
-            String valueText = valueMatcher.group().trim();
+        while (null != (valueText = RegexUtil.matcher(String.format(REGEX_INTEGER_VAL, definition.getIdentifier()), moduleText))) {
             String[] split = valueText.split("\\s+");
             values.add(new AbstractMap.SimpleEntry<>(split[0], split[split.length - 1]));
             moduleText = moduleText.replace(valueText, "");
