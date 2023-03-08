@@ -83,9 +83,11 @@ public class ModuleAnalyzer {
             AbstractAnalyzer.REGEX_IDENTIFIER + AbstractAnalyzer.CRLF + Operator.SEMICOLON + ")";
 
     public static final String REGEX_IMPORTS = "(" + Reserved.IMPORTS + AbstractAnalyzer.CRLF_LEAST +
+            "(" +
             "(" + AbstractAnalyzer.REGEX_IDENTIFIER + Operator.COMMA + AbstractAnalyzer.CRLF +")*" +
             AbstractAnalyzer.REGEX_IDENTIFIER + AbstractAnalyzer.CRLF_LEAST +
-            "(" + Reserved.FROM + AbstractAnalyzer.CRLF_LEAST + AbstractAnalyzer.REGEX_IDENTIFIER + AbstractAnalyzer.CRLF + ")+" +
+            Reserved.FROM + AbstractAnalyzer.CRLF_LEAST + AbstractAnalyzer.REGEX_IDENTIFIER + AbstractAnalyzer.CRLF +
+            ")+" +
             Operator.SEMICOLON + ")";
 
     public static final String REGEX_MODULE =
