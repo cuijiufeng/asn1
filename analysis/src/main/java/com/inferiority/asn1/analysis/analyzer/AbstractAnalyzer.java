@@ -32,6 +32,8 @@ public abstract class AbstractAnalyzer {
             return BooleanAnalyzer.getInstance();
         } else if (Reserved.INTEGER.equals(typeReserved)) {
             return IntegerAnalyzer.getInstance();
+        } else if (typeReserved.startsWith(Reserved.SEQUENCE + " " + Reserved.OF)) {
+            return SequenceOfAnalyzer.getInstance();
         }
         throw new AnalysisException("unsupported type: " + typeReserved);
     }

@@ -17,6 +17,7 @@ import java.util.AbstractMap;
 public class Definition {
     private String identifier;
     private String primitiveType;
+    private String sequenceOf;
     private String definitionText;
     private String bodyText;
     private AbstractMap.SimpleEntry<String, String>[] subDefs;

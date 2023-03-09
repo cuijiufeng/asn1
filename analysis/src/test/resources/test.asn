@@ -96,7 +96,7 @@ RectangularRegion ::= SEQUENCE  {
 }
 SequenceOfRectangularRegion ::= SEQUENCE OF RectangularRegion
 
-PolygonalRegion ::= SEQUENCE SIZE(3..MAX) OF TwoDLocation
+PolygonalRegion ::= SEQUENCE OF TwoDLocation
 TwoDLocation ::= SEQUENCE  {
     latitude      Latitude,
     longitude     Longitude
