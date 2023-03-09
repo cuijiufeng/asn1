@@ -27,14 +27,32 @@ public abstract class AbstractAnalyzer {
 
     public static final String REGEX_DEFINITION = REGEX_IDENTIFIER + CRLF + Operator.ASSIGNMENT + CRLF + "(" + REGEX_IDENTIFIER + "[ ]*)+";
 
-    public static AbstractAnalyzer getInstance(List<Module> modules, String typeReserved) throws AnalysisException {
+    /**
+     * @param modules 所有模块的定义
+     * @param module 当前模块的类型定义
+     * @param typeReserved
+     * @return com.inferiority.asn1.analysis.analyzer.AbstractAnalyzer
+     * @throws
+    */
+    public static AbstractAnalyzer getInstance(List<Module> modules, Module module, String typeReserved) throws AnalysisException {
         if (Reserved.BOOLEAN.equals(typeReserved)) {
             return BooleanAnalyzer.getInstance();
         } else if (Reserved.INTEGER.equals(typeReserved)) {
             return IntegerAnalyzer.getInstance();
         } else if (typeReserved.startsWith(Reserved.SEQUENCE + " " + Reserved.OF)) {
             return SequenceOfAnalyzer.getInstance();
+        } else if (typeReserved.equals(Reserved.OCTET + " " + Reserved.STRING)) {
+            return OctetStringAnalyzer.getInstance();
         }
+        //已知的定义类型
+        //从当前模块中查找
+        for (Definition def : module.getDefinitions()) {
+            if (def.getIdentifier().equals(typeReserved)) {
+                return getInstance(modules, module, def.getPrimitiveType());
+            }
+        }
+        //从依赖模块中查找
+        //TODO 2023/3/9 17:45
         throw new AnalysisException("unsupported type: " + typeReserved);
     }
 

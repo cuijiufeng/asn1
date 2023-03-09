@@ -11,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -129,24 +128,23 @@ public class ModuleAnalyzer {
                 .replaceAll(REGEX_IMPORTS, "")
                 .trim();
         module.setModuleBodyText(moduleBodyText);
-        module.setDefinitions(parseModuleBody(modules, moduleBodyText));
+        parseModuleBody(modules, module, moduleBodyText);
         return module;
     }
 
-    private List<Definition> parseModuleBody(List<Module> modules, String moduleBodyText) throws AnalysisException {
-        List<Definition> definitions = new LinkedList<>();
+    private void parseModuleBody(List<Module> modules, Module module, String moduleBodyText) throws AnalysisException {
+        List<Definition> definitions = module.getDefinitions();
         CharSequence t = moduleBodyText;
 
         while (t != null) {
             t = RegexUtil.matcherBetweenConsumerRet(AbstractAnalyzer.REGEX_DEFINITION, t, str -> {
                 String text = str.toString().trim();
                 String primitiveName = getPrimitiveType(text);
-                AbstractAnalyzer instance = AbstractAnalyzer.getInstance(modules, primitiveName);
+                AbstractAnalyzer instance = AbstractAnalyzer.getInstance(modules, module, primitiveName);
                 definitions.add(instance.parse(primitiveName, text, moduleBodyText));
                 log.debug("entity:\n{}", definitions.get(definitions.size() - 1));
             });
         }
-        return definitions;
     }
 
     private String getPrimitiveType(String typeDef) {
