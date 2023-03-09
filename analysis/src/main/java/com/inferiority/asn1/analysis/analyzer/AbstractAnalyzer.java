@@ -18,16 +18,14 @@ public abstract class AbstractAnalyzer {
 
     public static final String CRLF_LEAST = "(\\s{1,})";
 
-    //An "identifier" shall consist of an arbitrary number (one or more) of letters, digits, and hyphens. The initial character
-    //shall be a lower-case letter. A hyphen shall not be the last character. A hyphen shall not be immediately followed by
-    //another hyphen.
-    public static final String REGEX_IDENTIFIER = "((?!.*-{2,})(?<!-{2,1024}.{0,1024})[A-Za-z][A-Za-z0-9-]*)";
+    //public static final String REGEX_IDENTIFIER = "((?!.*-{2,})(?<!-{2,1024}.{0,1024})[A-Za-z][A-Za-z0-9-]*)";
+    public static final String REGEX_IDENTIFIER = "([A-Za-z][A-Za-z0-9-]*)";
 
     public static final String REGEX_NUM = "(0|-?[1-9][0-9]*)";
 
     public static final String REGEX_NUM_COMPOUND = "(" + REGEX_NUM + "|" + Reserved.MIN + "|" + Reserved.MAX + "|" + REGEX_IDENTIFIER + ")";
 
-    public static final String REGEX_DEFINITION = REGEX_IDENTIFIER + CRLF + Operator.ASSIGNMENT + CRLF + REGEX_IDENTIFIER;
+    public static final String REGEX_DEFINITION = REGEX_IDENTIFIER + CRLF + Operator.ASSIGNMENT + CRLF + "(" + REGEX_IDENTIFIER + "[ ]*)+";
 
     public static AbstractAnalyzer getInstance(List<Module> modules, String typeReserved) throws AnalysisException {
         switch (typeReserved) {

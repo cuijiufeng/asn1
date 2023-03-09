@@ -6,7 +6,7 @@ import com.inferiority.asn1.analysis.util.RegexUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -30,13 +30,12 @@ public class Analyzer {
     */
     public List<Module> analyzer() throws AnalysisException {
         FileReader reader = new FileReader(this.is);
-        List<Module> modules = new ArrayList<>(16);
+        List<Module> modules = new LinkedList<>();
         String moduleText = null;
         while ((moduleText = nextModule(reader)) != null) {
             log.trace("model text:\n{}", moduleText);
-            Module module = moduleAnalyzer.parse(modules, moduleText);
-            modules.add(module);
-            log.debug("model entity:\n{}", module);
+            modules.add(moduleAnalyzer.parse(modules, moduleText));
+            log.debug("model entity:\n{}", modules.get(modules.size() - 1));
         }
         return modules;
     }
@@ -49,6 +48,9 @@ public class Analyzer {
             if (RegexUtil.matches(ModuleAnalyzer.REGEX_MODULE, module.toString())) {
                 return module.toString();
             }
+        }
+        if (module.length() != 0) {
+            throw new AnalysisException("module definition syntax error");
         }
         return null;
     }

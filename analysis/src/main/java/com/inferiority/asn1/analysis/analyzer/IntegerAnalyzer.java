@@ -45,7 +45,7 @@ public class IntegerAnalyzer extends AbstractAnalyzer {
         //identifier
         definition.setIdentifier(RegexUtil.matcher(REGEX_IDENTIFIER, text));
         //body
-        definition.setBodyText(RegexUtil.matcherFunction(REGEX_INTEGER_BODY, text, group -> {
+        definition.setBodyText(RegexUtil.matcherFunc(REGEX_INTEGER_BODY, text, group -> {
             AbstractMap.SimpleEntry<String, String>[] entries =
                     Arrays.stream(definition.getBodyText()
                             .replaceAll(Operator.OPENING_BRACE, "")

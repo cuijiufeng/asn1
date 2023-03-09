@@ -5,6 +5,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author cuijiufeng
@@ -19,8 +20,7 @@ public class Module {
     private String tagDefault;
     private String extensionDefault;
     private String[] exports;
-    private String[] imports;
-    private String[] dependencies;
+    private List<? extends Map.Entry<String[], String>> imports;
     private String moduleBodyText;
     private List<Definition> definitions;
 }

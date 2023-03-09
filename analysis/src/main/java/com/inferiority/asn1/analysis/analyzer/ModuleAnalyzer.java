@@ -8,8 +8,10 @@ import com.inferiority.asn1.analysis.model.Module;
 import com.inferiority.asn1.analysis.util.RegexUtil;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -79,21 +81,19 @@ public class ModuleAnalyzer {
             Reserved.AUTOMATIC + " " + Reserved.TAGS + ")";
 
     public static final String REGEX_EXPORTS = "(" + Reserved.EXPORTS + AbstractAnalyzer.CRLF_LEAST +
-            "(" + AbstractAnalyzer.REGEX_IDENTIFIER + AbstractAnalyzer.CRLF + Operator.COMMA + AbstractAnalyzer.CRLF + ")*" +
-            AbstractAnalyzer.REGEX_IDENTIFIER + AbstractAnalyzer.CRLF + Operator.SEMICOLON + ")";
+            "(" + AbstractAnalyzer.REGEX_IDENTIFIER + Operator.COMMA + AbstractAnalyzer.CRLF + ")*" +
+            AbstractAnalyzer.REGEX_IDENTIFIER + Operator.SEMICOLON + ")";
 
-    public static final String REGEX_IMPORTS = "(" + Reserved.IMPORTS + AbstractAnalyzer.CRLF_LEAST +
-            "(" +
+    public static final String REGEX_IMPORT = "(" +
             "(" + AbstractAnalyzer.REGEX_IDENTIFIER + Operator.COMMA + AbstractAnalyzer.CRLF +")*" +
             AbstractAnalyzer.REGEX_IDENTIFIER + AbstractAnalyzer.CRLF_LEAST +
-            Reserved.FROM + AbstractAnalyzer.CRLF_LEAST + AbstractAnalyzer.REGEX_IDENTIFIER + AbstractAnalyzer.CRLF +
-            ")+" +
-            Operator.SEMICOLON + ")";
+            Reserved.FROM + AbstractAnalyzer.CRLF_LEAST + AbstractAnalyzer.REGEX_IDENTIFIER + ")";
+    public static final String REGEX_IMPORTS = "(" + Reserved.IMPORTS + AbstractAnalyzer.CRLF_LEAST + "[\\s\\S]*" + Operator.SEMICOLON + ")";
 
     public static final String REGEX_MODULE =
             AbstractAnalyzer.REGEX_IDENTIFIER + AbstractAnalyzer.CRLF_LEAST +
             Reserved.DEFINITIONS + AbstractAnalyzer.CRLF_LEAST +
-            REGEX_TAG_DEFAULT + "?" +
+            REGEX_TAG_DEFAULT + "?" + AbstractAnalyzer.CRLF +
             REGEX_EXTENSION_DEFAULT + "?" + AbstractAnalyzer.CRLF_LEAST +
             Operator.ASSIGNMENT + AbstractAnalyzer.CRLF_LEAST +
             Reserved.BEGIN + REGEX_EXPORTS + "?" + REGEX_IMPORTS + "?" + "[\\s\\S]*" + Reserved.END;
@@ -104,24 +104,24 @@ public class ModuleAnalyzer {
         module.setIdentifier(RegexUtil.matcher(AbstractAnalyzer.REGEX_IDENTIFIER, moduleText));
         module.setTagDefault(RegexUtil.matcher(REGEX_TAG_DEFAULT, moduleText));
         module.setExtensionDefault(RegexUtil.matcher(REGEX_EXTENSION_DEFAULT, moduleText));
-        module.setExports(RegexUtil.matcherFunction(REGEX_EXPORTS, moduleText,
-                str -> Arrays.stream(str.replaceAll(Reserved.EXPORTS, "")
+        module.setExports(RegexUtil.matcherFunc(REGEX_EXPORTS, moduleText, str ->
+                Arrays.stream(str.replaceAll(Reserved.EXPORTS, "")
                         .replaceAll(Operator.SEMICOLON, "")
                         .split(Operator.COMMA))
                 .map(String::trim)
                 .toArray(String[]::new)));
         RegexUtil.matcherConsumer(REGEX_IMPORTS, moduleText, str -> {
-            String[] froms = str.replaceAll(Reserved.IMPORTS, "")
-                    .replaceAll(Operator.SEMICOLON, "")
-                    .split(Reserved.FROM);
-            String[] importArr = Arrays.stream(froms[0].split(Operator.COMMA))
-                    .map(String::trim)
-                    .toArray(String[]::new);
-            module.setImports(importArr);
-            String[] fromArr = Arrays.stream(Arrays.copyOfRange(froms, 1, froms.length))
-                    .flatMap(s -> Arrays.stream(s.split(Operator.COMMA)).map(String::trim))
-                    .toArray(String[]::new);
-            module.setDependencies(fromArr);
+            List<AbstractMap.SimpleEntry<String[], String>> imports = new ArrayList<>();
+            CharSequence t = str;
+            while (t != null) {
+                t = RegexUtil.matcherConsumerRet(REGEX_IMPORT, t, s -> {
+                    String[] split = s.split(Reserved.FROM);
+                    imports.add(new AbstractMap.SimpleEntry<>(
+                            Arrays.stream(split[0].split(Operator.COMMA)).map(String::trim).toArray(String[]::new),
+                            split[1].trim()));
+                });
+            }
+            module.setImports(imports);
         });
         String moduleBodyText = moduleText
                 .substring(moduleText.indexOf(Reserved.BEGIN) + Reserved.BEGIN.length(), moduleText.indexOf(Reserved.END))
@@ -134,27 +134,15 @@ public class ModuleAnalyzer {
     }
 
     private List<Definition> parseModuleBody(List<Module> modules, String moduleBodyText) throws AnalysisException {
-        List<Definition> definitions = new ArrayList<>(16);
+        List<Definition> definitions = new LinkedList<>();
+        CharSequence t = moduleBodyText;
 
-        for (int idx = 0, start = 0, end = 0; ; idx = start) {
-            end = RegexUtil.end(idx, AbstractAnalyzer.REGEX_DEFINITION, moduleBodyText);
-            start = RegexUtil.start(end, AbstractAnalyzer.REGEX_DEFINITION, moduleBodyText);
-            if (end == -1) {
-                break;
-            }
-            if (start == -1) {
-                String substring = moduleBodyText.substring(idx);
-                Definition definition = AbstractAnalyzer.getInstance(modules, Reserved.INTEGER)
-                        .parse(Reserved.INTEGER, substring, moduleBodyText);
-                log.debug("entity:\n{}", definition);
-                definitions.add(definition);
-                break;
-            }
-            String substring = moduleBodyText.substring(idx, start);
-            Definition definition = AbstractAnalyzer.getInstance(modules, Reserved.INTEGER)
-                    .parse(Reserved.INTEGER, substring, moduleBodyText);
-            log.debug("entity:\n{}", definition);
-            definitions.add(definition);
+        while (t != null) {
+            t = RegexUtil.matcherBetweenConsumerRet(AbstractAnalyzer.REGEX_DEFINITION, t, str -> {
+                AbstractAnalyzer instance = AbstractAnalyzer.getInstance(modules, Reserved.INTEGER);
+                definitions.add(instance.parse(Reserved.INTEGER, str.toString().trim(), moduleBodyText));
+                log.debug("entity:\n{}", definitions.get(definitions.size() - 1));
+            });
         }
         return definitions;
     }
