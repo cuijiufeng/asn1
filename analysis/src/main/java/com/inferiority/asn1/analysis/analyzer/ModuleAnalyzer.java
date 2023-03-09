@@ -139,11 +139,17 @@ public class ModuleAnalyzer {
 
         while (t != null) {
             t = RegexUtil.matcherBetweenConsumerRet(AbstractAnalyzer.REGEX_DEFINITION, t, str -> {
-                AbstractAnalyzer instance = AbstractAnalyzer.getInstance(modules, Reserved.INTEGER);
-                definitions.add(instance.parse(Reserved.INTEGER, str.toString().trim(), moduleBodyText));
+                String text = str.toString().trim();
+                String primitiveName = getPrimitiveType(text);
+                AbstractAnalyzer instance = AbstractAnalyzer.getInstance(modules, primitiveName);
+                definitions.add(instance.parse(primitiveName, text, moduleBodyText));
                 log.debug("entity:\n{}", definitions.get(definitions.size() - 1));
             });
         }
         return definitions;
+    }
+
+    private String getPrimitiveType(String typeDef) {
+        return RegexUtil.matcher(typeDef.indexOf(Operator.ASSIGNMENT), "(" + AbstractAnalyzer.REGEX_IDENTIFIER + "[ ]*)+", typeDef).trim();
     }
 }

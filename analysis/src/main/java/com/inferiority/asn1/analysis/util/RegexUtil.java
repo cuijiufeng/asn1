@@ -23,6 +23,11 @@ public class RegexUtil {
         return compileMatcher(regex, input).find();
     }
 
+    public static String matcher(int start, String regex, CharSequence input) {
+        Matcher matcher = compileMatcher(regex, input);
+        return matcher.find(start) ? matcher.group() : null;
+    }
+
     public static String matcher(String regex, CharSequence input) {
         Matcher matcher = compileMatcher(regex, input);
         return matcher.find() ? matcher.group() : null;

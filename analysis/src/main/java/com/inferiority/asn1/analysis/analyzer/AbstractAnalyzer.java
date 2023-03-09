@@ -28,11 +28,12 @@ public abstract class AbstractAnalyzer {
     public static final String REGEX_DEFINITION = REGEX_IDENTIFIER + CRLF + Operator.ASSIGNMENT + CRLF + "(" + REGEX_IDENTIFIER + "[ ]*)+";
 
     public static AbstractAnalyzer getInstance(List<Module> modules, String typeReserved) throws AnalysisException {
-        switch (typeReserved) {
-            case Reserved.BOOLEAN: return BooleanAnalyzer.getInstance();
-            case Reserved.INTEGER: return IntegerAnalyzer.getInstance();
-            default: throw new AnalysisException("unsupported type: " + typeReserved);
+        if (Reserved.BOOLEAN.equals(typeReserved)) {
+            return BooleanAnalyzer.getInstance();
+        } else if (Reserved.INTEGER.equals(typeReserved)) {
+            return IntegerAnalyzer.getInstance();
         }
+        throw new AnalysisException("unsupported type: " + typeReserved);
     }
 
     public abstract Definition parse(String primitiveType, String text, String moduleText) throws AnalysisException;

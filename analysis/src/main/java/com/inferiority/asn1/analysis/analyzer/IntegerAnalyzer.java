@@ -18,8 +18,8 @@ import java.util.List;
 public class IntegerAnalyzer extends AbstractAnalyzer {
     private static final IntegerAnalyzer analyzer = new IntegerAnalyzer();
 
-    public static final String REGEX_INTEGER_BODY = "(" + Operator.OPENING_BRACE + CRLF + "(" + REGEX_IDENTIFIER + CRLF_LEAST + "[\\S]+," + CRLF + ")*(" +
-            REGEX_IDENTIFIER + CRLF_LEAST + "[\\S]+" + CRLF + ")" + Operator.CLOSING_BRACE + ")";
+    public static final String REGEX_INTEGER_BODY = "(" + Operator.OPENING_BRACE + CRLF + "(" + REGEX_IDENTIFIER + CRLF_LEAST + "[\\S]+[,]?" + CRLF + ")+" +
+            Operator.CLOSING_BRACE + ")";
 
     public static final String REGEX_INTEGER_RANGE = "(" + Operator.LEFT_BRACKET +
             "(" + REGEX_NUM_COMPOUND + Operator.RANGE + REGEX_NUM_COMPOUND + "|" + REGEX_NUM_COMPOUND + ")" +
@@ -47,13 +47,13 @@ public class IntegerAnalyzer extends AbstractAnalyzer {
         //body
         definition.setBodyText(RegexUtil.matcherFunc(REGEX_INTEGER_BODY, text, group -> {
             AbstractMap.SimpleEntry<String, String>[] entries =
-                    Arrays.stream(definition.getBodyText()
-                            .replaceAll(Operator.OPENING_BRACE, "")
+                    Arrays.stream(
+                            group.replaceAll(Operator.OPENING_BRACE, "")
                             .replaceAll(Operator.CLOSING_BRACE, "")
                             .split(Operator.COMMA))
-                            .map(String::trim)
-                            .map(str -> new AbstractMap.SimpleEntry<>(str.split("\\s+")[0], str.split("\\s+")[1]))
-                            .toArray(AbstractMap.SimpleEntry[]::new);
+                    .map(String::trim)
+                    .map(str -> new AbstractMap.SimpleEntry<>(str.split("\\s+")[0], str.split("\\s+")[1]))
+                    .toArray(AbstractMap.SimpleEntry[]::new);
             definition.setSubDefs(entries);
             return group;
         }));
@@ -67,12 +67,13 @@ public class IntegerAnalyzer extends AbstractAnalyzer {
             definition.setRangeMax(range[range.length - 1]);
         });
         //value
-        String valueText = null;
+        CharSequence t = moduleText;
         List<AbstractMap.SimpleEntry<String, String>> values = new ArrayList<>(16);
-        while (null != (valueText = RegexUtil.matcher(String.format(REGEX_INTEGER_VAL, definition.getIdentifier()), moduleText))) {
-            String[] split = valueText.split("\\s+");
-            values.add(new AbstractMap.SimpleEntry<>(split[0], split[split.length - 1]));
-            moduleText = moduleText.replace(valueText, "");
+        while (t != null) {
+            t = RegexUtil.matcherConsumerRet(String.format(REGEX_INTEGER_VAL, definition.getIdentifier()), t, valueText -> {
+                String[] split = valueText.split("\\s+");
+                values.add(new AbstractMap.SimpleEntry<>(split[0], split[split.length - 1]));
+            });
         }
         definition.setValues(values.isEmpty() ? null : values.toArray(new AbstractMap.SimpleEntry[0]));
         return definition;
