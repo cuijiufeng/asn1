@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -128,6 +129,7 @@ public class ModuleAnalyzer {
                 .replaceAll(REGEX_IMPORTS, "")
                 .trim();
         module.setModuleBodyText(moduleBodyText);
+        module.setDefinitions(new LinkedList<>());
         parseModuleBody(modules, module, moduleBodyText);
         return module;
     }

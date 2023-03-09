@@ -39,10 +39,12 @@ public abstract class AbstractAnalyzer {
             return BooleanAnalyzer.getInstance();
         } else if (Reserved.INTEGER.equals(typeReserved)) {
             return IntegerAnalyzer.getInstance();
-        } else if (typeReserved.startsWith(Reserved.SEQUENCE + " " + Reserved.OF)) {
-            return SequenceOfAnalyzer.getInstance();
         } else if (typeReserved.equals(Reserved.OCTET + " " + Reserved.STRING)) {
             return OctetStringAnalyzer.getInstance();
+        } else if (Reserved.SEQUENCE.equals(typeReserved)) {
+            return SequenceAnalyzer.getInstance();
+        } else if (typeReserved.startsWith(Reserved.SEQUENCE + " " + Reserved.OF)) {
+            return SequenceOfAnalyzer.getInstance();
         }
         //已知的定义类型
         //从当前模块中查找
