@@ -5,6 +5,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.util.AbstractMap;
+import java.util.List;
 
 /**
  * @author cuijiufeng
@@ -20,9 +21,9 @@ public class Definition {
     private String sequenceOf;
     private String definitionText;
     private String bodyText;
-    private AbstractMap.SimpleEntry<String, String>[] subDefs;
+    private List<AbstractMap.SimpleEntry<String, String>> subDefs;
     private String rangeMin;
     private String rangeMax;
     private String size;
-    private AbstractMap.SimpleEntry<String, String>[] values;
+    private List<AbstractMap.SimpleEntry<String, String>> values;
 }

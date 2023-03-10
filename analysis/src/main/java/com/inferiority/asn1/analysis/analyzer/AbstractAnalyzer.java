@@ -5,8 +5,12 @@ import com.inferiority.asn1.analysis.common.Operator;
 import com.inferiority.asn1.analysis.common.Reserved;
 import com.inferiority.asn1.analysis.model.Definition;
 import com.inferiority.asn1.analysis.model.Module;
+import com.inferiority.asn1.analysis.util.RegexUtil;
 
+import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * @author cuijiufeng
@@ -43,7 +47,8 @@ public abstract class AbstractAnalyzer {
             return OctetStringAnalyzer.getInstance();
         } else if (Reserved.SEQUENCE.equals(typeReserved)) {
             return SequenceAnalyzer.getInstance();
-        } else if (typeReserved.startsWith(Reserved.SEQUENCE + " " + Reserved.OF)) {
+        } else if (typeReserved.startsWith(Reserved.SEQUENCE + " " + Reserved.OF)
+                || typeReserved.startsWith(Reserved.SEQUENCE + " " + Reserved.SIZE)) {
             return SequenceOfAnalyzer.getInstance();
         }
         //已知的定义类型
@@ -59,4 +64,13 @@ public abstract class AbstractAnalyzer {
     }
 
     public abstract Definition parse(String primitiveType, String text, String moduleText) throws AnalysisException;
+
+    public List<AbstractMap.SimpleEntry<String, String>> parseValues(String regex, String text, Function<String, AbstractMap.SimpleEntry<String, String>> apply) {
+        List<AbstractMap.SimpleEntry<String, String>> values = new ArrayList<>(16);
+        CharSequence t = text;
+        while (t != null) {
+            t = RegexUtil.matcherConsumerRet(regex, t, valueText -> values.add(apply.apply(valueText)));
+        }
+        return values.isEmpty() ? null : values;
+    }
 }

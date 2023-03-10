@@ -6,9 +6,9 @@ import com.inferiority.asn1.analysis.model.Definition;
 import com.inferiority.asn1.analysis.util.RegexUtil;
 
 import java.util.AbstractMap;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author cuijiufeng
@@ -46,14 +46,13 @@ public class IntegerAnalyzer extends AbstractAnalyzer {
         definition.setIdentifier(RegexUtil.matcher(REGEX_IDENTIFIER, text));
         //body
         definition.setBodyText(RegexUtil.matcherFunc(REGEX_INTEGER_BODY, text, group -> {
-            AbstractMap.SimpleEntry<String, String>[] entries =
-                    Arrays.stream(
-                            group.replaceAll(Operator.OPENING_BRACE, "")
+            List<AbstractMap.SimpleEntry<String, String>> entries = Arrays.stream(
+                    group.replaceAll(Operator.OPENING_BRACE, "")
                             .replaceAll(Operator.CLOSING_BRACE, "")
                             .split(Operator.COMMA))
                     .map(String::trim)
                     .map(str -> new AbstractMap.SimpleEntry<>(str.split("\\s+")[0], str.split("\\s+")[1]))
-                    .toArray(AbstractMap.SimpleEntry[]::new);
+                    .collect(Collectors.toList());
             definition.setSubDefs(entries);
             return group;
         }));
@@ -67,15 +66,10 @@ public class IntegerAnalyzer extends AbstractAnalyzer {
             definition.setRangeMax(range[range.length - 1]);
         });
         //value
-        CharSequence t = moduleText;
-        List<AbstractMap.SimpleEntry<String, String>> values = new ArrayList<>(16);
-        while (t != null) {
-            t = RegexUtil.matcherConsumerRet(String.format(REGEX_INTEGER_VAL, definition.getIdentifier()), t, valueText -> {
-                String[] split = valueText.split("\\s+");
-                values.add(new AbstractMap.SimpleEntry<>(split[0], split[split.length - 1]));
-            });
-        }
-        definition.setValues(values.isEmpty() ? null : values.toArray(new AbstractMap.SimpleEntry[0]));
+        definition.setValues(parseValues(String.format(REGEX_INTEGER_VAL, definition.getIdentifier()), moduleText, valueText -> {
+            String[] split = valueText.split("\\s+");
+            return new AbstractMap.SimpleEntry<>(split[0], split[split.length - 1]);
+        }));
         return definition;
     }
 }

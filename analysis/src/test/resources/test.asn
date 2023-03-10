@@ -96,7 +96,7 @@ RectangularRegion ::= SEQUENCE  {
 }
 SequenceOfRectangularRegion ::= SEQUENCE OF RectangularRegion
 
-PolygonalRegion ::= SEQUENCE OF TwoDLocation
+PolygonalRegion ::= SEQUENCE SIZE(3..MAX) OF TwoDLocation
 TwoDLocation ::= SEQUENCE  {
     latitude      Latitude,
     longitude     Longitude
@@ -192,7 +192,7 @@ EcdsaP384Signature ::= SEQUENCE  {
 
 EccP256CurvePoint ::= CHOICE  {
     x-only           OCTET STRING (SIZE (32)),
-    fill             NULL,  -- consistency with 1363 / X9.62
+    fill             NULL,
     compressed-y-0   OCTET STRING (SIZE (32)),
     compressed-y-1   OCTET STRING (SIZE (32)),
     uncompressed     SEQUENCE  {

@@ -7,8 +7,6 @@ import com.inferiority.asn1.analysis.model.Definition;
 import com.inferiority.asn1.analysis.util.RegexUtil;
 
 import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author cuijiufeng
@@ -39,15 +37,10 @@ public class BooleanAnalyzer extends AbstractAnalyzer {
         //identifier
         definition.setIdentifier(RegexUtil.matcher(REGEX_IDENTIFIER, text));
         //value
-        CharSequence t = moduleText;
-        List<AbstractMap.SimpleEntry<String, String>> values = new ArrayList<>(16);
-        while (t != null) {
-            t = RegexUtil.matcherConsumerRet(String.format(REGEX_BOOLEAN_VAL, definition.getIdentifier()), t, valueText -> {
-                String[] split = valueText.split("\\s+");
-                values.add(new AbstractMap.SimpleEntry<>(split[0], split[split.length - 1]));
-            });
-        }
-        definition.setValues(values.isEmpty() ? null : values.toArray(new AbstractMap.SimpleEntry[0]));
+        definition.setValues(parseValues(String.format(REGEX_BOOLEAN_VAL, definition.getIdentifier()), moduleText, valueText -> {
+            String[] split = valueText.split("\\s+");
+            return new AbstractMap.SimpleEntry<>(split[0], split[split.length - 1]);
+        }));
         return definition;
     }
 }
