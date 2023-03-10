@@ -8,6 +8,7 @@ import com.inferiority.asn1.analysis.util.RegexUtil;
 import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -46,12 +47,12 @@ public class IntegerAnalyzer extends AbstractAnalyzer {
         definition.setIdentifier(RegexUtil.matcher(REGEX_IDENTIFIER, text));
         //body
         definition.setBodyText(RegexUtil.matcherFunc(REGEX_INTEGER_BODY, text, group -> {
-            List<AbstractMap.SimpleEntry<String, String>> entries = Arrays.stream(
+            List<Map.Entry<String, String>> entries = Arrays.stream(
                     group.replaceAll(Operator.OPENING_BRACE, "")
                             .replaceAll(Operator.CLOSING_BRACE, "")
                             .split(Operator.COMMA))
                     .map(String::trim)
-                    .map(str -> new AbstractMap.SimpleEntry<>(str.split("\\s+")[0], str.split("\\s+")[1]))
+                    .map(str -> new AbstractMap.SimpleEntry<>(str.split("\\s+", 2)[0], str.split("\\s+", 2)[1]))
                     .collect(Collectors.toList());
             definition.setSubDefs(entries);
             return group;
@@ -66,10 +67,9 @@ public class IntegerAnalyzer extends AbstractAnalyzer {
             definition.setRangeMax(range[range.length - 1]);
         });
         //value
-        definition.setValues(parseValues(String.format(REGEX_INTEGER_VAL, definition.getIdentifier()), moduleText, valueText -> {
-            String[] split = valueText.split("\\s+");
-            return new AbstractMap.SimpleEntry<>(split[0], split[split.length - 1]);
-        }));
+        definition.setValues(parseValues(String.format(REGEX_INTEGER_VAL, definition.getIdentifier()), moduleText, valueText ->
+            new AbstractMap.SimpleEntry<>(valueText.split("\\s+")[0], valueText.split(Operator.ASSIGNMENT)[1].trim())
+        ));
         return definition;
     }
 }

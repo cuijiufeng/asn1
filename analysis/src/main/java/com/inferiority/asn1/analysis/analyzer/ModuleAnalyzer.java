@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author cuijiufeng
@@ -111,7 +112,7 @@ public class ModuleAnalyzer {
                 .map(String::trim)
                 .toArray(String[]::new)));
         RegexUtil.matcherConsumer(REGEX_IMPORTS, moduleText, str -> {
-            List<AbstractMap.SimpleEntry<String[], String>> imports = new ArrayList<>();
+            List<Map.Entry<String[], String>> imports = new ArrayList<>();
             CharSequence t = str;
             while (t != null) {
                 t = RegexUtil.matcherConsumerRet(REGEX_IMPORT, t, s -> {

@@ -20,7 +20,7 @@ public class Module {
     private String tagDefault;
     private String extensionDefault;
     private String[] exports;
-    private List<? extends Map.Entry<String[], String>> imports;
+    private List<Map.Entry<String[], String>> imports;
     private String moduleBodyText;
     private List<Definition> definitions;
 }

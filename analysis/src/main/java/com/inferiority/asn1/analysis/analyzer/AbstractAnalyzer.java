@@ -10,6 +10,7 @@ import com.inferiority.asn1.analysis.util.RegexUtil;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -65,8 +66,8 @@ public abstract class AbstractAnalyzer {
 
     public abstract Definition parse(String primitiveType, String text, String moduleText) throws AnalysisException;
 
-    public List<AbstractMap.SimpleEntry<String, String>> parseValues(String regex, String text, Function<String, AbstractMap.SimpleEntry<String, String>> apply) {
-        List<AbstractMap.SimpleEntry<String, String>> values = new ArrayList<>(16);
+    public List<Map.Entry<String, String>> parseValues(String regex, String text, Function<String, AbstractMap.SimpleEntry<String, String>> apply) {
+        List<Map.Entry<String, String>> values = new ArrayList<>(16);
         CharSequence t = text;
         while (t != null) {
             t = RegexUtil.matcherConsumerRet(regex, t, valueText -> values.add(apply.apply(valueText)));

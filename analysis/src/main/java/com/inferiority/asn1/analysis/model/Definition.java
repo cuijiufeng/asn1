@@ -4,8 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.AbstractMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author cuijiufeng
@@ -21,9 +21,9 @@ public class Definition {
     private String sequenceOf;
     private String definitionText;
     private String bodyText;
-    private List<AbstractMap.SimpleEntry<String, String>> subDefs;
+    private List<Map.Entry<String, String>> subDefs;
     private String rangeMin;
     private String rangeMax;
     private String size;
-    private List<AbstractMap.SimpleEntry<String, String>> values;
+    private List<Map.Entry<String, String>> values;
 }

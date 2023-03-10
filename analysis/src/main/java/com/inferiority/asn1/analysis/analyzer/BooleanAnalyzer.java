@@ -37,10 +37,9 @@ public class BooleanAnalyzer extends AbstractAnalyzer {
         //identifier
         definition.setIdentifier(RegexUtil.matcher(REGEX_IDENTIFIER, text));
         //value
-        definition.setValues(parseValues(String.format(REGEX_BOOLEAN_VAL, definition.getIdentifier()), moduleText, valueText -> {
-            String[] split = valueText.split("\\s+");
-            return new AbstractMap.SimpleEntry<>(split[0], split[split.length - 1]);
-        }));
+        definition.setValues(parseValues(String.format(REGEX_BOOLEAN_VAL, definition.getIdentifier()), moduleText, valueText ->
+            new AbstractMap.SimpleEntry<>(valueText.split("\\s+")[0], valueText.split(Operator.ASSIGNMENT)[1].trim())
+        ));
         return definition;
     }
 }
