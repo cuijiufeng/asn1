@@ -16,14 +16,23 @@ import java.util.Map;
 @Setter
 @ToString
 public class Definition {
+    private String definitionText;
     private String identifier;
+    private String bodyText;
     private String primitiveType;
     private String sequenceOf;
-    private String definitionText;
-    private String bodyText;
-    private List<Map.Entry<String, String>> subDefs;
+    private String subBodyText;
+    private List<Definition> subDefs;
     private String rangeMin;
     private String rangeMax;
     private String size;
     private List<Map.Entry<String, String>> values;
+
+    public Definition() {
+    }
+
+    public Definition(String identifier, String bodyText) {
+        this.identifier = identifier;
+        this.bodyText = bodyText;
+    }
 }

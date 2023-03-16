@@ -64,7 +64,11 @@ public abstract class AbstractAnalyzer {
         throw new AnalysisException("unsupported type: " + typeReserved);
     }
 
-    public abstract Definition parse(String primitiveType, String text, String moduleText) throws AnalysisException;
+    public abstract Definition parse(List<Module> modules, Module module, String primitiveType, String text, String moduleText) throws AnalysisException;
+
+    public static String getPrimitiveType(String typeDef) {
+        return RegexUtil.matcher(typeDef.indexOf(Operator.ASSIGNMENT), "(" + AbstractAnalyzer.REGEX_IDENTIFIER + "[ ]*)+", typeDef).trim();
+    }
 
     public List<Map.Entry<String, String>> parseValues(String regex, String text, Function<String, AbstractMap.SimpleEntry<String, String>> apply) {
         List<Map.Entry<String, String>> values = new ArrayList<>(16);

@@ -3,12 +3,12 @@ package com.inferiority.asn1.analysis.analyzer;
 import com.inferiority.asn1.analysis.AnalysisException;
 import com.inferiority.asn1.analysis.common.Operator;
 import com.inferiority.asn1.analysis.model.Definition;
+import com.inferiority.asn1.analysis.model.Module;
 import com.inferiority.asn1.analysis.util.RegexUtil;
 
 import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -36,7 +36,7 @@ public class IntegerAnalyzer extends AbstractAnalyzer {
     }
 
     @Override
-    public Definition parse(String primitiveType, String text, String moduleText) throws AnalysisException {
+    public Definition parse(List<Module> modules, Module module, String primitiveType, String text, String moduleText) throws AnalysisException {
         if (!RegexUtil.matches(REGEX_INTEGER, text)) {
             throw new AnalysisException("not a valid integer type definition.\n" + text);
         }
@@ -46,13 +46,13 @@ public class IntegerAnalyzer extends AbstractAnalyzer {
         //identifier
         definition.setIdentifier(RegexUtil.matcher(REGEX_IDENTIFIER, text));
         //body
-        definition.setBodyText(RegexUtil.matcherFunc(REGEX_INTEGER_BODY, text, group -> {
-            List<Map.Entry<String, String>> entries = Arrays.stream(
+        definition.setSubBodyText(RegexUtil.matcherFunc(REGEX_INTEGER_BODY, text, group -> {
+            List<Definition> entries = Arrays.stream(
                     group.replaceAll(Operator.OPENING_BRACE, "")
                             .replaceAll(Operator.CLOSING_BRACE, "")
                             .split(Operator.COMMA))
                     .map(String::trim)
-                    .map(str -> new AbstractMap.SimpleEntry<>(str.split("\\s+", 2)[0], str.split("\\s+", 2)[1]))
+                    .map(str -> new Definition(str.split("\\s+", 2)[0], str.split("\\s+", 2)[1]))
                     .collect(Collectors.toList());
             definition.setSubDefs(entries);
             return group;

@@ -4,7 +4,10 @@ import com.inferiority.asn1.analysis.AnalysisException;
 import com.inferiority.asn1.analysis.common.Operator;
 import com.inferiority.asn1.analysis.common.Reserved;
 import com.inferiority.asn1.analysis.model.Definition;
+import com.inferiority.asn1.analysis.model.Module;
 import com.inferiority.asn1.analysis.util.RegexUtil;
+
+import java.util.List;
 
 /**
  * @author cuijiufeng
@@ -26,7 +29,7 @@ public class SequenceOfAnalyzer extends AbstractAnalyzer {
     }
 
     @Override
-    public Definition parse(String primitiveType, String text, String moduleText) throws AnalysisException {
+    public Definition parse(List<Module> modules, Module module, String primitiveType, String text, String moduleText) throws AnalysisException {
         if (!RegexUtil.matches(REGEX_SEQUENCE_OF, text)) {
             throw new AnalysisException("not a valid sequence-of type definition.\n" + text);
         }
