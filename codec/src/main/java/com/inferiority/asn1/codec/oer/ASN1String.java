@@ -18,11 +18,6 @@ public abstract class ASN1String extends ASN1Object {
     private Integer minimum;
     private Integer maximum;
 
-    public ASN1String(String string) {
-        Objects.requireNonNull(string, "string cannot be null");
-        this.data = toByteArray(string);
-    }
-
     public ASN1String(@Nullable Integer minimum, @Nullable Integer maximum) {
         if (Objects.nonNull(minimum) && Objects.nonNull(maximum) && minimum > maximum) {
             throw new IllegalArgumentException(String.format("the minimum value of %s is greater than the maximum value of %s", minimum, maximum));
@@ -31,20 +26,12 @@ public abstract class ASN1String extends ASN1Object {
         this.maximum = maximum;
     }
 
-    public ASN1String(String string, @Nullable Integer minimum, @Nullable Integer maximum) {
-        if (string == null) {
-            throw new NullPointerException("string cannot be null");
-        }
-        if (Objects.nonNull(minimum) && string.length() < minimum) {
-            throw new IllegalArgumentException(String.format("%s length is less than %d", string, minimum));
-        }
-        if (Objects.nonNull(maximum) && string.length() > maximum) {
-            throw new IllegalArgumentException(String.format("%s length is greater than %d", string, maximum));
-        }
+    public ASN1String(byte[] string, @Nullable Integer minimum, @Nullable Integer maximum) {
+        Objects.requireNonNull(string, "string cannot be null");
         if (Objects.nonNull(minimum) && Objects.nonNull(maximum) && minimum > maximum) {
             throw new IllegalArgumentException(String.format("the minimum value of %s is greater than the maximum value of %s", minimum, maximum));
         }
-        this.data = toByteArray(string);
+        this.data = string;
         this.minimum = minimum;
         this.maximum = maximum;
     }
@@ -105,7 +92,7 @@ public abstract class ASN1String extends ASN1Object {
         return result;
     }
 
-    private byte[] toByteArray(String string) {
+    protected static byte[] toByteArray(String string) {
         byte[] bytes = new byte[string.length()];
         for (int i = 0; i != bytes.length; i++) {
             char ch = string.charAt(i);

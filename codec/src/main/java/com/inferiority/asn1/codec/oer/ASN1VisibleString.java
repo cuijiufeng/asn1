@@ -14,7 +14,7 @@ import java.util.Objects;
 public class ASN1VisibleString extends ASN1String {
 
     public ASN1VisibleString(String string) {
-        super(string);
+        super(ASN1String.toByteArray(string), null, null);
     }
 
     public ASN1VisibleString(@Nullable Integer minimum, @Nullable Integer maximum) {
@@ -22,7 +22,7 @@ public class ASN1VisibleString extends ASN1String {
     }
 
     public ASN1VisibleString(String string, @Nullable Integer minimum, @Nullable Integer maximum) {
-        super(string, minimum, maximum);
+        super(ASN1String.toByteArray(string), minimum, maximum);
     }
 
     @Override

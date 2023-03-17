@@ -14,7 +14,7 @@ import java.util.Objects;
 public class ASN1PrintableString extends ASN1String {
 
     public ASN1PrintableString(String string) {
-        super(string);
+        super(ASN1String.toByteArray(string), null, null);
         if (notPrintableString(string)) {
             throw new IllegalArgumentException("string contains illegal characters");
         }
@@ -25,9 +25,15 @@ public class ASN1PrintableString extends ASN1String {
     }
 
     public ASN1PrintableString(String string, @Nullable Integer minimum, @Nullable Integer maximum) {
-        super(string, minimum, maximum);
+        super(ASN1String.toByteArray(string), minimum, maximum);
         if (notPrintableString(string)) {
             throw new IllegalArgumentException("string contains illegal characters");
+        }
+        if (Objects.nonNull(minimum) && string.length() < minimum) {
+            throw new IllegalArgumentException(String.format("%s length is less than %d", string, minimum));
+        }
+        if (Objects.nonNull(maximum) && string.length() > maximum) {
+            throw new IllegalArgumentException(String.format("%s length is greater than %d", string, maximum));
         }
     }
 

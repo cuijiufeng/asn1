@@ -14,7 +14,7 @@ import java.util.Objects;
 public class ASN1IA5String extends ASN1String {
 
     public ASN1IA5String(String string) {
-        super(string);
+        super(ASN1String.toByteArray(string), null, null);
         if (notIA5String(string)) {
             throw new IllegalArgumentException(String.format("%s contains illegal characters", string));
         }
@@ -25,9 +25,15 @@ public class ASN1IA5String extends ASN1String {
     }
 
     public ASN1IA5String(String string, @Nullable Integer minimum, @Nullable Integer maximum) {
-        super(string, minimum, maximum);
+        super(ASN1String.toByteArray(string), minimum, maximum);
         if (notIA5String(string)) {
             throw new IllegalArgumentException(String.format("%s contains illegal characters", string));
+        }
+        if (Objects.nonNull(minimum) && string.length() < minimum) {
+            throw new IllegalArgumentException(String.format("%s length is less than %d", string, minimum));
+        }
+        if (Objects.nonNull(maximum) && string.length() > maximum) {
+            throw new IllegalArgumentException(String.format("%s length is greater than %d", string, maximum));
         }
     }
 
