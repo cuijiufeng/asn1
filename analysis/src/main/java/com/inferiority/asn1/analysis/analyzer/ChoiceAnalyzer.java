@@ -52,7 +52,7 @@ public class ChoiceAnalyzer extends AbstractAnalyzer {
         List<String> split = splitBody(body);
         for (String s : split) {
             if (RegexUtil.matches(Operator.ELLIPSIS, s)) {
-                subs.add(new Definition(null, s.trim()));
+                subs.add(new Definition(s.trim(), null));
                 continue;
             }
             s = s.trim().replaceFirst("[ ]+", Operator.ASSIGNMENT);

@@ -46,6 +46,8 @@ public abstract class AbstractAnalyzer {
             return BooleanAnalyzer.getInstance();
         } else if (Reserved.INTEGER.equals(typeReserved)) {
             return IntegerAnalyzer.getInstance();
+        } else if (Reserved.ENUMERATED.equals(typeReserved)) {
+            return EnumeratedAnalyzer.getInstance();
         } else if (typeReserved.equals(Reserved.OCTET + " " + Reserved.STRING)) {
             return OctetStringAnalyzer.getInstance();
         } else if (Reserved.SEQUENCE.equals(typeReserved)) {
