@@ -54,11 +54,6 @@ SequenceOfHashedId3 ::= SEQUENCE OF HashedId3
 Time32 ::= Uint32
 Time64 ::= Uint64
 
-ValidityPeriod ::= SEQUENCE  {
-    start          Time32,
-    duration       Duration
-}
-
 Duration ::= CHOICE  {
     microseconds     Uint16,
     milliseconds     Uint16,
@@ -69,21 +64,45 @@ Duration ::= CHOICE  {
     years            Uint16
 }
 
+ValidityPeriod ::= SEQUENCE  {
+    start          Time32,
+    duration       Duration
+}
 
 -- ------------------------------------------------------------------
 --
 -- Location
 --
 -- ------------------------------------------------------------------
+ElevInt ::= Uint16 -- Range is from -4096 to 61439 in units of one-tenth of a meter
 
+NinetyDegreeInt ::= INTEGER  {
+    min 		(-900000000),
+    max 		(900000000),
+    unknown 	(900000001)
+} (-900000000..900000001)
 
-GeographicRegion ::= CHOICE  {
-    circularRegion      CircularRegion,
-    rectangularRegion   SequenceOfRectangularRegion,
-    polygonalRegion     PolygonalRegion,
-    identifiedRegion    SequenceOfIdentifiedRegion,
-    ...
+OneEightyDegreeInt ::= INTEGER  {
+    min      	(-1799999999),
+    max      	(1800000000),
+    unknown  	(1800000001)
+} (-1799999999..1800000001)
+
+KnownLongitude ::= OneEightyDegreeInt (min..max)
+UnknownLongitude ::= OneEightyDegreeInt (unknown)
+
+Latitude ::= NinetyDegreeInt
+Longitude ::= OneEightyDegreeInt
+Elevation ::= ElevInt
+
+KnownLatitude ::= NinetyDegreeInt (min..max) -- Minus 90deg to +90deg in microdegree intervals
+UnknownLatitude ::= NinetyDegreeInt (unknown)
+
+TwoDLocation ::= SEQUENCE  {
+    latitude      Latitude,
+    longitude     Longitude
 }
+PolygonalRegion ::= SEQUENCE SIZE(3..MAX) OF TwoDLocation
 
 CircularRegion ::= SEQUENCE  {
     center          TwoDLocation,
@@ -96,10 +115,22 @@ RectangularRegion ::= SEQUENCE  {
 }
 SequenceOfRectangularRegion ::= SEQUENCE OF RectangularRegion
 
-PolygonalRegion ::= SEQUENCE SIZE(3..MAX) OF TwoDLocation
-TwoDLocation ::= SEQUENCE  {
-    latitude      Latitude,
-    longitude     Longitude
+CountryOnly ::= Uint16
+
+CountryAndRegions ::= SEQUENCE  {
+    countryOnly    CountryOnly,
+    regions        SequenceOfUint8
+}
+
+RegionAndSubregions ::= SEQUENCE  {
+    region             Uint8,
+    subregions         SequenceOfUint16
+}
+SequenceOfRegionAndSubregions ::= SEQUENCE OF RegionAndSubregions
+
+CountryAndSubregions ::= SEQUENCE  {
+    country             CountryOnly,
+    regionAndSubregions  SequenceOfRegionAndSubregions
 }
 
 IdentifiedRegion ::= CHOICE  {
@@ -110,85 +141,25 @@ IdentifiedRegion ::= CHOICE  {
 }
 SequenceOfIdentifiedRegion ::= SEQUENCE OF IdentifiedRegion
 
-CountryOnly ::= Uint16
-
-CountryAndRegions ::= SEQUENCE  {
-    countryOnly    CountryOnly,
-    regions        SequenceOfUint8
-}
-
-CountryAndSubregions ::= SEQUENCE  {
-    country             CountryOnly,
-    regionAndSubregions  SequenceOfRegionAndSubregions
-}
-
-RegionAndSubregions ::= SEQUENCE  {
-    region             Uint8,
-    subregions         SequenceOfUint16
-}
-SequenceOfRegionAndSubregions ::= SEQUENCE OF RegionAndSubregions
-
 ThreeDLocation ::= SEQUENCE  {
     latitude        Latitude,
     longitude       Longitude,
     elevation       Elevation
 }
 
-Latitude ::= NinetyDegreeInt
-Longitude ::= OneEightyDegreeInt
-Elevation ::= ElevInt
-
-NinetyDegreeInt ::= INTEGER  {
-    min 		(-900000000),
-    max 		(900000000),
-    unknown 	(900000001)
-} (-900000000..900000001)
-
-KnownLatitude ::= NinetyDegreeInt (min..max) -- Minus 90deg to +90deg in microdegree intervals
-UnknownLatitude ::= NinetyDegreeInt (unknown)
-
-OneEightyDegreeInt ::= INTEGER  {
-    min      	(-1799999999),
-    max      	(1800000000),
-    unknown  	(1800000001)
-} (-1799999999..1800000001)
-
-KnownLongitude ::= OneEightyDegreeInt (min..max)
-UnknownLongitude ::= OneEightyDegreeInt (unknown)
-
-ElevInt ::= Uint16 -- Range is from -4096 to 61439 in units of one-tenth of a meter
-
+GeographicRegion ::= CHOICE  {
+    circularRegion      CircularRegion,
+    rectangularRegion   SequenceOfRectangularRegion,
+    polygonalRegion     PolygonalRegion,
+    identifiedRegion    SequenceOfIdentifiedRegion,
+    ...
+}
 
 -- ------------------------------------------------------------------
 --
 -- Crypto
 --
 -- ------------------------------------------------------------------
-
-
-Signature ::= CHOICE  {
-    ecdsaNistP256Signature          EcdsaP256Signature,
-    ecdsaBrainpoolP256r1Signature   EcdsaP256Signature,
-    ...,
-    ecdsaBrainpoolP384r1Signature   EcdsaP384Signature,
-    ecdsaNistP384Signature          EcdsaP384Signature,
-    sm2Signature                    EcsigP256Signature
-}
-
-EcdsaP256Signature ::= SEQUENCE  {
-    rSig    EccP256CurvePoint,
-    sSig    OCTET STRING (SIZE (32))
-}
-
-EcsigP256Signature ::= SEQUENCE {
-    rSig    OCTET STRING (SIZE (32)),
-    sSig    OCTET STRING (SIZE (32))
-}
-
-EcdsaP384Signature ::= SEQUENCE  {
-    rSig     EccP384CurvePoint,
-    sSig     OCTET STRING (SIZE (48))
-}
 
 EccP256CurvePoint ::= CHOICE  {
     x-only           OCTET STRING (SIZE (32)),
@@ -201,6 +172,11 @@ EccP256CurvePoint ::= CHOICE  {
     }
 }
 
+EcdsaP256Signature ::= SEQUENCE  {
+    rSig    EccP256CurvePoint,
+    sSig    OCTET STRING (SIZE (32))
+}
+
 EccP384CurvePoint::= CHOICE {
     x-only          OCTET STRING (SIZE (48)),
     fill            NULL, -- consistency w 1363 / X9.62
@@ -210,6 +186,25 @@ EccP384CurvePoint::= CHOICE {
         x OCTET STRING (SIZE (48)),
         y OCTET STRING (SIZE (48))
     }
+}
+
+EcdsaP384Signature ::= SEQUENCE  {
+    rSig     EccP384CurvePoint,
+    sSig     OCTET STRING (SIZE (48))
+}
+
+EcsigP256Signature ::= SEQUENCE {
+    rSig    OCTET STRING (SIZE (32)),
+    sSig    OCTET STRING (SIZE (32))
+}
+
+Signature ::= CHOICE  {
+    ecdsaNistP256Signature          EcdsaP256Signature,
+    ecdsaBrainpoolP256r1Signature   EcdsaP256Signature,
+    ...,
+    ecdsaBrainpoolP384r1Signature   EcdsaP384Signature,
+    ecdsaNistP384Signature          EcdsaP384Signature,
+    sm2Signature                    EcsigP256Signature
 }
 
 SymmAlgorithm ::= ENUMERATED  {

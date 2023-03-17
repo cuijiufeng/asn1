@@ -13,16 +13,16 @@ import java.util.Stack;
 
 /**
  * @author cuijiufeng
- * @Class SequenceAnalyzer
- * @Date 2023/3/9 17:46
+ * @Class ChoiceAnalyzer
+ * @Date 2023/3/17 10:30
  */
-public class SequenceAnalyzer extends AbstractAnalyzer {
-    private static final SequenceAnalyzer analyzer = new SequenceAnalyzer();
+public class ChoiceAnalyzer extends AbstractAnalyzer {
+    private static final ChoiceAnalyzer analyzer = new ChoiceAnalyzer();
 
-    public static final String REGEX_SEQUENCE_BODY = "(" + Operator.OPENING_BRACE + "[\\s\\S]*" + Operator.CLOSING_BRACE + ")";
+    public static final String REGEX_CHOICE_BODY = "(" + Operator.OPENING_BRACE + "[\\s\\S]*" + Operator.CLOSING_BRACE + ")";
 
-    public static final String REGEX_SEQUENCE = CRLF + REGEX_IDENTIFIER + CRLF + Operator.ASSIGNMENT + CRLF + REGEX_IDENTIFIER + CRLF +
-            REGEX_SEQUENCE_BODY + "?" + CRLF +
+    public static final String REGEX_CHOICE = CRLF + REGEX_IDENTIFIER + CRLF + Operator.ASSIGNMENT + CRLF + REGEX_IDENTIFIER + CRLF +
+            REGEX_CHOICE_BODY + "?" + CRLF +
             "(" + Operator.LEFT_BRACKET + "[\\s\\S]*" + Operator.RIGHT_BRACKET + ")" + "?" + CRLF;
 
     public static AbstractAnalyzer getInstance() {
@@ -31,16 +31,16 @@ public class SequenceAnalyzer extends AbstractAnalyzer {
 
     @Override
     public Definition parse(List<Module> modules, Module module, String primitiveType, String text, String moduleText) throws AnalysisException {
-        if (!RegexUtil.matches(REGEX_SEQUENCE, text)) {
-            throw new AnalysisException("not a valid sequence type definition.\n" + text);
+        if (!RegexUtil.matches(REGEX_CHOICE, text)) {
+            throw new AnalysisException("not a valid choice type definition.\n" + text);
         }
         Definition definition = new Definition();
-        definition.setPrimitiveType(Reserved.SEQUENCE);
+        definition.setPrimitiveType(Reserved.CHOICE);
         definition.setDefinitionText(text);
         //identifier
         definition.setIdentifier(RegexUtil.matcher(REGEX_IDENTIFIER, text));
         //body
-        definition.setSubBodyText(RegexUtil.matcherFunc(REGEX_SEQUENCE_BODY, text, body -> {
+        definition.setSubBodyText(RegexUtil.matcherFunc(REGEX_CHOICE_BODY, text, body -> {
             definition.setSubDefs(parseBody(modules, module, body.substring(1, body.length() - 1)));
             return body;
         }));

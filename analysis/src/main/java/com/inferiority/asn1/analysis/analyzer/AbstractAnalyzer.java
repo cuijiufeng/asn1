@@ -50,6 +50,8 @@ public abstract class AbstractAnalyzer {
             return OctetStringAnalyzer.getInstance();
         } else if (Reserved.SEQUENCE.equals(typeReserved)) {
             return SequenceAnalyzer.getInstance();
+        } else if (Reserved.CHOICE.equals(typeReserved)) {
+            return ChoiceAnalyzer.getInstance();
         } else if (typeReserved.startsWith(Reserved.SEQUENCE + " " + Reserved.OF)
                 || typeReserved.startsWith(Reserved.SEQUENCE + " " + Reserved.SIZE)) {
             return SequenceOfAnalyzer.getInstance();

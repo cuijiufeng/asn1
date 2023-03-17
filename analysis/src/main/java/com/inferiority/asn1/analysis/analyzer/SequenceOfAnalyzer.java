@@ -22,7 +22,8 @@ public class SequenceOfAnalyzer extends AbstractAnalyzer {
             Operator.RIGHT_BRACKET + ")";
 
     public static final String REGEX_SEQUENCE_OF = CRLF + REGEX_IDENTIFIER + CRLF + Operator.ASSIGNMENT + CRLF +
-            Reserved.SEQUENCE + " " + REGEX_SEQUENCE_OF_RANGE + "?" + CRLF + Reserved.OF + CRLF_LEAST + REGEX_IDENTIFIER + CRLF;
+            "(" + Reserved.SEQUENCE + " " + REGEX_SEQUENCE_OF_RANGE + "?" + CRLF + Reserved.OF + CRLF_LEAST + REGEX_IDENTIFIER + ")" +
+            "|" + REGEX_IDENTIFIER + CRLF;
 
     public static AbstractAnalyzer getInstance() {
         return analyzer;
