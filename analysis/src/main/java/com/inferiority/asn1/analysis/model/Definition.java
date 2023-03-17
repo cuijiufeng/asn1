@@ -26,6 +26,7 @@ public class Definition {
     private String rangeMin;
     private String rangeMax;
     private String size;
+    private Boolean optional;
     private List<Map.Entry<String, String>> values;
 
     public Definition() {

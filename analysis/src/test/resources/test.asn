@@ -220,9 +220,11 @@ HashAlgorithm ::= ENUMERATED  {
     sm3
 }
 
-EncryptionKey ::= CHOICE  {
-    public               PublicEncryptionKey,
-    symmetric            SymmetricEncryptionKey
+BasePublicEncryptionKey ::= CHOICE {
+    eciesNistP256             EccP256CurvePoint,
+    eciesBrainpoolP256r1      EccP256CurvePoint,
+    ...,
+    ecencSm2                  EccP256CurvePoint
 }
 
 PublicEncryptionKey ::= SEQUENCE  {
@@ -230,11 +232,15 @@ PublicEncryptionKey ::= SEQUENCE  {
     publicKey             BasePublicEncryptionKey
 }
 
-BasePublicEncryptionKey ::= CHOICE {
-    eciesNistP256             EccP256CurvePoint,
-    eciesBrainpoolP256r1      EccP256CurvePoint,
+SymmetricEncryptionKey ::= CHOICE  {
+    aes128Ccm     OCTET STRING(SIZE(16)),
     ...,
-    ecencSm2                  EccP256CurvePoint
+    sm4Ccm        OCTET STRING(SIZE(16))
+}
+
+EncryptionKey ::= CHOICE  {
+    public               PublicEncryptionKey,
+    symmetric            SymmetricEncryptionKey
 }
 
 PublicVerificationKey ::= CHOICE {
@@ -246,33 +252,13 @@ PublicVerificationKey ::= CHOICE {
     ecsigSm2                  EccP256CurvePoint
 }
 
-SymmetricEncryptionKey ::= CHOICE  {
-    aes128Ccm     OCTET STRING(SIZE(16)),
-    ...,
-    sm4Ccm        OCTET STRING(SIZE(16))
-}
-
 -- ------------------------------------------------------------------
 --
 -- AID / ITS-AID
 --
 -- ------------------------------------------------------------------
-
-
-AidSsp ::= SEQUENCE  {
-    aid                   Aid,
-    ssp                   ServiceSpecificPermissions OPTIONAL
-}
-SequenceOfAidSsp ::= SEQUENCE OF AidSsp
-
 Aid ::= INTEGER (0..MAX)
 SequenceOfAid ::= SEQUENCE OF Aid
-
-ServiceSpecificPermissions ::= CHOICE  {
-    opaque              OCTET STRING (SIZE(0..MAX)),
-    ...,
-    bitmapSsp           BitmapSsp
-}
 
 BitmapSsp ::= OCTET STRING (SIZE(0..31))
 
@@ -280,18 +266,17 @@ SspValue ::= OCTET STRING (SIZE(0..31))
 
 SspBitmask ::= OCTET STRING (SIZE(0..31))
 
-AidSspRange ::= SEQUENCE  {
-    aid                 Aid,
-    sspRange            SspRange OPTIONAL
+ServiceSpecificPermissions ::= CHOICE  {
+    opaque              OCTET STRING (SIZE(0..MAX)),
+    ...,
+    bitmapSsp           BitmapSsp
 }
-SequenceOfAidSspRange ::= SEQUENCE OF AidSspRange
 
-SspRange ::= CHOICE  {
-    opaque              SequenceOfOctetString,
-    all                 NULL,
-    ... ,
-    bitmapSspRange      BitmapSspRange
+AidSsp ::= SEQUENCE  {
+    aid                   Aid,
+    ssp                   ServiceSpecificPermissions OPTIONAL
 }
+SequenceOfAidSsp ::= SEQUENCE OF AidSsp
 
 BitmapSspRange ::= SEQUENCE  {
     sspValue            OCTET STRING (SIZE(1..32)),
@@ -300,6 +285,18 @@ BitmapSspRange ::= SEQUENCE  {
 
 SequenceOfOctetString ::= SEQUENCE (SIZE (0..MAX)) OF OCTET STRING (SIZE(0..MAX))
 
+SspRange ::= CHOICE  {
+    opaque              SequenceOfOctetString,
+    all                 NULL,
+    ... ,
+    bitmapSspRange      BitmapSspRange
+}
+
+AidSspRange ::= SEQUENCE  {
+    aid                 Aid,
+    sspRange            SspRange OPTIONAL
+}
+SequenceOfAidSspRange ::= SEQUENCE OF AidSspRange
 
 -- ------------------------------------------------------------------
 --
