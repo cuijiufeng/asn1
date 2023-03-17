@@ -62,10 +62,16 @@ public class SequenceAnalyzer extends AbstractAnalyzer {
                 optional = true;
                 s = s.replace(Reserved.OPTIONAL, "").trim();
             }
+            String defaulted = RegexUtil.matcher(Reserved.DEFAULT + CRLF_LEAST + "(\\S)*", s);
+            if (defaulted != null) {
+                s = s.replace(defaulted, "").trim();
+                defaulted = defaulted.replace(Reserved.DEFAULT, "").trim();
+            }
             String primitiveName = AbstractAnalyzer.getPrimitiveType(s);
             AbstractAnalyzer instance = AbstractAnalyzer.getInstance(modules, module, primitiveName);
             Definition definition = instance.parse(modules, module, primitiveName, s, null);
             definition.setOptional(optional);
+            definition.setDefaulted(defaulted);
             subs.add(definition);
         }
         return subs.isEmpty() ? null : subs;

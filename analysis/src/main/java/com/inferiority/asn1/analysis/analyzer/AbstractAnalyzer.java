@@ -5,6 +5,7 @@ import com.inferiority.asn1.analysis.common.Operator;
 import com.inferiority.asn1.analysis.common.Reserved;
 import com.inferiority.asn1.analysis.model.Definition;
 import com.inferiority.asn1.analysis.model.Module;
+import com.inferiority.asn1.analysis.util.ArrayUtil;
 import com.inferiority.asn1.analysis.util.RegexUtil;
 
 import java.util.AbstractMap;
@@ -68,7 +69,19 @@ public abstract class AbstractAnalyzer {
             }
         }
         //从依赖模块中查找
-        //TODO 2023/3/9 17:45
+        for (Map.Entry<String[], String> entry : module.getImports()) {
+            if (ArrayUtil.contains(entry.getKey(), typeReserved)) {
+                for (Module m : modules) {
+                    if (m.getIdentifier().equals(entry.getValue())) {
+                        for (Definition def : m.getDefinitions()) {
+                            if (def.getIdentifier().equals(typeReserved)) {
+                                return getInstance(modules, m, def.getPrimitiveType());
+                            }
+                        }
+                    }
+                }
+            }
+        }
         throw new AnalysisException("unsupported type: " + typeReserved);
     }
 
