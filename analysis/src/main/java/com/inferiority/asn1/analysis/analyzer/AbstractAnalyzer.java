@@ -10,8 +10,10 @@ import com.inferiority.asn1.analysis.util.RegexUtil;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import java.util.function.Function;
 
 /**
@@ -51,6 +53,8 @@ public abstract class AbstractAnalyzer {
             return EnumeratedAnalyzer.getInstance();
         } else if (Reserved.UTF8String.equals(typeReserved)) {
             return UTF8StringAnalyzer.getInstance();
+        } else if (typeReserved.equals(Reserved.BIT + " " + Reserved.STRING)) {
+            return BitStringAnalyzer.getInstance();
         } else if (typeReserved.equals(Reserved.OCTET + " " + Reserved.STRING)) {
             return OctetStringAnalyzer.getInstance();
         } else if (Reserved.SEQUENCE.equals(typeReserved)) {
@@ -89,6 +93,21 @@ public abstract class AbstractAnalyzer {
 
     public static String getPrimitiveType(String typeDef) {
         return RegexUtil.matcher(typeDef.indexOf(Operator.ASSIGNMENT), "(" + AbstractAnalyzer.REGEX_IDENTIFIER + "[ ]*)+", typeDef).trim();
+    }
+
+    public String substringBody(char[] body) {
+        Stack<Integer> stack = new Stack<>();
+        for (int i = 0; i < body.length; i++) {
+            if (body[i] == '{') {
+                stack.push(i);
+            } else if (body[i] == '}') {
+                Integer t = stack.pop();
+                if (stack.isEmpty()) {
+                    return new String(Arrays.copyOfRange(body, t + 1, i));
+                }
+            }
+        }
+        return null;
     }
 
     public List<Map.Entry<String, String>> parseValues(String regex, String text, Function<String, AbstractMap.SimpleEntry<String, String>> apply) {

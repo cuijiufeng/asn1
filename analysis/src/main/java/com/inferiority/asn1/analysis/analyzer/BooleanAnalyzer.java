@@ -32,9 +32,8 @@ public class BooleanAnalyzer extends AbstractAnalyzer {
         if (!RegexUtil.matches(REGEX_BOOLEAN, text)) {
             throw new AnalysisException("not a valid boolean type definition.\n" + text);
         }
-        String primitive = Reserved.SEQUENCE + " " + Reserved.OF;
         Definition definition = new Definition();
-        definition.setPrimitiveType(primitive);
+        definition.setPrimitiveType(primitiveType);
         definition.setDefinitionText(text);
         //identifier
         definition.setIdentifier(RegexUtil.matcher(REGEX_IDENTIFIER, text));

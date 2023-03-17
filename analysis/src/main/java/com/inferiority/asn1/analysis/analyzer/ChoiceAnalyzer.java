@@ -2,7 +2,6 @@ package com.inferiority.asn1.analysis.analyzer;
 
 import com.inferiority.asn1.analysis.AnalysisException;
 import com.inferiority.asn1.analysis.common.Operator;
-import com.inferiority.asn1.analysis.common.Reserved;
 import com.inferiority.asn1.analysis.model.Definition;
 import com.inferiority.asn1.analysis.model.Module;
 import com.inferiority.asn1.analysis.util.RegexUtil;
@@ -35,13 +34,13 @@ public class ChoiceAnalyzer extends AbstractAnalyzer {
             throw new AnalysisException("not a valid choice type definition.\n" + text);
         }
         Definition definition = new Definition();
-        definition.setPrimitiveType(Reserved.CHOICE);
+        definition.setPrimitiveType(primitiveType);
         definition.setDefinitionText(text);
         //identifier
         definition.setIdentifier(RegexUtil.matcher(REGEX_IDENTIFIER, text));
         //body
         definition.setSubBodyText(RegexUtil.matcherFunc(REGEX_CHOICE_BODY, text, body -> {
-            definition.setSubDefs(parseBody(modules, module, body.substring(1, body.length() - 1)));
+            definition.setSubDefs(parseBody(modules, module, substringBody(body.toCharArray())));
             return body;
         }));
         return definition;

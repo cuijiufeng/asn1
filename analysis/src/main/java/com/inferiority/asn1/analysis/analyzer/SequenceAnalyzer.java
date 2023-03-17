@@ -19,6 +19,9 @@ import java.util.Stack;
 public class SequenceAnalyzer extends AbstractAnalyzer {
     private static final SequenceAnalyzer analyzer = new SequenceAnalyzer();
 
+    public static final String REGEX_SEQUENCE_CONSTRAINT = "(" + Operator.LEFT_BRACKET +
+            Reserved.WITH + " " + Reserved.COMPONENTS + "[\\S\\s]*" + Operator.RIGHT_BRACKET + ")";
+
     public static final String REGEX_SEQUENCE_BODY = "(" + Operator.OPENING_BRACE + "[\\s\\S]*" + Operator.CLOSING_BRACE + ")";
 
     public static final String REGEX_SEQUENCE = CRLF + REGEX_IDENTIFIER + CRLF + Operator.ASSIGNMENT + CRLF + REGEX_IDENTIFIER + CRLF +
@@ -35,14 +38,18 @@ public class SequenceAnalyzer extends AbstractAnalyzer {
             throw new AnalysisException("not a valid sequence type definition.\n" + text);
         }
         Definition definition = new Definition();
-        definition.setPrimitiveType(Reserved.SEQUENCE);
+        definition.setPrimitiveType(primitiveType);
         definition.setDefinitionText(text);
         //identifier
         definition.setIdentifier(RegexUtil.matcher(REGEX_IDENTIFIER, text));
         //body
         definition.setSubBodyText(RegexUtil.matcherFunc(REGEX_SEQUENCE_BODY, text, body -> {
-            definition.setSubDefs(parseBody(modules, module, body.substring(1, body.length() - 1)));
+            definition.setSubDefs(parseBody(modules, module, substringBody(body.toCharArray())));
             return body;
+        }));
+        //约束
+        definition.setConstraintText(RegexUtil.matcherFunc(REGEX_SEQUENCE_CONSTRAINT, text, str -> {
+            return str;
         }));
         return definition;
     }

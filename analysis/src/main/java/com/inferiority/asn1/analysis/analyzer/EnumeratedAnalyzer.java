@@ -2,7 +2,6 @@ package com.inferiority.asn1.analysis.analyzer;
 
 import com.inferiority.asn1.analysis.AnalysisException;
 import com.inferiority.asn1.analysis.common.Operator;
-import com.inferiority.asn1.analysis.common.Reserved;
 import com.inferiority.asn1.analysis.model.Definition;
 import com.inferiority.asn1.analysis.model.Module;
 import com.inferiority.asn1.analysis.util.RegexUtil;
@@ -36,7 +35,7 @@ public class EnumeratedAnalyzer extends AbstractAnalyzer {
             throw new AnalysisException("not a valid enumerated type definition.\n" + text);
         }
         Definition definition = new Definition();
-        definition.setPrimitiveType(Reserved.ENUMERATED);
+        definition.setPrimitiveType(primitiveType);
         definition.setDefinitionText(text);
         //identifier
         definition.setIdentifier(RegexUtil.matcher(REGEX_IDENTIFIER, text));

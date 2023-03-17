@@ -422,6 +422,8 @@ SubjectPermissions ::= CHOICE {
     ...
 }
 
+EndEntityType ::= BIT STRING {app (0), enroll (1) } (SIZE (8)) (ALL EXCEPT {})
+
 AidGroupPermissions ::= SEQUENCE  {
     subjectPermissions      SubjectPermissions,
     minChainLength          INTEGER DEFAULT 1,
@@ -463,11 +465,6 @@ CertificateBase ::= SEQUENCE {
     signature       Signature OPTIONAL
 }
 
--- Certificates is explicit (type = explicit,
--- toBeSigned includes verification key, signature present) or Reserved （Reserved for impilict cert）.
-Certificate ::= CertificateBase (ExplicitCertificate | Reserved)
-SequenceOfCertificate ::= SEQUENCE OF Certificate
-
 ExplicitCertificate ::= CertificateBase (WITH COMPONENTS {...,
     type(explicit),
     toBeSigned(WITH COMPONENTS {...,
@@ -484,7 +481,10 @@ Reserved ::= CertificateBase (WITH COMPONENTS {...,
     signature ABSENT
 })
 
-EndEntityType ::= BIT STRING {app (0), enroll (1) } (SIZE (8)) (ALL EXCEPT {})
+-- Certificates is explicit (type = explicit,
+-- toBeSigned includes verification key, signature present) or Reserved （Reserved for impilict cert）.
+Certificate ::= CertificateBase (ExplicitCertificate | Reserved)
+SequenceOfCertificate ::= SEQUENCE OF Certificate
 
 --
 --*********************************************************************

@@ -18,16 +18,15 @@ import java.util.Map;
 public class Definition {
     private String definitionText;
     private String identifier;
-    private String bodyText;
     private String primitiveType;
-    private String sequenceOf;
     private String subBodyText;
-    private List<Definition> subDefs;
     private String rangeMin;
     private String rangeMax;
-    private String size;
+    private List<Definition> subDefs;
+    private String bodyText;
     private Boolean optional;
     private String defaulted;
+    private String constraintText;
     private List<Map.Entry<String, String>> values;
 
     public Definition() {
