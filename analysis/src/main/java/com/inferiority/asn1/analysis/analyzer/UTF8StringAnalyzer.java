@@ -11,38 +11,34 @@ import java.util.List;
 
 /**
  * @author cuijiufeng
- * @Class SequenceOfAnalyzer
- * @Date 2023/3/9 16:16
+ * @Class UTF8StringAnalyzer
+ * @Date 2023/3/17 14:13
  */
-public class SequenceOfAnalyzer extends AbstractAnalyzer {
-    private static final SequenceOfAnalyzer analyzer = new SequenceOfAnalyzer();
+public class UTF8StringAnalyzer extends AbstractAnalyzer {
+    private static final UTF8StringAnalyzer analyzer = new UTF8StringAnalyzer();
 
-    public static final String REGEX_SEQUENCE_OF_RANGE = "(" + Reserved.SIZE + Operator.LEFT_BRACKET +
+    public static final String REGEX_UTF8STRING_RANGE = "(" + Operator.LEFT_BRACKET + Reserved.SIZE + Operator.LEFT_BRACKET +
             REGEX_NUM_COMPOUND + "(" + Operator.RANGE + REGEX_NUM_COMPOUND + ")?" +
-            Operator.RIGHT_BRACKET + ")";
+            Operator.RIGHT_BRACKET + Operator.RIGHT_BRACKET + ")";
 
-    public static final String REGEX_SEQUENCE_OF = CRLF + REGEX_IDENTIFIER + CRLF + Operator.ASSIGNMENT + CRLF +
-            "(" + Reserved.SEQUENCE + " " + REGEX_SEQUENCE_OF_RANGE + "?" + CRLF + Reserved.OF + CRLF_LEAST + REGEX_IDENTIFIER + ")" +
-            "|" + REGEX_IDENTIFIER + CRLF;
+    public static final String REGEX_UTF8STRING = REGEX_IDENTIFIER + CRLF + Operator.ASSIGNMENT + CRLF +
+            REGEX_IDENTIFIER + CRLF + REGEX_UTF8STRING_RANGE + "?" + CRLF;
 
     public static AbstractAnalyzer getInstance() {
         return analyzer;
     }
-
     @Override
     public Definition parse(List<Module> modules, Module module, String primitiveType, String text, String moduleText) throws AnalysisException {
-        if (!RegexUtil.matches(REGEX_SEQUENCE_OF, text)) {
-            throw new AnalysisException("not a valid sequence-of type definition.\n" + text);
+        if (!RegexUtil.matches(REGEX_UTF8STRING, text)) {
+            throw new AnalysisException("not a valid utf8-string type definition.\n" + text);
         }
-        String primitive = Reserved.SEQUENCE + " " + Reserved.OF;
         Definition definition = new Definition();
-        definition.setPrimitiveType(primitive);
-        definition.setSequenceOf(primitiveType.replace(primitive, "").trim());
+        definition.setPrimitiveType(primitiveType);
         definition.setDefinitionText(text);
         //identifier
         definition.setIdentifier(RegexUtil.matcher(REGEX_IDENTIFIER, text));
         //range
-        RegexUtil.matcherConsumer(REGEX_SEQUENCE_OF_RANGE, text, group -> {
+        RegexUtil.matcherConsumer(REGEX_UTF8STRING_RANGE, text, group -> {
             String[] range = group.replaceAll(Operator.LEFT_BRACKET, "")
                     .replaceAll(Operator.RIGHT_BRACKET, "")
                     .replaceAll(Reserved.SIZE, "")

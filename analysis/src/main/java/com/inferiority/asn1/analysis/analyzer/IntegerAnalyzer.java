@@ -23,7 +23,7 @@ public class IntegerAnalyzer extends AbstractAnalyzer {
             Operator.CLOSING_BRACE + ")";
 
     public static final String REGEX_INTEGER_RANGE = "(" + Operator.LEFT_BRACKET +
-            "(" + REGEX_NUM_COMPOUND + Operator.RANGE + REGEX_NUM_COMPOUND + "|" + REGEX_NUM_COMPOUND + ")" +
+            REGEX_NUM_COMPOUND + "(" + Operator.RANGE + REGEX_NUM_COMPOUND + ")?" +
             Operator.RIGHT_BRACKET + ")";
 
     public static final String REGEX_INTEGER = CRLF + REGEX_IDENTIFIER + CRLF + Operator.ASSIGNMENT + CRLF + REGEX_IDENTIFIER + CRLF +
