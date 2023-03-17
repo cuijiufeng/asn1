@@ -82,7 +82,7 @@ public class ModuleAnalyzer {
             Reserved.AUTOMATIC + " " + Reserved.TAGS + ")";
 
     public static final String REGEX_EXPORTS = "(" + Reserved.EXPORTS + AbstractAnalyzer.CRLF_LEAST +
-            "(" + AbstractAnalyzer.REGEX_IDENTIFIER + Operator.COMMA + "?" + AbstractAnalyzer.CRLF + ")+)";
+            "(" + AbstractAnalyzer.REGEX_IDENTIFIER + Operator.COMMA + "?" + AbstractAnalyzer.CRLF + ")+)" + Operator.SEMICOLON;
 
     public static final String REGEX_IMPORT = "(" +
             "(" + AbstractAnalyzer.REGEX_IDENTIFIER + Operator.COMMA + "?" + AbstractAnalyzer.CRLF +")+" +
