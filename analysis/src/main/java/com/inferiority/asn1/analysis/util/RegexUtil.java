@@ -52,11 +52,11 @@ public class RegexUtil {
      * @return java.lang.CharSequence 从匹配到的结束点往后截取，组成的新串
      * @throws
     */
-    public static CharSequence matcherConsumerRet(String regex, CharSequence input, Consumer<String> consumer) {
+    public static String matcherReplaceConsumer(String regex, String input, Consumer<String> consumer) {
         Matcher matcher = compileMatcher(regex, input);
         if (matcher.find()) {
             consumer.accept(matcher.group());
-            return input.subSequence(matcher.end(), input.length());
+            return input.substring(0, matcher.start()) + input.substring(matcher.end());
         }
         return null;
     }

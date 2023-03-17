@@ -82,12 +82,10 @@ public class ModuleAnalyzer {
             Reserved.AUTOMATIC + " " + Reserved.TAGS + ")";
 
     public static final String REGEX_EXPORTS = "(" + Reserved.EXPORTS + AbstractAnalyzer.CRLF_LEAST +
-            "(" + AbstractAnalyzer.REGEX_IDENTIFIER + Operator.COMMA + AbstractAnalyzer.CRLF + ")*" +
-            AbstractAnalyzer.REGEX_IDENTIFIER + Operator.SEMICOLON + ")";
+            "(" + AbstractAnalyzer.REGEX_IDENTIFIER + Operator.COMMA + "?" + AbstractAnalyzer.CRLF + ")+)";
 
     public static final String REGEX_IMPORT = "(" +
-            "(" + AbstractAnalyzer.REGEX_IDENTIFIER + Operator.COMMA + AbstractAnalyzer.CRLF +")*" +
-            AbstractAnalyzer.REGEX_IDENTIFIER + AbstractAnalyzer.CRLF_LEAST +
+            "(" + AbstractAnalyzer.REGEX_IDENTIFIER + Operator.COMMA + "?" + AbstractAnalyzer.CRLF +")+" +
             Reserved.FROM + AbstractAnalyzer.CRLF_LEAST + AbstractAnalyzer.REGEX_IDENTIFIER + ")";
     public static final String REGEX_IMPORTS = "(" + Reserved.IMPORTS + AbstractAnalyzer.CRLF_LEAST + "[\\s\\S]*" + Operator.SEMICOLON + ")";
 
@@ -113,9 +111,9 @@ public class ModuleAnalyzer {
                 .toArray(String[]::new)));
         RegexUtil.matcherConsumer(REGEX_IMPORTS, moduleText, str -> {
             List<Map.Entry<String[], String>> imports = new ArrayList<>();
-            CharSequence t = str;
+            String t = str.replace(Reserved.IMPORTS, "");
             while (t != null) {
-                t = RegexUtil.matcherConsumerRet(REGEX_IMPORT, t, s -> {
+                t = RegexUtil.matcherReplaceConsumer(REGEX_IMPORT, t, s -> {
                     String[] split = s.split(Reserved.FROM);
                     imports.add(new AbstractMap.SimpleEntry<>(
                             Arrays.stream(split[0].split(Operator.COMMA)).map(String::trim).toArray(String[]::new),

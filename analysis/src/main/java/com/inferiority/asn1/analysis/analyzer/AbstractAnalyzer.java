@@ -112,9 +112,9 @@ public abstract class AbstractAnalyzer {
 
     public List<Map.Entry<String, String>> parseValues(String regex, String text, Function<String, AbstractMap.SimpleEntry<String, String>> apply) {
         List<Map.Entry<String, String>> values = new ArrayList<>(16);
-        CharSequence t = text;
+        String t = text;
         while (t != null) {
-            t = RegexUtil.matcherConsumerRet(regex, t, valueText -> values.add(apply.apply(valueText)));
+            t = RegexUtil.matcherReplaceConsumer(regex, t, valueText -> values.add(apply.apply(valueText)));
         }
         return values.isEmpty() ? null : values;
     }
