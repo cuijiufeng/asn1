@@ -40,7 +40,9 @@ public abstract class AbstractAnalyzer {
      * @throws
     */
     public static AbstractAnalyzer getInstance(List<Module> modules, Module module, String typeReserved) throws AnalysisException {
-        if (Reserved.BOOLEAN.equals(typeReserved)) {
+        if (Reserved.NULL.equals(typeReserved)) {
+            return NullAnalyzer.getInstance();
+        } else if (Reserved.BOOLEAN.equals(typeReserved)) {
             return BooleanAnalyzer.getInstance();
         } else if (Reserved.INTEGER.equals(typeReserved)) {
             return IntegerAnalyzer.getInstance();

@@ -50,19 +50,8 @@ public class SequenceAnalyzer extends AbstractAnalyzer {
 
     private List<Definition> parseBody(List<Module> modules, Module module, String body) {
         List<Definition> subs = new ArrayList<>();
-        Stack<StringBuilder> stack = new Stack<>();
-        String[] split = body.split(Operator.COMMA);
+        List<String> split = splitBody(body);
         for (String s : split) {
-            if (RegexUtil.matches(Operator.OPENING_BRACE, s)) {
-                stack.push(new StringBuilder(s));
-            } else if (RegexUtil.matches(Operator.CLOSING_BRACE, s)) {
-                StringBuilder def = stack.pop();
-                //TODO 2023/3/16 16:37
-            }
-            if (!stack.isEmpty()) {
-                stack.peek().append(s);
-                continue;
-            }
             if (RegexUtil.matches(Operator.ELLIPSIS, s)) {
                 subs.add(new Definition(null, s.trim()));
                 continue;
@@ -73,5 +62,23 @@ public class SequenceAnalyzer extends AbstractAnalyzer {
             subs.add(instance.parse(modules, module, primitiveName, s, null));
         }
         return subs.isEmpty() ? null : subs;
+    }
+
+    private List<String> splitBody(String body) {
+        List<String> split = new ArrayList<>(8);
+        Stack<Integer> stack = new Stack<>();
+        for (int i = 0, j = body.indexOf(Operator.COMMA); i != -1; i = j, j = body.indexOf(Operator.COMMA, i + 1)) {
+            String s = body.substring(i + 1, j == -1 ? body.length() : j);
+            if (RegexUtil.matches(Operator.OPENING_BRACE, s)) {
+                stack.push(i + 1);
+                continue;
+            } else if (RegexUtil.matches(Operator.CLOSING_BRACE, s)) {
+                s = body.substring(stack.pop(), j == -1 ? body.length() : j);
+            } else if (!stack.isEmpty()) {
+                continue;
+            }
+            split.add(s.trim());
+        }
+        return split;
     }
 }
