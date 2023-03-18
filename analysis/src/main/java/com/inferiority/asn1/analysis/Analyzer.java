@@ -35,7 +35,7 @@ public class Analyzer {
         while ((moduleText = nextModule(reader)) != null) {
             log.trace("model text:\n{}", moduleText);
             modules.add(moduleAnalyzer.parse(modules, moduleText));
-            log.debug("model entity:\n{}", modules.get(modules.size() - 1));
+            log.trace("model entity:\n{}", modules.get(modules.size() - 1));
         }
         return modules;
     }

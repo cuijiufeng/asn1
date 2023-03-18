@@ -655,12 +655,8 @@ One28BitCcmCiphertext ::= SEQUENCE {
 
 END
 
-ScmsAcaEeInterface
-
-DEFINITIONS AUTOMATIC TAGS ::= BEGIN
-
+ScmsAcaEeInterface DEFINITIONS AUTOMATIC TAGS ::= BEGIN
 EXPORTS ALL;
-
 IMPORTS
   Time32,
   Uint8
@@ -668,7 +664,6 @@ FROM V2XSecBaseTypes,
   Certificate
 FROM V2XSecDataTypes
 ;
-
   AcaEeCertResponse ::= SEQUENCE {
     version           Uint8 (1),
     generationTime    Time32,
@@ -676,12 +671,10 @@ FROM V2XSecDataTypes
     privateKeyInfo    OCTET STRING (SIZE (32)) OPTIONAL,
     ...
   }
-
   AcaEeInterfacePdu::= CHOICE {
     acaEeCertResponse   AcaEeCertResponse,
     ...
   }
-
 END
 ScmsAcaLaInterface
 

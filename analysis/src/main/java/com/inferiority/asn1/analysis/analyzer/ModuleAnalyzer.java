@@ -82,20 +82,23 @@ public class ModuleAnalyzer {
             Reserved.AUTOMATIC + " " + Reserved.TAGS + ")";
 
     public static final String REGEX_EXPORTS = "(" + Reserved.EXPORTS + AbstractAnalyzer.CRLF_LEAST +
-            "(" + AbstractAnalyzer.REGEX_IDENTIFIER + Operator.COMMA + "?" + AbstractAnalyzer.CRLF + ")+)" + Operator.SEMICOLON;
+            "(" + AbstractAnalyzer.REGEX_IDENTIFIER + Operator.COMMA + "?" + AbstractAnalyzer.CRLF + ")+" +
+            Operator.SEMICOLON + ")";
 
     public static final String REGEX_IMPORT = "(" +
-            "(" + AbstractAnalyzer.REGEX_IDENTIFIER + Operator.COMMA + "?" + AbstractAnalyzer.CRLF +")+" +
+            "(" + AbstractAnalyzer.REGEX_IDENTIFIER + Operator.COMMA + AbstractAnalyzer.CRLF +")*" +
+            AbstractAnalyzer.REGEX_IDENTIFIER + AbstractAnalyzer.CRLF_LEAST +
             Reserved.FROM + AbstractAnalyzer.CRLF_LEAST + AbstractAnalyzer.REGEX_IDENTIFIER + ")";
-    public static final String REGEX_IMPORTS = "(" + Reserved.IMPORTS + AbstractAnalyzer.CRLF_LEAST + "[\\s\\S]*" + Operator.SEMICOLON + ")";
+    public static final String REGEX_IMPORTS = "((?=" + Reserved.IMPORTS + ")(" +
+            AbstractAnalyzer.REGEX_IDENTIFIER + Operator.COMMA + "?" + AbstractAnalyzer.CRLF + ")+" + Operator.SEMICOLON + ")";
 
     public static final String REGEX_MODULE =
             AbstractAnalyzer.REGEX_IDENTIFIER + AbstractAnalyzer.CRLF_LEAST +
             Reserved.DEFINITIONS + AbstractAnalyzer.CRLF_LEAST +
             REGEX_TAG_DEFAULT + "?" + AbstractAnalyzer.CRLF +
-            REGEX_EXTENSION_DEFAULT + "?" + AbstractAnalyzer.CRLF_LEAST +
+            REGEX_EXTENSION_DEFAULT + "?" + AbstractAnalyzer.CRLF +
             Operator.ASSIGNMENT + AbstractAnalyzer.CRLF_LEAST +
-            Reserved.BEGIN + REGEX_EXPORTS + "?" + REGEX_IMPORTS + "?" + "[\\s\\S]*" + Reserved.END;
+            Reserved.BEGIN + "[\\s\\S]*" + Reserved.END;
 
     public Module parse(List<Module> modules, String moduleText) throws AnalysisException {
         Module module = new Module();
@@ -111,9 +114,8 @@ public class ModuleAnalyzer {
                 .toArray(String[]::new)));
         RegexUtil.matcherConsumer(REGEX_IMPORTS, moduleText, str -> {
             List<Map.Entry<String[], String>> imports = new ArrayList<>();
-            String t = str.replace(Reserved.IMPORTS, "");
-            while (t != null) {
-                t = RegexUtil.matcherReplaceConsumer(REGEX_IMPORT, t, s -> {
+            while (str != null) {
+                str = RegexUtil.matcherReplaceConsumer(REGEX_IMPORT, str, s -> {
                     String[] split = s.split(Reserved.FROM);
                     imports.add(new AbstractMap.SimpleEntry<>(
                             Arrays.stream(split[0].split(Operator.COMMA)).map(String::trim).toArray(String[]::new),
