@@ -42,16 +42,17 @@ public class SequenceAnalyzer extends AbstractAnalyzer {
         definition.setDefinitionText(text);
         //identifier
         definition.setIdentifier(RegexUtil.matcher(REGEX_IDENTIFIER, text));
-        //约束
-        //TODO 2023/3/17 17:19
-        //text = RegexUtil.matcherReplaceConsumer(REGEX_SEQUENCE_CONSTRAINT, text, str -> {
-        //});
-        //definition.setConstraintText();
+        //constraint
+        String replaceConstraint = RegexUtil.matcherReplaceConsumer(REGEX_SEQUENCE_CONSTRAINT, text, str -> {});
+        if (replaceConstraint != null) {
+            text = replaceConstraint;
+        }
         //body
         definition.setSubBodyText(RegexUtil.matcherFunc(REGEX_SEQUENCE_BODY, text, body -> {
             definition.setSubDefs(parseBody(modules, module, substringBody(body.toCharArray())));
             return body;
         }));
+        // TODO: 2023/3/18 处理约束
         return definition;
     }
 

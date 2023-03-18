@@ -504,6 +504,49 @@ SignerIdentifier ::= CHOICE  {
     x509            OCTET STRING
 }
 
+PduFunctionalType ::= INTEGER (0..255)
+  tlsHandshake           PduFunctionalType ::= 1
+  iso21177ExtendedAuth   PduFunctionalType ::= 2
+
+MissingCrlIdentifier ::= SEQUENCE  {
+    cracaId         HashedId3,
+    crlSeries       CrlSeries,
+    ...
+}
+
+HeaderInfo ::= SEQUENCE  {
+    aid                    Aid,
+    generationTime         Time64 OPTIONAL,
+    expiryTime             Time64  OPTIONAL,
+    generationLocation     ThreeDLocation OPTIONAL,
+    p2pcdLearningRequest   HashedId3 OPTIONAL,
+    missingCrlIdentifier   MissingCrlIdentifier OPTIONAL,
+    encryptionKey          EncryptionKey OPTIONAL,
+    ...,
+    inlineP2pcdRequest     SequenceOfHashedId3 OPTIONAL,
+    requestedCertificate   Certificate OPTIONAL,
+    pduFunctionalType      PduFunctionalType OPTIONAL
+}
+
+V2XSecData ::= SEQUENCE  {
+    protocolVersion    Uint8 (3),
+    content            V2XSecContent
+}
+
+HashedData::= CHOICE  {
+    sha256HashedData     OCTET STRING (SIZE(32)),
+    ...,
+    sha384HashedData     OCTET STRING (SIZE(48)),
+    sm3HashedData        OCTET STRING (SIZE(32))
+}
+
+SignedDataPayload ::= SEQUENCE  {
+    data              V2XSecData OPTIONAL,
+    extDataHash       HashedData OPTIONAL,
+    ...
+}(WITH COMPONENTS {..., data PRESENT} |
+     WITH COMPONENTS {..., extDataHash PRESENT})
+
 ToBeSignedData ::= SEQUENCE  {
     payload         SignedDataPayload,
     headerInfo      HeaderInfo
@@ -523,51 +566,6 @@ V2XSecContent ::=  CHOICE  {
     signedCertificateRequest Opaque,
     ...
 }
-
-V2XSecData ::= SEQUENCE  {
-    protocolVersion    Uint8 (3),
-    content            V2XSecContent
-}
-
-SignedDataPayload ::= SEQUENCE  {
-    data              V2XSecData OPTIONAL,
-    extDataHash       HashedData OPTIONAL,
-    ...
-}
-    (WITH COMPONENTS {..., data PRESENT} |
-     WITH COMPONENTS {..., extDataHash PRESENT})
-
-HashedData::= CHOICE  {
-    sha256HashedData     OCTET STRING (SIZE(32)),
-    ...,
-    sha384HashedData     OCTET STRING (SIZE(48)),
-    sm3HashedData        OCTET STRING (SIZE(32))
-}
-
-HeaderInfo ::= SEQUENCE  {
-    aid                    Aid,
-    generationTime         Time64 OPTIONAL,
-    expiryTime             Time64  OPTIONAL,
-    generationLocation     ThreeDLocation OPTIONAL,
-    p2pcdLearningRequest   HashedId3 OPTIONAL,
-    missingCrlIdentifier   MissingCrlIdentifier OPTIONAL,
-    encryptionKey          EncryptionKey OPTIONAL,
-    ...,
-    inlineP2pcdRequest     SequenceOfHashedId3 OPTIONAL,
-    requestedCertificate   Certificate OPTIONAL,
-    pduFunctionalType      PduFunctionalType OPTIONAL
-}
-
-MissingCrlIdentifier ::= SEQUENCE  {
-    cracaId         HashedId3,
-    crlSeries       CrlSeries,
-    ...
-}
-
-PduFunctionalType ::= INTEGER (0..255)
-  tlsHandshake           PduFunctionalType ::= 1
-  iso21177ExtendedAuth   PduFunctionalType ::= 2
-
 
 Countersignature ::= V2XSecData (WITH COMPONENTS {...,
   content (WITH COMPONENTS {...,
