@@ -2,6 +2,7 @@ package com.inferiority.asn1.analysis.util;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -20,17 +21,16 @@ public class RegexUtil {
     }
 
     public static boolean matches(String regex, CharSequence input) {
-        return compileMatcher(regex, input).find();
+        return Objects.nonNull(matcher(regex, input));
+    }
+
+    public static String matcher(String regex, CharSequence input) {
+        return matcher(0, regex, input);
     }
 
     public static String matcher(int start, String regex, CharSequence input) {
         Matcher matcher = compileMatcher(regex, input);
         return matcher.find(start) ? matcher.group() : null;
-    }
-
-    public static String matcher(String regex, CharSequence input) {
-        Matcher matcher = compileMatcher(regex, input);
-        return matcher.find() ? matcher.group() : null;
     }
 
     public static <T> T matcherFunc(String regex, CharSequence input, Function<String, T> function) {
@@ -49,8 +49,7 @@ public class RegexUtil {
      * @param regex
      * @param input
      * @param consumer
-     * @return java.lang.CharSequence 从匹配到的结束点往后截取，组成的新串
-     * @throws
+     * @return java.lang.CharSequence 返回input.replace(matcher.group(), "")
     */
     public static String matcherReplaceConsumer(String regex, String input, Consumer<String> consumer) {
         Matcher matcher = compileMatcher(regex, input);
@@ -65,10 +64,9 @@ public class RegexUtil {
      * @param regex
      * @param input
      * @param consumer 两次匹配之间的值
-     * @return java.lang.CharSequence 从匹配到的结束点往后截取，组成的新串
-     * @throws
+     * @return java.lang.String 返回input.replace(matcher.group(), "")
     */
-    public static CharSequence matcherBetweenConsumerRet(String regex, CharSequence input, Consumer<CharSequence> consumer) {
+    public static String matcherReplaceBetweenConsumer(String regex, String input, Consumer<CharSequence> consumer) {
         Matcher matcherOne = compileMatcher(regex, input);
         if (!matcherOne.find()) {
             return null;
@@ -78,7 +76,7 @@ public class RegexUtil {
             consumer.accept(input);
             return null;
         }
-        consumer.accept(input.subSequence(0, matcherTwo.start()));
-        return input.subSequence(matcherTwo.start(), input.length());
+        consumer.accept(input.subSequence(matcherOne.start(), matcherTwo.start()));
+        return input.substring(0, matcherOne.start()) + input.substring(matcherTwo.start());
     }
 }

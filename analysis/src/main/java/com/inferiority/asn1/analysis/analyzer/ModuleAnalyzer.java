@@ -137,10 +137,10 @@ public class ModuleAnalyzer {
 
     private void parseModuleBody(List<Module> modules, Module module, String moduleBodyText) throws AnalysisException {
         List<Definition> definitions = module.getDefinitions();
-        CharSequence t = moduleBodyText;
+        String t = moduleBodyText;
 
         while (t != null) {
-            t = RegexUtil.matcherBetweenConsumerRet(AbstractAnalyzer.REGEX_DEFINITION, t, str -> {
+            t = RegexUtil.matcherReplaceBetweenConsumer(AbstractAnalyzer.REGEX_DEFINITION, t, str -> {
                 String text = str.toString().trim();
                 String primitiveName = AbstractAnalyzer.getPrimitiveType(text);
                 AbstractAnalyzer instance = AbstractAnalyzer.getInstance(modules, module, primitiveName);
