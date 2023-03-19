@@ -712,11 +712,7 @@ FROM ScmsProtocol,
   EncryptedIndividualLV
 FROM ScmsLaRaInterface
 ;
-  AcaRaInterfacePdu ::= CHOICE {
-    raAcaCertRequest   RaAcaCertRequest,
-    acaRaCertResponse  AcaRaCertResponse,
-    ...
-  }
+  RaAcaCertRequestFlags ::= BIT STRING {butterflyExplicit (0), useCubk (1)} (SIZE (8))
 
   RaAcaCertRequest ::= SEQUENCE {
     version           Uint8 (1),
@@ -724,7 +720,7 @@ FROM ScmsLaRaInterface
     flags             RaAcaCertRequestFlags,
     linkageInfo       EncryptedIndividualLV OPTIONAL,
     certEncKey        PublicEncryptionKey OPTIONAL,
-    tbsCert           ToBeSignedCertificate (WITH COMPONENTS { 
+    tbsCert           ToBeSignedCertificate (WITH COMPONENTS {
       ...,
       cracaId ('000000'H),
       crlSeries (0),
@@ -735,7 +731,12 @@ FROM ScmsLaRaInterface
     ...
   }
 
-  RaAcaCertRequestFlags ::= BIT STRING {butterflyExplicit (0), useCubk (1)} (SIZE (8))
+  AcaResponse ::= CHOICE {
+    plain     AcaEeCertResponsePlainSpdu,
+    private   AcaEeCertResponsePrivateSpdu,
+    cubk      AcaEeCertResponseCubkSpdu,
+    ...
+  }
 
   AcaRaCertResponse ::= SEQUENCE {
     version           Uint8 (1),
@@ -745,10 +746,9 @@ FROM ScmsLaRaInterface
     ...
   }
 
-  AcaResponse ::= CHOICE {
-    plain     AcaEeCertResponsePlainSpdu,
-    private   AcaEeCertResponsePrivateSpdu,
-    cubk      AcaEeCertResponseCubkSpdu,
+  AcaRaInterfacePdu ::= CHOICE {
+    raAcaCertRequest   RaAcaCertRequest,
+    acaRaCertResponse  AcaRaCertResponse,
     ...
   }
 END
