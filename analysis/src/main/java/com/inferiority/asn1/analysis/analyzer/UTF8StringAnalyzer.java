@@ -27,6 +27,7 @@ public class UTF8StringAnalyzer extends AbstractAnalyzer {
     public static AbstractAnalyzer getInstance() {
         return analyzer;
     }
+
     @Override
     public Definition parse(List<Module> modules, Module module, String primitiveType, String text, String moduleText) throws AnalysisException {
         if (!RegexUtil.matches(REGEX_UTF8STRING, text)) {

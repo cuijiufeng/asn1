@@ -693,6 +693,63 @@ EXPORTS ALL;
 END
 
 
+ScmsEcaEeInterface
+DEFINITIONS AUTOMATIC TAGS ::= BEGIN
+EXPORTS ALL;
+IMPORTS
+  EccP256CurvePoint,
+  HashedId8,
+  PublicVerificationKey,
+  Time32,
+  Uint8
+FROM V2XSecBaseTypes,
+  Certificate,
+  CertificateType,
+  SequenceOfCertificate,
+  ToBeSignedCertificate
+FROM V2XSecDataTypes
+;
+
+  EeEcaCertRequest ::= SEQUENCE {
+    version           Uint8 (1),
+    generationTime    Time32,
+    type              CertificateType,
+    tbsCert           ToBeSignedCertificate (WITH COMPONENTS {
+      ...,
+      id (WITH COMPONENTS {
+        ...,
+        linkageData ABSENT
+      }),
+      cracaId ('000000'H),
+      crlSeries (0),
+      appPermissions ABSENT,
+      certIssuePermissions ABSENT,
+      certRequestPermissions PRESENT,
+      verifyKeyIndicator (WITH COMPONENTS {
+        verificationKey
+      })
+    }),
+    canonicalId       IA5String OPTIONAL,
+    ...
+  }
+
+  EcaEeCertResponse ::= SEQUENCE {
+    version           Uint8 (1),
+    requestHash       HashedId8,
+    ecaCertChain      SequenceOfCertificate,
+    certificate       Certificate,
+    privateKeyInfo    OCTET STRING (SIZE(32)) OPTIONAL,
+    ...
+  }
+
+  EcaEeInterfacePdu::= CHOICE {
+    eeEcaCertRequest   EeEcaCertRequest,
+    ecaEeCertResponse  EcaEeCertResponse,
+    ...
+  }
+END
+
+
 ScmsAcaRaInterface
 DEFINITIONS AUTOMATIC TAGS ::= BEGIN
 EXPORTS ALL;
@@ -971,62 +1028,6 @@ CrlSsp::= SEQUENCE  {
 CracaType ::= ENUMERATED {isCraca, issuerIsCraca}
       
 PermissibleCrls ::= SEQUENCE OF CrlSeries
-END
-
-
-ScmsEcaEeInterface
-DEFINITIONS AUTOMATIC TAGS ::= BEGIN
-EXPORTS ALL;
-IMPORTS
-  EccP256CurvePoint,
-  HashedId8,
-  PublicVerificationKey,
-  Time32,
-  Uint8
-FROM V2XSecBaseTypes,
-  Certificate,
-  CertificateType,
-  SequenceOfCertificate,
-  ToBeSignedCertificate
-FROM V2XSecDataTypes
-;
-  EcaEeInterfacePdu::= CHOICE {
-    eeEcaCertRequest   EeEcaCertRequest,
-    ecaEeCertResponse  EcaEeCertResponse,
-    ...
-  }
-
-  EeEcaCertRequest ::= SEQUENCE {
-    version           Uint8 (1),
-    generationTime    Time32,
-    type              CertificateType,
-    tbsCert           ToBeSignedCertificate (WITH COMPONENTS {
-      ...,
-      id (WITH COMPONENTS {
-        ..., 
-        linkageData ABSENT
-      }),
-      cracaId ('000000'H),
-      crlSeries (0),
-      appPermissions ABSENT,
-      certIssuePermissions ABSENT,
-      certRequestPermissions PRESENT,
-      verifyKeyIndicator (WITH COMPONENTS {
-        verificationKey
-      })
-    }),
-    canonicalId       IA5String OPTIONAL,
-    ...
-  }
-
-  EcaEeCertResponse ::= SEQUENCE {
-    version           Uint8 (1),
-    requestHash       HashedId8,
-    ecaCertChain      SequenceOfCertificate,
-    certificate       Certificate,
-    privateKeyInfo    OCTET STRING (SIZE(32)) OPTIONAL,
-    ...
-  }
 END
 
 

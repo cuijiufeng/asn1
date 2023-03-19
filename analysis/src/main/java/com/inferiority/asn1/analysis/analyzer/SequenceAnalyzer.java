@@ -42,17 +42,17 @@ public class SequenceAnalyzer extends AbstractAnalyzer {
         definition.setDefinitionText(text);
         //identifier
         definition.setIdentifier(RegexUtil.matcher(REGEX_IDENTIFIER, text));
-        //constraint
-        String replaceConstraint = RegexUtil.matcherReplaceConsumer(REGEX_SEQUENCE_CONSTRAINT, text, definition::setConstraintText);
-        if (replaceConstraint != null) {
-            text = replaceConstraint;
-        }
         //body
-        definition.setSubBodyText(RegexUtil.matcherFunc(REGEX_SEQUENCE_BODY, text, body -> {
-            definition.setSubDefs(parseBody(modules, module, substringBody(body.toCharArray())));
-            return body;
+        String replaceText = RegexUtil.matcherReplaceConsumer(REGEX_SEQUENCE_BODY, text, definition::setSubBodyText);
+        if (replaceText != null) {
+            definition.setSubDefs(parseBody(modules, module, substringBody(definition.getSubBodyText().toCharArray())));
+        }
+        //constraint
+        // TODO: 2023/3/19 bug 会把子定义的约束在父级就给处理了
+        definition.setConstraintText(RegexUtil.matcherFunc(REGEX_SEQUENCE_CONSTRAINT, replaceText, str -> {
+            // TODO: 2023/3/18 处理约束
+            return str;
         }));
-        // TODO: 2023/3/18 处理约束
         return definition;
     }
 
