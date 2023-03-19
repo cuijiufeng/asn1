@@ -43,7 +43,7 @@ public class SequenceAnalyzer extends AbstractAnalyzer {
         //identifier
         definition.setIdentifier(RegexUtil.matcher(REGEX_IDENTIFIER, text));
         //constraint
-        String replaceConstraint = RegexUtil.matcherReplaceConsumer(REGEX_SEQUENCE_CONSTRAINT, text, str -> {});
+        String replaceConstraint = RegexUtil.matcherReplaceConsumer(REGEX_SEQUENCE_CONSTRAINT, text, definition::setConstraintText);
         if (replaceConstraint != null) {
             text = replaceConstraint;
         }
@@ -77,7 +77,7 @@ public class SequenceAnalyzer extends AbstractAnalyzer {
                 defaulted = defaulted.replace(Reserved.DEFAULT, "").trim();
             }
             String primitiveName = AbstractAnalyzer.getPrimitiveType(s);
-            AbstractAnalyzer instance = AbstractAnalyzer.getInstance(modules, module, primitiveName);
+            AbstractAnalyzer instance = AbstractAnalyzer.getInstance(modules, module, primitiveName, false);
             Definition definition = instance.parse(modules, module, primitiveName, s, null);
             definition.setOptional(optional);
             definition.setDefaulted(defaulted);

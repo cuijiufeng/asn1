@@ -3,11 +3,15 @@ package com.inferiority.asn1.analysis.analyzer;
 import com.inferiority.asn1.analysis.AnalysisException;
 import com.inferiority.asn1.analysis.common.Operator;
 import com.inferiority.asn1.analysis.common.Reserved;
+import com.inferiority.asn1.analysis.model.CircleDependency;
 import com.inferiority.asn1.analysis.model.Definition;
 import com.inferiority.asn1.analysis.model.Module;
+import com.inferiority.asn1.analysis.util.AopUtil;
 import com.inferiority.asn1.analysis.util.ArrayUtil;
+import com.inferiority.asn1.analysis.util.ReflectUtil;
 import com.inferiority.asn1.analysis.util.RegexUtil;
 
+import java.lang.reflect.Method;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,6 +25,8 @@ import java.util.function.Function;
  * @date 2023/2/26 12:10
  */
 public abstract class AbstractAnalyzer {
+    public static final Method METHOD_GET_INSTANCE;
+    public static final Method METHOD_PARSE;
 
     public static final String CRLF = "(\\s*)";
 
@@ -35,6 +41,15 @@ public abstract class AbstractAnalyzer {
 
     public static final String REGEX_DEFINITION = REGEX_IDENTIFIER + CRLF + Operator.ASSIGNMENT + CRLF + "(" + REGEX_IDENTIFIER + "[ ]*)+";
 
+    static {
+        try {
+            METHOD_GET_INSTANCE = AbstractAnalyzer.class.getDeclaredMethod("getInstance", List.class, Module.class, String.class, boolean.class);
+            METHOD_PARSE = AbstractAnalyzer.class.getDeclaredMethod("parse", List.class, Module.class, String.class, String.class, String.class);
+        } catch (ReflectiveOperationException e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
+
     /**
      * @param modules 所有模块的定义
      * @param module 当前模块的类型定义
@@ -42,7 +57,7 @@ public abstract class AbstractAnalyzer {
      * @return com.inferiority.asn1.analysis.analyzer.AbstractAnalyzer
      * @throws
     */
-    public static AbstractAnalyzer getInstance(List<Module> modules, Module module, String typeReserved) throws AnalysisException {
+    public static AbstractAnalyzer getInstance(List<Module> modules, Module module, String typeReserved, boolean circleDependency) throws AnalysisException {
         if (Reserved.NULL.equals(typeReserved)) {
             return NullAnalyzer.getInstance();
         } else if (Reserved.BOOLEAN.equals(typeReserved)) {
@@ -69,7 +84,7 @@ public abstract class AbstractAnalyzer {
         //从当前模块中查找
         for (Definition def : module.getDefinitions()) {
             if (def.getIdentifier().equals(typeReserved)) {
-                return getInstance(modules, module, def.getPrimitiveType());
+                return getInstance(modules, module, def.getPrimitiveType(), false);
             }
         }
         //从依赖模块中查找
@@ -79,14 +94,21 @@ public abstract class AbstractAnalyzer {
                     if (m.getIdentifier().equals(entry.getValue())) {
                         for (Definition def : m.getDefinitions()) {
                             if (def.getIdentifier().equals(typeReserved)) {
-                                return getInstance(modules, m, def.getPrimitiveType());
+                                return getInstance(modules, m, def.getPrimitiveType(), false);
                             }
                         }
                     }
                 }
             }
         }
-        throw new AnalysisException("unsupported type: " + typeReserved);
+        if (circleDependency) {
+            throw new AnalysisException("unsupported type: " + typeReserved);
+        }
+        return AopUtil.proxyObject(UnknownAnalyzer.class, "parse", (obj, method, args, proxy) -> {
+            Object ret = proxy.invokeSuper(obj, args);
+            UnknownAnalyzer.UNKNOWN_CACHE.add(new CircleDependency(args, ReflectUtil.cast(Definition.class, ret)));
+            return ret;
+        });
     }
 
     public abstract Definition parse(List<Module> modules, Module module, String primitiveType, String text, String moduleText) throws AnalysisException;

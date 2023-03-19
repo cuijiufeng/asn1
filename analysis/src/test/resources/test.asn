@@ -486,6 +486,69 @@ Reserved ::= CertificateBase (WITH COMPONENTS {...,
 Certificate ::= CertificateBase (ExplicitCertificate | Reserved)
 SequenceOfCertificate ::= SEQUENCE OF Certificate
 
+
+--**********************************************************************
+--
+--  Structures for describing encrypted data
+--
+--**********************************************************************
+
+PreSharedKeyRecipientInfo ::= HashedId8
+
+One28BitCcmCiphertext ::= SEQUENCE {
+    nonce           OCTET STRING (SIZE (12)),
+    ccmCiphertext   Opaque --16 bytes longer than plaintext
+}
+
+SymmetricCiphertext ::= CHOICE {
+    aes128ccm       One28BitCcmCiphertext,
+    ...,
+    sm4Ccm          One28BitCcmCiphertext
+}
+
+SymmRecipientInfo ::= SEQUENCE {
+    recipientId     HashedId8,
+    encKey          SymmetricCiphertext
+}
+
+EciesP256EncryptedKey ::= SEQUENCE {
+    v       EccP256CurvePoint,
+    c       OCTET STRING (SIZE (16)),
+    t       OCTET STRING (SIZE (16))
+}
+
+EcencP256EncryptedKey ::= SEQUENCE {
+    v       EccP256CurvePoint,
+    t       OCTET STRING (SIZE (32)),
+    c       OCTET STRING (SIZE (16))
+}
+
+EncryptedDataEncryptionKey ::= CHOICE {
+    eciesNistP256           EciesP256EncryptedKey,
+    eciesBrainpoolP256r1    EciesP256EncryptedKey,
+    ...,
+    ecencSm2                EcencP256EncryptedKey
+}
+
+PKRecipientInfo ::= SEQUENCE {
+    recipientId     HashedId8,
+    encKey          EncryptedDataEncryptionKey
+}
+
+RecipientInfo ::= CHOICE {
+    pskRecipInfo            PreSharedKeyRecipientInfo,
+    symmRecipInfo           SymmRecipientInfo,
+    certRecipInfo           PKRecipientInfo,
+    signedDataRecipInfo     PKRecipientInfo,
+    rekRecipInfo            PKRecipientInfo
+}
+SequenceOfRecipientInfo ::= SEQUENCE OF RecipientInfo
+
+EncryptedData ::= SEQUENCE {
+    recipients     SequenceOfRecipientInfo,
+    ciphertext     SymmetricCiphertext
+}
+
 --
 --*********************************************************************
 --
@@ -587,69 +650,6 @@ Countersignature ::= V2XSecData (WITH COMPONENTS {...,
     })
   })
 })
-
---**********************************************************************
---
---  Structures for describing encrypted data
---
---**********************************************************************
-
-
-EncryptedData ::= SEQUENCE {
-    recipients     SequenceOfRecipientInfo,
-    ciphertext     SymmetricCiphertext
-}
-
-RecipientInfo ::= CHOICE {
-    pskRecipInfo            PreSharedKeyRecipientInfo,
-    symmRecipInfo           SymmRecipientInfo,
-    certRecipInfo           PKRecipientInfo,
-    signedDataRecipInfo     PKRecipientInfo,
-    rekRecipInfo            PKRecipientInfo
-}
-SequenceOfRecipientInfo ::= SEQUENCE OF RecipientInfo
-
-PreSharedKeyRecipientInfo ::= HashedId8
-
-SymmRecipientInfo ::= SEQUENCE {
-    recipientId     HashedId8,
-    encKey          SymmetricCiphertext
-}
-
-PKRecipientInfo ::= SEQUENCE {
-    recipientId     HashedId8,
-    encKey          EncryptedDataEncryptionKey
-}
-
-EncryptedDataEncryptionKey ::= CHOICE {
-    eciesNistP256           EciesP256EncryptedKey,
-    eciesBrainpoolP256r1    EciesP256EncryptedKey,
-    ...,
-    ecencSm2                EcencP256EncryptedKey
-}
-
-EciesP256EncryptedKey ::= SEQUENCE {
-    v       EccP256CurvePoint,
-    c       OCTET STRING (SIZE (16)),
-    t       OCTET STRING (SIZE (16))
-}
-
-EcencP256EncryptedKey ::= SEQUENCE {
-    v       EccP256CurvePoint,
-    t       OCTET STRING (SIZE (32)),
-    c       OCTET STRING (SIZE (16))
-}
-
-SymmetricCiphertext ::= CHOICE {
-    aes128ccm       One28BitCcmCiphertext,
-    ...,
-    sm4Ccm          One28BitCcmCiphertext
-}
-
-One28BitCcmCiphertext ::= SEQUENCE {
-    nonce           OCTET STRING (SIZE (12)),
-    ccmCiphertext   Opaque --16 bytes longer than plaintext
-}
 
 END
 

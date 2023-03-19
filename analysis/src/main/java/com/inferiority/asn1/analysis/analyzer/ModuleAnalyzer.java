@@ -3,8 +3,10 @@ package com.inferiority.asn1.analysis.analyzer;
 import com.inferiority.asn1.analysis.AnalysisException;
 import com.inferiority.asn1.analysis.common.Operator;
 import com.inferiority.asn1.analysis.common.Reserved;
+import com.inferiority.asn1.analysis.model.CircleDependency;
 import com.inferiority.asn1.analysis.model.Definition;
 import com.inferiority.asn1.analysis.model.Module;
+import com.inferiority.asn1.analysis.util.ReflectUtil;
 import com.inferiority.asn1.analysis.util.RegexUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -132,6 +134,19 @@ public class ModuleAnalyzer {
         module.setModuleBodyText(moduleBodyText);
         module.setDefinitions(new LinkedList<>());
         parseModuleBody(modules, module, moduleBodyText);
+        while (!UnknownAnalyzer.UNKNOWN_CACHE.isEmpty()) {
+            CircleDependency cd = UnknownAnalyzer.UNKNOWN_CACHE.remove(0);
+            try {
+                Object[] parseArgs = cd.getArgs();
+                AbstractAnalyzer instance = ReflectUtil.invokeMethod(AbstractAnalyzer.METHOD_GET_INSTANCE, null,
+                        parseArgs[0], parseArgs[1], parseArgs[2], true);
+                Definition definition = ReflectUtil.invokeMethod(AbstractAnalyzer.METHOD_PARSE, instance, parseArgs);
+                log.debug("callback parse circle dependency: {}", definition);
+                ReflectUtil.deepCopyBean(Definition.class, definition, cd.getRet());
+            } catch (ReflectiveOperationException e) {
+                throw new AnalysisException("reflect invoke method error", e);
+            }
+        }
         return module;
     }
 
@@ -143,7 +158,7 @@ public class ModuleAnalyzer {
             t = RegexUtil.matcherReplaceBetweenConsumer(AbstractAnalyzer.REGEX_DEFINITION, t, str -> {
                 String text = str.toString().trim();
                 String primitiveName = AbstractAnalyzer.getPrimitiveType(text);
-                AbstractAnalyzer instance = AbstractAnalyzer.getInstance(modules, module, primitiveName);
+                AbstractAnalyzer instance = AbstractAnalyzer.getInstance(modules, module, primitiveName, false);
                 definitions.add(instance.parse(modules, module, primitiveName, text, moduleBodyText));
                 log.debug("entity:\n{}", definitions.get(definitions.size() - 1));
             });
