@@ -142,6 +142,25 @@ public abstract class AbstractAnalyzer {
         return null;
     }
 
+    public List<String> splitBody(char[] body, Character separator) {
+        Stack<Integer> stack = new Stack<>();
+        List<String> split = new ArrayList<>(8);
+        int s = 0;
+        for (int i = 0; i < body.length; i++) {
+            if ('{' == body[i]) {
+                stack.push(i);
+            } else if ('}' == body[i]) {
+                stack.pop();
+            }
+            if (stack.isEmpty() && separator == body[i]) {
+                split.add(new String(Arrays.copyOfRange(body, s, i)).trim());
+                s = i + 1;
+            }
+        }
+        split.add(new String(Arrays.copyOfRange(body, s, body.length)).trim());
+        return split;
+    }
+
     public List<Map.Entry<String, String>> parseValues(String regex, String text, Function<String, AbstractMap.SimpleEntry<String, String>> apply) {
         if (text == null) {
             return null;

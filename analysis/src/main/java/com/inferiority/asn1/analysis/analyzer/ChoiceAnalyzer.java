@@ -8,7 +8,6 @@ import com.inferiority.asn1.analysis.util.RegexUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 
 /**
  * @author cuijiufeng
@@ -49,9 +48,9 @@ public class ChoiceAnalyzer extends AbstractAnalyzer {
 
     private List<Definition> parseBody(List<Module> modules, Module module, String body) {
         List<Definition> subs = new ArrayList<>();
-        List<String> split = splitBody(body);
+        List<String> split = splitBody(body.toCharArray(), ',');
         for (String s : split) {
-            if (RegexUtil.matches(Operator.ELLIPSIS, s)) {
+            if (Operator.NO_REG_ELLIPSIS.equals(s)) {
                 subs.add(new Definition(s.trim(), null));
                 continue;
             }
@@ -61,23 +60,5 @@ public class ChoiceAnalyzer extends AbstractAnalyzer {
             subs.add(instance.parse(modules, module, primitiveName, s, null));
         }
         return subs.isEmpty() ? null : subs;
-    }
-
-    private List<String> splitBody(String body) {
-        List<String> split = new ArrayList<>(8);
-        Stack<Integer> stack = new Stack<>();
-        for (int i = 0, j = body.indexOf(Operator.COMMA); i != -1; i = j, j = body.indexOf(Operator.COMMA, i + 1)) {
-            String s = body.substring(i + 1, j == -1 ? body.length() : j);
-            if (RegexUtil.matches(Operator.OPENING_BRACE, s)) {
-                stack.push(i + 1);
-                continue;
-            } else if (RegexUtil.matches(Operator.CLOSING_BRACE, s)) {
-                s = body.substring(stack.pop(), j == -1 ? body.length() : j);
-            } else if (!stack.isEmpty()) {
-                continue;
-            }
-            split.add(s.trim());
-        }
-        return split;
     }
 }

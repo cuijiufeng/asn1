@@ -14,6 +14,7 @@ public class Operator {
     public static final String ASSIGNMENT = "::=";
     public static final String RANGE = "\\.\\.";
     public static final String ELLIPSIS = "\\.\\.\\.";
+    public static final String NO_REG_ELLIPSIS = "...";
     public static final String SEMICOLON = ";";
     public static final String COMMA = ",";
     public static final String LEFT_BRACKET = "\\(";
