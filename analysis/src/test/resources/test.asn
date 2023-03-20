@@ -653,6 +653,80 @@ Countersignature ::= V2XSecData (WITH COMPONENTS {...,
 END
 
 
+TRCL-RootCtl
+DEFINITIONS AUTOMATIC TAGS ::= BEGIN
+EXPORTS ALL;
+IMPORTS
+  Certificate,
+  IssuerIdentifier
+FROM V2XSecDataTypes,
+  Signature,
+  Time32,
+  Uint8,
+  Uint16
+FROM V2XSecBaseTypes
+;
+
+PkiCtlInfo ::= SEQUENCE  {
+    rootCertificate   Certificate,
+    caListUrl         UTF8String (SIZE (0..511)) OPTIONAL
+}
+SequenceOfPkiCtlInfo ::= SEQUENCE OF PkiCtlInfo
+
+ToBeSignedRootCtl ::= SEQUENCE  {
+    version           Uint8 (1),
+    issuer            IssuerIdentifier,
+    series            Uint16,
+    issueDate         Time32,
+    nextRootCtl       Time32,
+    pkiCtlInfoList    SequenceOfPkiCtlInfo
+}
+
+  RootCtl ::= SEQUENCE {
+    toBeSignedRootCtl   ToBeSignedRootCtl,
+    signature           Signature
+  }
+END
+
+
+TDCL-PkiCtl
+DEFINITIONS AUTOMATIC TAGS ::= BEGIN
+EXPORTS ALL;
+IMPORTS
+  IssuerIdentifier,
+  SequenceOfCertificate
+FROM V2XSecDataTypes,
+  Uint8,
+  Uint16,
+  Signature,
+  Time32
+FROM V2XSecBaseTypes
+;
+
+PkiCertInfo ::= SEQUENCE  {
+  certificate   SequenceOfCertificate,
+  crlUrl        UTF8String (SIZE (0..511)) OPTIONAL,
+  maUrl         UTF8String (SIZE (0..511)) OPTIONAL
+}
+SequenceOfPkiCertInfo ::= SEQUENCE OF PkiCertInfo
+
+ToBeSignedPkiCtl ::= SEQUENCE  {
+    version           Uint8,
+    issuer            IssuerIdentifier,
+    series            Uint16,
+    issueDate         Time32,
+    nextPkiCtl        Time32,
+    pkiCertInfoList   SequenceOfPkiCertInfo
+}
+
+PkiCtl ::= SEQUENCE {
+    toBeSignedPkiCtl  ToBeSignedPkiCtl,
+    signature         Signature
+}
+SequenceOfPkiCtl ::= SEQUENCE OF PkiCtl
+END
+
+
 ScmsAcaEeInterface DEFINITIONS AUTOMATIC TAGS ::= BEGIN
 EXPORTS ALL;
 IMPORTS
@@ -1893,78 +1967,6 @@ FROM ScmsMaRaInterface
     ee      EeSsp,
     ...
   }
-END
-
-
-TRCL-RootCtl
-DEFINITIONS AUTOMATIC TAGS ::= BEGIN
-EXPORTS ALL;
-IMPORTS
-  Certificate,
-  IssuerIdentifier
-FROM V2XSecDataTypes,
-  Signature,
-  Time32,
-  Uint8,
-  Uint16
-FROM V2XSecBaseTypes
-;
-  RootCtl ::= SEQUENCE {
-    toBeSignedRootCtl   ToBeSignedRootCtl,
-    signature           Signature
-  }
-
-ToBeSignedRootCtl ::= SEQUENCE  {
-    version           Uint8 (1),
-    issuer            IssuerIdentifier,
-    series            Uint16,
-    issueDate         Time32,
-    nextRootCtl       Time32,
-    pkiCtlInfoList    SequenceOfPkiCtlInfo
-}
-
-PkiCtlInfo ::= SEQUENCE  {
-    rootCertificate   Certificate,
-    caListUrl         UTF8String (SIZE (0..511)) OPTIONAL
-}
-SequenceOfPkiCtlInfo ::= SEQUENCE OF PkiCtlInfo
-END
-
-
-TDCL-PkiCtl
-DEFINITIONS AUTOMATIC TAGS ::= BEGIN
-EXPORTS ALL;
-IMPORTS
-  IssuerIdentifier,
-  SequenceOfCertificate
-FROM V2XSecDataTypes,
-  Uint8,
-  Uint16,
-  Signature,
-  Time32
-FROM V2XSecBaseTypes
-;
-PkiCtl ::= SEQUENCE {
-    toBeSignedPkiCtl  ToBeSignedPkiCtl,
-    signature         Signature
-}
-SequenceOfPkiCtl ::= SEQUENCE OF PkiCtl
-
-ToBeSignedPkiCtl ::= SEQUENCE  {
-    version           Uint8,
-    issuer            IssuerIdentifier,
-    series            Uint16,
-    issueDate         Time32,
-    nextPkiCtl        Time32,
-    pkiCertInfoList   SequenceOfPkiCertInfo
-}
-
-PkiCertInfo ::= SEQUENCE  {
-  certificate   SequenceOfCertificate,
-  crlUrl        UTF8String (SIZE (0..511)) OPTIONAL,
-  maUrl         UTF8String (SIZE (0..511)) OPTIONAL
-}
-SequenceOfPkiCertInfo ::= SEQUENCE OF PkiCertInfo
 END
 
 
