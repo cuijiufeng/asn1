@@ -35,7 +35,6 @@ public class SequenceOfAnalyzer extends AbstractAnalyzer {
             throw new AnalysisException("not a valid sequence-of type definition.\n" + text);
         }
         Definition definition = new Definition();
-        definition.setPrimitiveType(primitiveType);
         definition.setDefinitionText(text);
         //identifier
         definition.setIdentifier(RegexUtil.matcher(REGEX_IDENTIFIER, text));
@@ -48,6 +47,8 @@ public class SequenceOfAnalyzer extends AbstractAnalyzer {
             definition.setRangeMin(range[0]);
             definition.setRangeMax(range[range.length - 1]);
         });
+        text = text.replaceFirst(REGEX_SEQUENCE_OF_RANGE, "");
+        definition.setPrimitiveType(AbstractAnalyzer.getPrimitiveType(text));
         return definition;
     }
 }
