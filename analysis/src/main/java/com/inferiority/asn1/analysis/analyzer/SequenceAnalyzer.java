@@ -26,7 +26,7 @@ public class SequenceAnalyzer extends AbstractAnalyzer {
 
     public static final String REGEX_SEQUENCE = CRLF + REGEX_IDENTIFIER + CRLF + Operator.ASSIGNMENT + CRLF + REGEX_IDENTIFIER + CRLF +
             REGEX_SEQUENCE_BODY + "?" + CRLF +
-            "(" + Operator.LEFT_BRACKET + "[\\s\\S]*" + Operator.RIGHT_BRACKET + ")" + "?" + CRLF;
+            REGEX_SEQUENCE_CONSTRAINT + "?" + CRLF;
 
     public static AbstractAnalyzer getInstance() {
         return analyzer;
@@ -43,16 +43,18 @@ public class SequenceAnalyzer extends AbstractAnalyzer {
         //identifier
         definition.setIdentifier(RegexUtil.matcher(REGEX_IDENTIFIER, text));
         //body
-        String replaceText = RegexUtil.matcherReplaceConsumer(REGEX_SEQUENCE_BODY, text, body -> {
-            definition.setSubDefs(parseBody(modules, module, substringBody(body.toCharArray())));
+        String body = substringBody(text.indexOf(Operator.ASSIGNMENT), text.toCharArray(), new Character[]{'{', '}'});
+        if (body != null) {
             definition.setSubBodyText(body);
-        });
+            definition.setSubDefs(parseBody(modules, module, body.substring(1, body.length() - 1)));
+            text = text.replace(body, "");
+        }
         //constraint
-        // TODO: 2023/3/19 bug 会把子定义的约束在父级就给处理了
-        definition.setConstraintText(RegexUtil.matcherFunc(REGEX_SEQUENCE_CONSTRAINT, replaceText, str -> {
+        String constraint = substringBody(text.indexOf(Operator.ASSIGNMENT), text.toCharArray(), new Character[]{'(', ')'});
+        if (constraint != null) {
             // TODO: 2023/3/18 处理约束
-            return str;
-        }));
+            definition.setConstraintText(constraint);
+        }
         return definition;
     }
 

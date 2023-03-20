@@ -3,9 +3,12 @@ package com.inferiority.asn1.analysis.analyzer;
 import com.inferiority.asn1.analysis.AnalysisException;
 import com.inferiority.asn1.analysis.common.Operator;
 import com.inferiority.asn1.analysis.common.Reserved;
+import com.inferiority.asn1.analysis.model.CircleDependency;
 import com.inferiority.asn1.analysis.model.Definition;
 import com.inferiority.asn1.analysis.model.Module;
+import com.inferiority.asn1.analysis.util.AopUtil;
 import com.inferiority.asn1.analysis.util.ArrayUtil;
+import com.inferiority.asn1.analysis.util.ReflectUtil;
 import com.inferiority.asn1.analysis.util.RegexUtil;
 
 import java.lang.reflect.Method;
@@ -22,6 +25,7 @@ import java.util.function.Function;
  * @date 2023/2/26 12:10
  */
 public abstract class AbstractAnalyzer {
+    public static final Character[] BRACES = new Character[]{'(', ')', '[', ']', '{', '}', '<', '>'};
     public static final Method METHOD_GET_INSTANCE;
     public static final Method METHOD_PARSE;
 
@@ -101,12 +105,11 @@ public abstract class AbstractAnalyzer {
         if (circleDependency) {
             throw new AnalysisException("unsupported type: " + typeReserved);
         }
-        //return AopUtil.proxyObject(UnknownAnalyzer.class, "parse", (obj, method, args, proxy) -> {
-        //    Object ret = proxy.invokeSuper(obj, args);
-        //    UnknownAnalyzer.UNKNOWN_CACHE.add(new CircleDependency(args, ReflectUtil.cast(Definition.class, ret)));
-        //    return ret;
-        //});
-        throw new AnalysisException("unsupported type: " + typeReserved);
+        return AopUtil.proxyObject(UnknownAnalyzer.class, "parse", (obj, method, args, proxy) -> {
+            Object ret = proxy.invokeSuper(obj, args);
+            UnknownAnalyzer.UNKNOWN_CACHE.add(new CircleDependency(args, ReflectUtil.cast(Definition.class, ret)));
+            return ret;
+        });
     }
 
     public abstract Definition parse(List<Module> modules, Module module, String primitiveType, String text, String moduleText) throws AnalysisException;
@@ -115,21 +118,24 @@ public abstract class AbstractAnalyzer {
         String matcher = RegexUtil.matcher(typeDef.indexOf(Operator.ASSIGNMENT),
                 Reserved.SEQUENCE + CRLF + SequenceOfAnalyzer.REGEX_SEQUENCE_OF_RANGE + "?" + CRLF + Reserved.OF  + CRLF + AbstractAnalyzer.REGEX_IDENTIFIER,
                 typeDef);
+        //单独处理sequence-of
         if (matcher != null) {
             return matcher.replaceFirst(SequenceOfAnalyzer.REGEX_SEQUENCE_OF_RANGE, "");
         }
         return RegexUtil.matcher(typeDef.indexOf(Operator.ASSIGNMENT), "(" + AbstractAnalyzer.REGEX_IDENTIFIER + "[ ]*)+", typeDef).trim();
     }
 
-    public String substringBody(char[] body) {
+    public String substringBody(int start, char[] body, Character[] brace) {
         Stack<Integer> stack = new Stack<>();
-        for (int i = 0; i < body.length; i++) {
-            if (body[i] == '{') {
+        for (int i = start; i < body.length; i++) {
+            if (stack.isEmpty() && ArrayUtil.contains(BRACES, body[i]) && !ArrayUtil.contains(brace, body[i])) {
+                return null;
+            } else if (body[i] == brace[0]) {
                 stack.push(i);
-            } else if (body[i] == '}') {
+            } else if (body[i] == brace[1]) {
                 Integer t = stack.pop();
                 if (stack.isEmpty()) {
-                    return new String(Arrays.copyOfRange(body, t + 1, i));
+                    return new String(Arrays.copyOfRange(body, t, i + 1));
                 }
             }
         }

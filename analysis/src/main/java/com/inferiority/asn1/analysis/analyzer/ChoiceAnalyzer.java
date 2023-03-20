@@ -39,10 +39,11 @@ public class ChoiceAnalyzer extends AbstractAnalyzer {
         //identifier
         definition.setIdentifier(RegexUtil.matcher(REGEX_IDENTIFIER, text));
         //body
-        definition.setSubBodyText(RegexUtil.matcherFunc(REGEX_CHOICE_BODY, text, body -> {
-            definition.setSubDefs(parseBody(modules, module, substringBody(body.toCharArray())));
-            return body;
-        }));
+        String body = substringBody(text.indexOf(Operator.ASSIGNMENT), text.toCharArray(), new Character[]{'{', '}'});
+        if (body != null) {
+            definition.setSubBodyText(body);
+            definition.setSubDefs(parseBody(modules, module, body.substring(1, body.length() - 1)));
+        }
         return definition;
     }
 
