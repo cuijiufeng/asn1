@@ -10,6 +10,8 @@ import com.inferiority.asn1.analysis.util.RegexUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 /**
@@ -40,7 +42,7 @@ public class SequenceAnalyzer extends AbstractAnalyzer {
     }
 
     @Override
-    public Definition parse(List<Module> modules, Module module, String primitiveType, String text, String moduleText) throws AnalysisException {
+    public Definition parse(List<Module> modules, Module module, String primitiveType, List<Definition> parents, String text, String moduleText) throws AnalysisException {
         if (!RegexUtil.matches(REGEX_SEQUENCE, text)) {
             throw new AnalysisException("not a valid sequence type definition.\n" + text);
         }
@@ -60,19 +62,16 @@ public class SequenceAnalyzer extends AbstractAnalyzer {
                 .collect(Collectors.toList())));
         //body
         String body = substringBody(text.indexOf(Operator.ASSIGNMENT), text.toCharArray(), new Character[]{'{', '}'});
-        if (body != null) {
-            definition.setSubBodyText(body);
-            text = text.replace(body, "");
-            //参数化类型定义
-            if (definition.getSequenceParameters() == null) {
-                definition.setSubDefs(parseBody(modules, module, body.substring(1, body.length() - 1)));
-            }
+        definition.setSubBodyText(body);
+        //非参数化类型定义
+        if (body != null && !definition.isParameterizedTypes() && (parents.isEmpty() || !parents.get(0).isParameterizedTypes())) {
+            definition.setSubDefs(parseBody(modules, module, body.substring(1, body.length() - 1)));
         }
         //constraint
         String constraint = substringBody(text.indexOf(Operator.ASSIGNMENT), text.toCharArray(), new Character[]{'(', ')'});
+        definition.setConstraintText(constraint);
         if (constraint != null) {
             // TODO: 2023/3/18 处理约束
-            definition.setConstraintText(constraint);
         }
         return definition;
     }
@@ -81,29 +80,42 @@ public class SequenceAnalyzer extends AbstractAnalyzer {
         List<Definition> subs = new ArrayList<>();
         List<String> split = splitBody(body.toCharArray(), ',');
         for (String s : split) {
+            String optional = null;
+            String defaulted = null;
             if (Operator.NO_REG_ELLIPSIS.equals(s)) {
                 subs.add(new Definition(s.trim(), null));
                 continue;
             }
             s = s.trim().replaceFirst("[ ]+", Operator.ASSIGNMENT);
-            //optional
-            Boolean optional = null;
-            if (RegexUtil.matches(Reserved.OPTIONAL, s)) {
-                optional = true;
-                s = s.replace(Reserved.OPTIONAL, "").trim();
+            if ((optional = RegexUtil.matcher(Reserved.OPTIONAL, s)) != null) {
+                if (inBrace(s.indexOf(optional), s.toCharArray())) {
+                    s = s.replace(Reserved.OPTIONAL, "").trim();
+                }
             }
-            String defaulted = RegexUtil.matcher(Reserved.DEFAULT + CRLF_LEAST + "(\\S)*", s);
-            if (defaulted != null) {
-                s = s.replace(defaulted, "").trim();
-                defaulted = defaulted.replace(Reserved.DEFAULT, "").trim();
+            if ((defaulted = RegexUtil.matcher(Reserved.DEFAULT + CRLF_LEAST + "[^" + Operator.COMMA + "\\s]+", s)) != null) {
+                if (inBrace(s.indexOf(defaulted), s.toCharArray())) {
+                    s = s.replace(defaulted, "").trim();
+                }
             }
             String primitiveName = AbstractAnalyzer.getPrimitiveType(s);
-            AbstractAnalyzer instance = AbstractAnalyzer.getInstance(modules, module, primitiveName);
-            Definition definition = instance.parse(modules, module, primitiveName, s, null);
+            Map.Entry<AbstractAnalyzer, List<Definition>> entry = AbstractAnalyzer.getInstance(modules, module, primitiveName);
+            Definition definition = entry.getKey().parse(modules, module, primitiveName, entry.getValue(), s, null);
             definition.setOptional(optional);
             definition.setDefaulted(defaulted);
             subs.add(definition);
         }
         return subs.isEmpty() ? null : subs;
+    }
+
+    private boolean inBrace(int pos, char[] chars) {
+        Stack<Character> stack = new Stack<>();
+        for (int i = 0; i < pos; i++) {
+            if (chars[i] == '{') {
+                stack.push(chars[i]);
+            } else if (chars[i] == '}') {
+                stack.pop();
+            }
+        }
+        return stack.isEmpty();
     }
 }

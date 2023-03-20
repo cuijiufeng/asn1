@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author cuijiufeng
@@ -46,12 +47,13 @@ public class Analyzer {
                 CircleDependency cd = UnknownAnalyzer.UNKNOWN_CACHE.get(i);
                 try {
                     Object[] parseArgs = cd.getArgs();
-                    AbstractAnalyzer instance = ReflectUtil.invokeMethod(AbstractAnalyzer.METHOD_GET_INSTANCE, null,
+                    Map.Entry<AbstractAnalyzer, List<Definition>> entry = ReflectUtil.invokeMethod(AbstractAnalyzer.METHOD_GET_INSTANCE, null,
                             parseArgs[0], parseArgs[1], parseArgs[2]);
-                    if (instance instanceof UnknownAnalyzer) {
+                    if (entry.getKey() instanceof UnknownAnalyzer) {
                         continue;
                     }
-                    Definition definition = ReflectUtil.invokeMethod(AbstractAnalyzer.METHOD_PARSE, instance, parseArgs);
+                    parseArgs[3] = entry.getValue();
+                    Definition definition = ReflectUtil.invokeMethod(AbstractAnalyzer.METHOD_PARSE, entry.getKey(), parseArgs);
                     log.debug("callback parse circle dependency: {}", definition);
                     ReflectUtil.deepCopyBean(Definition.class, definition, cd.getRet());
                     UnknownAnalyzer.UNKNOWN_CACHE.remove(cd);
@@ -62,10 +64,10 @@ public class Analyzer {
             }
         }
         if (!UnknownAnalyzer.UNKNOWN_CACHE.isEmpty()) {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder("unsupported types\n");
             for (CircleDependency cd : UnknownAnalyzer.UNKNOWN_CACHE) {
                 Object[] args = cd.getArgs();
-                sb.append(String.format("unsupported type %s in module %s ", args[2], ReflectUtil.cast(Module.class, args[1]).getIdentifier()))
+                sb.append(String.format("%s in module %s ", args[2], ReflectUtil.cast(Module.class, args[1]).getIdentifier()))
                         .append('\n');
             }
             throw new AnalysisException(sb.toString());

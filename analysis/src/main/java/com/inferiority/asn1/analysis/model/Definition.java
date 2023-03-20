@@ -25,7 +25,7 @@ public class Definition {
     private String rangeMax;
     private List<Definition> subDefs;
     private String bodyText;
-    private Boolean optional;
+    private String optional;
     private String defaulted;
     private String constraintText;
     private List<Map.Entry<String, String>> values;
@@ -36,5 +36,9 @@ public class Definition {
     public Definition(String identifier, String bodyText) {
         this.identifier = identifier;
         this.bodyText = bodyText;
+    }
+
+    public boolean isParameterizedTypes() {
+        return sequenceParameters != null;
     }
 }

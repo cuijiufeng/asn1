@@ -44,7 +44,7 @@ public abstract class AbstractAnalyzer {
     static {
         try {
             METHOD_GET_INSTANCE = AbstractAnalyzer.class.getDeclaredMethod("getInstance", List.class, Module.class, String.class);
-            METHOD_PARSE = AbstractAnalyzer.class.getDeclaredMethod("parse", List.class, Module.class, String.class, String.class, String.class);
+            METHOD_PARSE = AbstractAnalyzer.class.getDeclaredMethod("parse", List.class, Module.class, String.class, List.class, String.class, String.class);
         } catch (ReflectiveOperationException e) {
             throw new ExceptionInInitializerError(e);
         }
@@ -57,38 +57,40 @@ public abstract class AbstractAnalyzer {
      * @return com.inferiority.asn1.analysis.analyzer.AbstractAnalyzer
      * @throws
     */
-    public static AbstractAnalyzer getInstance(List<Module> modules, Module module, String typeReserved) throws AnalysisException {
+    public static Map.Entry<AbstractAnalyzer, List<Definition>> getInstance(List<Module> modules, Module module, String typeReserved) throws AnalysisException {
         if (Reserved.NULL.equals(typeReserved)) {
-            return NullAnalyzer.getInstance();
+            return new AbstractMap.SimpleEntry<>(NullAnalyzer.getInstance(), new ArrayList<>());
         } else if (Reserved.BOOLEAN.equals(typeReserved)) {
-            return BooleanAnalyzer.getInstance();
+            return new AbstractMap.SimpleEntry<>(BooleanAnalyzer.getInstance(), new ArrayList<>());
         } else if (Reserved.INTEGER.equals(typeReserved)) {
-            return IntegerAnalyzer.getInstance();
+            return new AbstractMap.SimpleEntry<>(IntegerAnalyzer.getInstance(), new ArrayList<>());
         } else if (Reserved.ENUMERATED.equals(typeReserved)) {
-            return EnumeratedAnalyzer.getInstance();
+            return new AbstractMap.SimpleEntry<>(EnumeratedAnalyzer.getInstance(), new ArrayList<>());
         } else if (Reserved.IA5String.equals(typeReserved)) {
-            return IA5StringAnalyzer.getInstance();
+            return new AbstractMap.SimpleEntry<>(IA5StringAnalyzer.getInstance(), new ArrayList<>());
         } else if (Reserved.UTF8String.equals(typeReserved)) {
-            return UTF8StringAnalyzer.getInstance();
+            return new AbstractMap.SimpleEntry<>(UTF8StringAnalyzer.getInstance(), new ArrayList<>());
         } else if (Reserved.SEQUENCE.equals(typeReserved)) {
-            return SequenceAnalyzer.getInstance();
+            return new AbstractMap.SimpleEntry<>(SequenceAnalyzer.getInstance(), new ArrayList<>());
         } else if (Reserved.CHOICE.equals(typeReserved)) {
-            return ChoiceAnalyzer.getInstance();
+            return new AbstractMap.SimpleEntry<>(ChoiceAnalyzer.getInstance(), new ArrayList<>());
         } else if (typeReserved.equals(Reserved.BIT + " " + Reserved.STRING)) {
-            return BitStringAnalyzer.getInstance();
+            return new AbstractMap.SimpleEntry<>(BitStringAnalyzer.getInstance(), new ArrayList<>());
         } else if (typeReserved.equals(Reserved.OCTET + " " + Reserved.STRING)) {
-            return OctetStringAnalyzer.getInstance();
+            return new AbstractMap.SimpleEntry<>(OctetStringAnalyzer.getInstance(), new ArrayList<>());
         } else if (RegexUtil.matches(Reserved.SEQUENCE + "\\s*" + Reserved.OF, typeReserved)) {
-            if (getInstance(modules, module, typeReserved.split("\\s+", 3)[2]) instanceof UnknownAnalyzer) {
+            if (getInstance(modules, module, typeReserved.split("\\s+", 3)[2]).getKey() instanceof UnknownAnalyzer) {
                 throw new AnalysisException(String.format("unsupported type %s in module %s ", typeReserved, module.getIdentifier()));
             }
-            return SequenceOfAnalyzer.getInstance();
+            return new AbstractMap.SimpleEntry<>(SequenceOfAnalyzer.getInstance(), new ArrayList<>());
         }
         //已知的定义类型
         //从当前模块中查找
         for (Definition def : module.getDefinitions()) {
             if (def.getIdentifier().equals(typeReserved)) {
-                return getInstance(modules, module, def.getPrimitiveType());
+                Map.Entry<AbstractAnalyzer, List<Definition>> entry = getInstance(modules, module, def.getPrimitiveType());
+                entry.getValue().add(0, def);
+                return entry;
             }
         }
         //从依赖模块中查找
@@ -99,7 +101,9 @@ public abstract class AbstractAnalyzer {
                     if (m.getIdentifier().equals(entry.getValue())) {
                         for (Definition def : m.getDefinitions()) {
                             if (def.getIdentifier().equals(typeReserved)) {
-                                return getInstance(modules, m, def.getPrimitiveType());
+                                Map.Entry<AbstractAnalyzer, List<Definition>> listEntry = getInstance(modules, m, def.getPrimitiveType());
+                                listEntry.getValue().add(0, def);
+                                return listEntry;
                             }
                         }
                         throw new AnalysisException(String.format("type %s not found in module %s", typeReserved, m.getIdentifier()));
@@ -107,10 +111,10 @@ public abstract class AbstractAnalyzer {
                 }
             }
         }
-        return UnknownAnalyzer.PROXY_OBJECT;
+        return new AbstractMap.SimpleEntry<>(UnknownAnalyzer.PROXY_OBJECT, new ArrayList<>());
     }
 
-    public abstract Definition parse(List<Module> modules, Module module, String primitiveType, String text, String moduleText) throws AnalysisException;
+    public abstract Definition parse(List<Module> modules, Module module, String primitiveType, List<Definition> parents, String text, String moduleText) throws AnalysisException;
 
     public static String getPrimitiveType(String typeDef) {
         String matcher = RegexUtil.matcher(typeDef.indexOf(Operator.ASSIGNMENT), "(" + AbstractAnalyzer.REGEX_IDENTIFIER + "\\s*)+", typeDef).trim();

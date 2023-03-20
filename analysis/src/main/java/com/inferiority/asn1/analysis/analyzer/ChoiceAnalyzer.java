@@ -8,6 +8,7 @@ import com.inferiority.asn1.analysis.util.RegexUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author cuijiufeng
@@ -28,7 +29,7 @@ public class ChoiceAnalyzer extends AbstractAnalyzer {
     }
 
     @Override
-    public Definition parse(List<Module> modules, Module module, String primitiveType, String text, String moduleText) throws AnalysisException {
+    public Definition parse(List<Module> modules, Module module, String primitiveType, List<Definition> parents, String text, String moduleText) throws AnalysisException {
         if (!RegexUtil.matches(REGEX_CHOICE, text)) {
             throw new AnalysisException("not a valid choice type definition.\n" + text);
         }
@@ -56,8 +57,8 @@ public class ChoiceAnalyzer extends AbstractAnalyzer {
             }
             s = s.trim().replaceFirst("[ ]+", Operator.ASSIGNMENT);
             String primitiveName = AbstractAnalyzer.getPrimitiveType(s);
-            AbstractAnalyzer instance = AbstractAnalyzer.getInstance(modules, module, primitiveName);
-            subs.add(instance.parse(modules, module, primitiveName, s, null));
+            Map.Entry<AbstractAnalyzer, List<Definition>> entry = AbstractAnalyzer.getInstance(modules, module, primitiveName);
+            subs.add(entry.getKey().parse(modules, module, primitiveName, entry.getValue(), s, null));
         }
         return subs.isEmpty() ? null : subs;
     }

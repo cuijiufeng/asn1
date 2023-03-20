@@ -36,7 +36,7 @@ public class IntegerAnalyzer extends AbstractAnalyzer {
     }
 
     @Override
-    public Definition parse(List<Module> modules, Module module, String primitiveType, String text, String moduleText) throws AnalysisException {
+    public Definition parse(List<Module> modules, Module module, String primitiveType, List<Definition> parents, String text, String moduleText) throws AnalysisException {
         if (!RegexUtil.matches(REGEX_INTEGER, text)) {
             throw new AnalysisException("not a valid integer type definition.\n" + text);
         }

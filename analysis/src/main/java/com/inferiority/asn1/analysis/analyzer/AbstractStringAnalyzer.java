@@ -21,7 +21,7 @@ public abstract class AbstractStringAnalyzer extends AbstractAnalyzer {
     public abstract void validate(String text);
 
     @Override
-    public Definition parse(List<Module> modules, Module module, String primitiveType, String text, String moduleText) throws AnalysisException {
+    public Definition parse(List<Module> modules, Module module, String primitiveType, List<Definition> parents, String text, String moduleText) throws AnalysisException {
         validate(text);
         Definition definition = new Definition();
         definition.setPrimitiveType(primitiveType);

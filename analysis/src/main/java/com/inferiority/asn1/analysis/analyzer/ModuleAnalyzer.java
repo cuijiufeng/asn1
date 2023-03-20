@@ -143,8 +143,8 @@ public class ModuleAnalyzer {
             t = RegexUtil.matcherReplaceBetweenConsumer(AbstractAnalyzer.REGEX_DEFINITION, t, str -> {
                 String text = str.toString().trim();
                 String primitiveName = AbstractAnalyzer.getPrimitiveType(text);
-                AbstractAnalyzer instance = AbstractAnalyzer.getInstance(modules, module, primitiveName);
-                definitions.add(instance.parse(modules, module, primitiveName, text, moduleBodyText));
+                Map.Entry<AbstractAnalyzer, List<Definition>> entry = AbstractAnalyzer.getInstance(modules, module, primitiveName);
+                definitions.add(entry.getKey().parse(modules, module, primitiveName, entry.getValue(), text, moduleBodyText));
                 log.debug("entity:\n{}", definitions.get(definitions.size() - 1));
             });
         }

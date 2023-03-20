@@ -30,7 +30,7 @@ public class SequenceOfAnalyzer extends AbstractAnalyzer {
     }
 
     @Override
-    public Definition parse(List<Module> modules, Module module, String primitiveType, String text, String moduleText) throws AnalysisException {
+    public Definition parse(List<Module> modules, Module module, String primitiveType, List<Definition> parents, String text, String moduleText) throws AnalysisException {
         if (!RegexUtil.matches(REGEX_SEQUENCE_OF, text)) {
             throw new AnalysisException("not a valid sequence-of type definition.\n" + text);
         }

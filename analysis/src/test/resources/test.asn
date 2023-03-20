@@ -1654,7 +1654,6 @@ FROM ScmsMaRaInterface
     }
   }
 
-  --todo 报错
   AcaEeCertResponsePrivateSpdu ::= V2XSecData-EncryptedSigned {
     ScmsPdu-Scoped {
       AcaEeInterfacePdu (WITH COMPONENTS {

@@ -20,13 +20,7 @@ public class UnknownAnalyzer extends AbstractAnalyzer {
     public static final UnknownAnalyzer PROXY_OBJECT;
     public static final List<CircleDependency> UNKNOWN_CACHE = new LinkedList<>();
 
-    private static final UnknownAnalyzer analyzer = new UnknownAnalyzer();
-
     public static final String REGEX_UNKNOWN = REGEX_IDENTIFIER + CRLF + Operator.ASSIGNMENT + CRLF + "[\\s\\S]*" + CRLF;
-
-    public static AbstractAnalyzer getInstance() {
-        return analyzer;
-    }
 
     static {
         PROXY_OBJECT = AopUtil.proxyObject(UnknownAnalyzer.class, "parse", (obj, method, args, proxy) -> {
@@ -37,7 +31,7 @@ public class UnknownAnalyzer extends AbstractAnalyzer {
     }
 
     @Override
-    public Definition parse(List<Module> modules, Module module, String primitiveType, String text, String moduleText) throws AnalysisException {
+    public Definition parse(List<Module> modules, Module module, String primitiveType, List<Definition> parents, String text, String moduleText) throws AnalysisException {
         if (!RegexUtil.matches(REGEX_UNKNOWN, text)) {
             throw new AnalysisException("not a valid type definition.\n" + text);
         }
@@ -46,7 +40,6 @@ public class UnknownAnalyzer extends AbstractAnalyzer {
         definition.setDefinitionText(text);
         //identifier
         definition.setIdentifier(RegexUtil.matcher(REGEX_IDENTIFIER, text));
-        //
         return definition;
     }
 }
