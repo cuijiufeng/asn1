@@ -78,7 +78,7 @@ public class SequenceAnalyzer extends AbstractAnalyzer {
                 defaulted = defaulted.replace(Reserved.DEFAULT, "").trim();
             }
             String primitiveName = AbstractAnalyzer.getPrimitiveType(s);
-            AbstractAnalyzer instance = AbstractAnalyzer.getInstance(modules, module, primitiveName, false);
+            AbstractAnalyzer instance = AbstractAnalyzer.getInstance(modules, module, primitiveName);
             Definition definition = instance.parse(modules, module, primitiveName, s, null);
             definition.setOptional(optional);
             definition.setDefaulted(defaulted);

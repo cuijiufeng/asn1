@@ -1,7 +1,12 @@
 package com.inferiority.asn1.analysis;
 
+import com.inferiority.asn1.analysis.analyzer.AbstractAnalyzer;
 import com.inferiority.asn1.analysis.analyzer.ModuleAnalyzer;
+import com.inferiority.asn1.analysis.analyzer.UnknownAnalyzer;
+import com.inferiority.asn1.analysis.model.CircleDependency;
+import com.inferiority.asn1.analysis.model.Definition;
 import com.inferiority.asn1.analysis.model.Module;
+import com.inferiority.asn1.analysis.util.ReflectUtil;
 import com.inferiority.asn1.analysis.util.RegexUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,6 +41,34 @@ public class Analyzer {
             log.trace("model text:\n{}", moduleText);
             modules.add(moduleAnalyzer.parse(modules, moduleText));
             log.trace("model entity:\n{}", modules.get(modules.size() - 1));
+
+            for (int i = 0; i < UnknownAnalyzer.UNKNOWN_CACHE.size(); i++) {
+                CircleDependency cd = UnknownAnalyzer.UNKNOWN_CACHE.get(i);
+                try {
+                    Object[] parseArgs = cd.getArgs();
+                    AbstractAnalyzer instance = ReflectUtil.invokeMethod(AbstractAnalyzer.METHOD_GET_INSTANCE, null,
+                            parseArgs[0], parseArgs[1], parseArgs[2]);
+                    if (instance instanceof UnknownAnalyzer) {
+                        continue;
+                    }
+                    Definition definition = ReflectUtil.invokeMethod(AbstractAnalyzer.METHOD_PARSE, instance, parseArgs);
+                    log.debug("callback parse circle dependency: {}", definition);
+                    ReflectUtil.deepCopyBean(Definition.class, definition, cd.getRet());
+                    UnknownAnalyzer.UNKNOWN_CACHE.remove(cd);
+                    i--;
+                } catch (ReflectiveOperationException e) {
+                    throw new AnalysisException("reflect invoke method error", e);
+                }
+            }
+        }
+        if (!UnknownAnalyzer.UNKNOWN_CACHE.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            for (CircleDependency cd : UnknownAnalyzer.UNKNOWN_CACHE) {
+                Object[] args = cd.getArgs();
+                sb.append(String.format("unsupported type %s in module %s ", args[2], ReflectUtil.cast(Module.class, args[1]).getIdentifier()))
+                        .append('\n');
+            }
+            throw new AnalysisException(sb.toString());
         }
         return modules;
     }

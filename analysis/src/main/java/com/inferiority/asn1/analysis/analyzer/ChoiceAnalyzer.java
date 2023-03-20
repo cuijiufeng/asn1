@@ -56,7 +56,7 @@ public class ChoiceAnalyzer extends AbstractAnalyzer {
             }
             s = s.trim().replaceFirst("[ ]+", Operator.ASSIGNMENT);
             String primitiveName = AbstractAnalyzer.getPrimitiveType(s);
-            AbstractAnalyzer instance = AbstractAnalyzer.getInstance(modules, module, primitiveName, false);
+            AbstractAnalyzer instance = AbstractAnalyzer.getInstance(modules, module, primitiveName);
             subs.add(instance.parse(modules, module, primitiveName, s, null));
         }
         return subs.isEmpty() ? null : subs;

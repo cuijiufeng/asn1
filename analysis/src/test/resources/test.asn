@@ -814,6 +814,28 @@ FROM V2XSecBaseTypes
 END
 
 
+CrlSsp
+DEFINITIONS AUTOMATIC TAGS ::= BEGIN
+EXPORTS ALL;
+IMPORTS
+  CrlSeries,
+  Uint8
+FROM V2XSecBaseTypes
+;
+
+CracaType ::= ENUMERATED {isCraca, issuerIsCraca}
+
+PermissibleCrls ::= SEQUENCE OF CrlSeries
+
+CrlSsp::= SEQUENCE  {
+    version         Uint8 (1),
+    associatedCraca CracaType,
+    crls            PermissibleCrls,
+    ...
+}
+END
+
+
 CrlBaseTypes
 DEFINITIONS AUTOMATIC TAGS ::= BEGIN
 EXPORTS ALL;
@@ -1018,6 +1040,210 @@ FROM CrlDataTypes
 END
 
 
+ScmsEeRaInterface
+DEFINITIONS AUTOMATIC TAGS ::= BEGIN
+EXPORTS ALL;
+IMPORTS
+  HashedId8,
+  IValue,
+  Opaque,
+  PublicEncryptionKey,
+  PublicVerificationKey,
+  Time32,
+  Uint8
+FROM V2XSecBaseTypes,
+  CertificateType,
+  ToBeSignedCertificate
+FROM V2XSecDataTypes,
+  EeEcaCertRequestSpdu
+FROM ScmsProtocol
+;
+  ButterflyExpansion ::= CHOICE {
+    aes128    OCTET STRING (SIZE(16)),
+    ...,
+    sm4       OCTET STRING (SIZE(16))
+  }
+
+  ButterflyParamsOriginal ::= SEQUENCE {
+    signingExpansion      ButterflyExpansion,
+    encryptionKey         PublicEncryptionKey,
+    encryptionExpansion   ButterflyExpansion
+  }
+
+  AdditionalParams ::= CHOICE {
+    original          ButterflyParamsOriginal,
+    unified           ButterflyExpansion,
+    compactUnified    ButterflyExpansion,
+    encryptionKey     PublicEncryptionKey,
+    ...
+  }
+
+  AaaAuthorizationInfo ::= SEQUENCE {
+    aaaAuthorizationInfo    Opaque,
+    aaaUrl                  UTF8String (SIZE(0..511)) OPTIONAL
+  }
+  SequenceOfAaaAuthorizationInfo ::= SEQUENCE OF AaaAuthorizationInfo
+
+  EeRaCertRequest ::= SEQUENCE {
+    version           Uint8 (1),
+    generationTime    Time32,
+    type              CertificateType,
+    tbsCert           ToBeSignedCertificate (WITH COMPONENTS {
+      ...,
+      cracaId ('000000'H),
+      crlSeries (0),
+      appPermissions PRESENT,
+      certIssuePermissions ABSENT,
+      certRequestPermissions ABSENT,
+      verifyKeyIndicator (WITH COMPONENTS {
+        verificationKey
+      })
+    }),
+    additionalParams          AdditionalParams OPTIONAL,
+    ...,
+    aaaAuthorizationInfoList  SequenceOfAaaAuthorizationInfo OPTIONAL
+  }
+
+  RaEeCertAck ::= SEQUENCE {
+    version           Uint8 (1),
+    generationTime    Time32,
+    requestHash       HashedId8,
+    nextDlTime        Time32,
+    ...
+  }
+
+  RaEeCertInfo ::= SEQUENCE {
+    version           Uint8 (1),
+    generationTime    Time32,
+    currentI          IValue,
+    requestHash       HashedId8,
+    nextDlTime        Time32,
+    ...
+  }
+
+  EeRaDownloadRequest ::= SEQUENCE {
+    generationTime    Time32,
+    filename          UTF8String (SIZE(0..255)),
+    ...
+  }
+
+  EeRaInterfacePdu ::= CHOICE {
+    eeRaCertRequest                       EeRaCertRequest,
+    raEeCertAck                           RaEeCertAck,
+    raEeCertInfo                          RaEeCertInfo,
+    eeRaDownloadRequest                   EeRaDownloadRequest,
+    eeRaSuccessorEnrollmentCertRequest    EeEcaCertRequestSpdu,
+    ...
+  }
+END
+
+
+ScmsLaRaInterface
+DEFINITIONS AUTOMATIC TAGS ::= BEGIN
+EXPORTS ALL;
+IMPORTS
+  Hostname,
+  LaId,
+  Uint8,
+  Uint16,
+  Uint32
+FROM V2XSecBaseTypes,
+  EncryptedData,
+  RecipientInfo
+FROM V2XSecDataTypes,
+  ScmsPdu-Scoped,
+  SecurityMgmtAid,
+  V2XSecData-SignedEncrypted
+FROM ScmsProtocol
+;
+
+  PraLaRequestHeader ::= SEQUENCE{
+    iMin     Uint16,
+    iMax     Uint16,
+    praId    Hostname,
+    pcaId    Hostname
+  }
+
+  LinkageChainId ::= EncryptedData (WITH COMPONENTS {
+    recipients (SIZE (1) INTERSECTION (WITH COMPONENT (
+      RecipientInfo (WITH COMPONENTS {
+        certRecipInfo
+      })
+    ))),
+    ciphertext
+  })
+
+  PraLaIndividualLinkageValueRequest ::= SEQUENCE {
+    header              PraLaRequestHeader,
+    jMax                Uint8,
+    numberOfFreshInd    Uint32 OPTIONAL,
+    continuationsInd    SEQUENCE OF LinkageChainId OPTIONAL
+  }
+
+  PraLaGroupLinkageValueRequest ::= SEQUENCE {
+    header             PraLaRequestHeader,
+    jMax               Uint32,
+    groupIdentifier    OCTET STRING (SIZE(4))
+  }
+
+  PraLaLinkageValueRequest ::= CHOICE {
+    individualLVRequest    PraLaIndividualLinkageValueRequest,
+    groupLVRequest         PraLaGroupLinkageValueRequest
+  }
+
+  EncryptedIndividualLV ::= SEQUENCE {
+    version    Uint8(1),
+    laId       LaId,
+    enc-lv     EncryptedData (WITH COMPONENTS {
+      recipients (SIZE (1) INTERSECTION (WITH COMPONENT (
+        RecipientInfo (WITH COMPONENTS {
+          certRecipInfo
+        })
+      ))),
+      ciphertext
+    })
+  }
+
+  IndividualLVResponseLinkageChain ::= SEQUENCE {
+    jMax              Uint8,
+    values            SEQUENCE OF SEQUENCE OF	EncryptedIndividualLV,
+    linkageChainId    LinkageChainId
+  }
+
+  EncryptedGroupLV ::= SEQUENCE {
+    version         Uint8(1),
+    laId            LaId,
+    enc-lv          EncryptedData (WITH COMPONENTS {
+      recipients (SIZE (1) INTERSECTION (WITH COMPONENT (
+        RecipientInfo (WITH COMPONENTS {
+          certRecipInfo
+        })
+      ))),
+      ciphertext
+    })
+  }
+
+  GroupLVResponseLinkageChain ::= SEQUENCE {
+    jMax               Uint32,
+    values             SEQUENCE OF SEQUENCE OF EncryptedGroupLV,
+    groupIdentifier    OCTET STRING (SIZE(4))
+  }
+
+  LaPraLinkageValueResponse ::= SEQUENCE {
+    iMin             Uint16,
+    iMax             Uint16,
+    individualLVs    SEQUENCE (SIZE (0..MAX)) OF IndividualLVResponseLinkageChain,
+    groupLVs         SEQUENCE (SIZE (0..MAX)) OF GroupLVResponseLinkageChain
+  }
+
+  LaRaInterfacePdu ::= CHOICE {
+    praLaLinkageValueRequest     PraLaLinkageValueRequest,
+    laPraLinkageValueResponse    LaPraLinkageValueResponse,
+    ...
+  }
+END
+
+
 ScmsAcaRaInterface
 DEFINITIONS AUTOMATIC TAGS ::= BEGIN
 EXPORTS ALL;
@@ -1079,231 +1305,6 @@ FROM ScmsLaRaInterface
 END
 
 
-CrlSsp
-DEFINITIONS AUTOMATIC TAGS ::= BEGIN
-EXPORTS ALL;
-IMPORTS
-  CrlSeries,
-  Uint8
-FROM V2XSecBaseTypes
-;
-
-CrlSsp::= SEQUENCE  {
-    version         Uint8 (1),
-    associatedCraca CracaType,
-    crls            PermissibleCrls,
-    ...
-}
-
-CracaType ::= ENUMERATED {isCraca, issuerIsCraca}
-      
-PermissibleCrls ::= SEQUENCE OF CrlSeries
-END
-
-
-ScmsEeRaInterface
-DEFINITIONS AUTOMATIC TAGS ::= BEGIN
-EXPORTS ALL;
-IMPORTS
-  HashedId8,
-  IValue,
-  Opaque,
-  PublicEncryptionKey,
-  PublicVerificationKey,
-  Time32,
-  Uint8
-FROM V2XSecBaseTypes,
-  CertificateType,
-  ToBeSignedCertificate
-FROM V2XSecDataTypes,
-  EeEcaCertRequestSpdu
-FROM ScmsProtocol
-;
-  EeRaInterfacePdu ::= CHOICE {
-    eeRaCertRequest                       EeRaCertRequest,
-    raEeCertAck                           RaEeCertAck,
-    raEeCertInfo                          RaEeCertInfo,
-    eeRaDownloadRequest                   EeRaDownloadRequest,
-    eeRaSuccessorEnrollmentCertRequest    EeEcaCertRequestSpdu,
-    ...
-  }
-
-  EeRaCertRequest ::= SEQUENCE {
-    version           Uint8 (1),
-    generationTime    Time32,
-    type              CertificateType,
-    tbsCert           ToBeSignedCertificate (WITH COMPONENTS { 
-      ...,
-      cracaId ('000000'H),
-      crlSeries (0),
-      appPermissions PRESENT,
-      certIssuePermissions ABSENT,
-      certRequestPermissions ABSENT,
-      verifyKeyIndicator (WITH COMPONENTS {
-        verificationKey
-      })
-    }),
-    additionalParams          AdditionalParams OPTIONAL,
-    ...,
-    aaaAuthorizationInfoList  SequenceOfAaaAuthorizationInfo OPTIONAL
-  }
-
-  AdditionalParams ::= CHOICE {
-    original          ButterflyParamsOriginal,
-    unified           ButterflyExpansion,  
-    compactUnified    ButterflyExpansion,
-    encryptionKey     PublicEncryptionKey,
-    ...
-  }
-
-  ButterflyParamsOriginal ::= SEQUENCE {
-    signingExpansion      ButterflyExpansion,
-    encryptionKey         PublicEncryptionKey,
-    encryptionExpansion   ButterflyExpansion
-  }
-
-  ButterflyExpansion ::= CHOICE {
-    aes128    OCTET STRING (SIZE(16)),
-    ...,
-    sm4       OCTET STRING (SIZE(16))
-  }
-
-  RaEeCertAck ::= SEQUENCE {
-    version           Uint8 (1),
-    generationTime    Time32,
-    requestHash       HashedId8,
-    nextDlTime        Time32,
-    ...
-  }
-
-  RaEeCertInfo ::= SEQUENCE {
-    version           Uint8 (1),
-    generationTime    Time32,
-    currentI          IValue,
-    requestHash       HashedId8,
-    nextDlTime        Time32,
-    ...
-  }
-
-  EeRaDownloadRequest ::= SEQUENCE {
-    generationTime    Time32,
-    filename          UTF8String (SIZE(0..255)),
-    ...
-  }
-
-  AaaAuthorizationInfo ::= SEQUENCE {
-    aaaAuthorizationInfo    Opaque,
-    aaaUrl                  UTF8String (SIZE(0..511)) OPTIONAL
-  }
-  SequenceOfAaaAuthorizationInfo ::= SEQUENCE OF AaaAuthorizationInfo
-END
-
-
-ScmsLaRaInterface
-DEFINITIONS AUTOMATIC TAGS ::= BEGIN
-EXPORTS ALL;
-IMPORTS
-  Hostname,
-  LaId,
-  Uint8,
-  Uint16,
-  Uint32
-FROM V2XSecBaseTypes,
-  EncryptedData,
-  RecipientInfo
-FROM V2XSecDataTypes,
-  ScmsPdu-Scoped,
-  SecurityMgmtAid,
-  V2XSecData-SignedEncrypted
-FROM ScmsProtocol
-;
-  LaRaInterfacePdu ::= CHOICE {
-    praLaLinkageValueRequest     PraLaLinkageValueRequest,
-    laPraLinkageValueResponse    LaPraLinkageValueResponse,
-    ...
-  }
-
-  PraLaLinkageValueRequest ::= CHOICE {
-    individualLVRequest    PraLaIndividualLinkageValueRequest,
-    groupLVRequest         PraLaGroupLinkageValueRequest
-  }
-
-  PraLaIndividualLinkageValueRequest ::= SEQUENCE {
-    header              PraLaRequestHeader,
-    jMax                Uint8,
-    numberOfFreshInd    Uint32 OPTIONAL,
-    continuationsInd    SEQUENCE OF LinkageChainId OPTIONAL
-  }
-
-  LinkageChainId ::= EncryptedData (WITH COMPONENTS {
-    recipients (SIZE (1) INTERSECTION (WITH COMPONENT (
-      RecipientInfo (WITH COMPONENTS {
-        certRecipInfo
-      })
-    ))),
-    ciphertext
-  })
-
-  PraLaGroupLinkageValueRequest ::= SEQUENCE {
-    header             PraLaRequestHeader,
-    jMax               Uint32, 
-    groupIdentifier    OCTET STRING (SIZE(4))
-  }
-
-  PraLaRequestHeader ::= SEQUENCE{
-    iMin     Uint16, 
-    iMax     Uint16,
-    praId    Hostname,
-    pcaId    Hostname
-  }
-
-  LaPraLinkageValueResponse ::= SEQUENCE {
-    iMin             Uint16,
-    iMax             Uint16,
-    individualLVs    SEQUENCE (SIZE (0..MAX)) OF IndividualLVResponseLinkageChain,
-    groupLVs         SEQUENCE (SIZE (0..MAX)) OF GroupLVResponseLinkageChain
-  }
-
-  IndividualLVResponseLinkageChain ::= SEQUENCE {
-    jMax              Uint8,
-    values            SEQUENCE OF SEQUENCE OF	EncryptedIndividualLV,
-    linkageChainId    LinkageChainId
-  }
-
-  GroupLVResponseLinkageChain ::= SEQUENCE {
-    jMax               Uint32,
-    values             SEQUENCE OF SEQUENCE OF EncryptedGroupLV,
-    groupIdentifier    OCTET STRING (SIZE(4))
-  }
-
-  EncryptedIndividualLV ::= SEQUENCE {
-    version    Uint8(1),
-    laId       LaId,
-    enc-lv     EncryptedData (WITH COMPONENTS {
-      recipients (SIZE (1) INTERSECTION (WITH COMPONENT (
-        RecipientInfo (WITH COMPONENTS {
-          certRecipInfo
-        })
-      ))),
-      ciphertext
-    })
-  }
-
-  EncryptedGroupLV ::= SEQUENCE {
-    version         Uint8(1),
-    laId            LaId,
-    enc-lv          EncryptedData (WITH COMPONENTS {
-      recipients (SIZE (1) INTERSECTION (WITH COMPONENT (
-        RecipientInfo (WITH COMPONENTS {
-          certRecipInfo
-        })
-      ))),
-      ciphertext
-    })
-  }
-END
-
-
 ScmsProtocol
 DEFINITIONS AUTOMATIC TAGS ::= BEGIN
 EXPORTS ALL;
@@ -1342,7 +1343,7 @@ FROM ScmsAcaLaInterface,--yes
   AcaMaInterfacePdu
 FROM ScmsAcaMaInterface,--yes
   AcaRaInterfacePdu
-FROM ScmsAcaRaInterface,
+FROM ScmsAcaRaInterface,--yes
   CertManagementPdu
 FROM ScmsCertManagement,--yes
   EcaEeInterfacePdu
@@ -1350,11 +1351,11 @@ FROM ScmsEcaEeInterface,--yes
   EeMaInterfacePdu
 FROM ScmsEeMaInterface,--yes
   EeRaInterfacePdu
-FROM ScmsEeRaInterface,
+FROM ScmsEeRaInterface,--yes
   LaMaInterfacePdu
 FROM ScmsLaMaInterface,--yes
   LaRaInterfacePdu
-FROM ScmsLaRaInterface,
+FROM ScmsLaRaInterface,--yes
   MaRaInterfacePdu
 FROM ScmsMaRaInterface--yes
 ;
@@ -1934,8 +1935,6 @@ PkiCtlInfo ::= SEQUENCE  {
     caListUrl         UTF8String (SIZE (0..511)) OPTIONAL
 }
 SequenceOfPkiCtlInfo ::= SEQUENCE OF PkiCtlInfo
-
-
 END
 
 

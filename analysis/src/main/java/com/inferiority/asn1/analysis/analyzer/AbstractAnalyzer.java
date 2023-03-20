@@ -41,7 +41,7 @@ public abstract class AbstractAnalyzer {
 
     static {
         try {
-            METHOD_GET_INSTANCE = AbstractAnalyzer.class.getDeclaredMethod("getInstance", List.class, Module.class, String.class, boolean.class);
+            METHOD_GET_INSTANCE = AbstractAnalyzer.class.getDeclaredMethod("getInstance", List.class, Module.class, String.class);
             METHOD_PARSE = AbstractAnalyzer.class.getDeclaredMethod("parse", List.class, Module.class, String.class, String.class, String.class);
         } catch (ReflectiveOperationException e) {
             throw new ExceptionInInitializerError(e);
@@ -55,7 +55,7 @@ public abstract class AbstractAnalyzer {
      * @return com.inferiority.asn1.analysis.analyzer.AbstractAnalyzer
      * @throws
     */
-    public static AbstractAnalyzer getInstance(List<Module> modules, Module module, String typeReserved, boolean circleDependency) throws AnalysisException {
+    public static AbstractAnalyzer getInstance(List<Module> modules, Module module, String typeReserved) throws AnalysisException {
         if (Reserved.NULL.equals(typeReserved)) {
             return NullAnalyzer.getInstance();
         } else if (Reserved.BOOLEAN.equals(typeReserved)) {
@@ -77,7 +77,7 @@ public abstract class AbstractAnalyzer {
         } else if (typeReserved.equals(Reserved.OCTET + " " + Reserved.STRING)) {
             return OctetStringAnalyzer.getInstance();
         } else if (RegexUtil.matches(Reserved.SEQUENCE + "\\s*" + Reserved.OF, typeReserved)) {
-            if (getInstance(modules, module, typeReserved.split("\\s+", 3)[2], false) instanceof UnknownAnalyzer) {
+            if (getInstance(modules, module, typeReserved.split("\\s+", 3)[2]) instanceof UnknownAnalyzer) {
                 throw new AnalysisException(String.format("unsupported type %s in module %s ", typeReserved, module.getIdentifier()));
             }
             return SequenceOfAnalyzer.getInstance();
@@ -86,7 +86,7 @@ public abstract class AbstractAnalyzer {
         //从当前模块中查找
         for (Definition def : module.getDefinitions()) {
             if (def.getIdentifier().equals(typeReserved)) {
-                return getInstance(modules, module, def.getPrimitiveType(), false);
+                return getInstance(modules, module, def.getPrimitiveType());
             }
         }
         //从依赖模块中查找
@@ -97,15 +97,14 @@ public abstract class AbstractAnalyzer {
                     if (m.getIdentifier().equals(entry.getValue())) {
                         for (Definition def : m.getDefinitions()) {
                             if (def.getIdentifier().equals(typeReserved)) {
-                                return getInstance(modules, m, def.getPrimitiveType(), false);
+                                return getInstance(modules, m, def.getPrimitiveType());
                             }
                         }
+                        throw new AnalysisException(String.format("type %s not found in module %s", typeReserved, m.getIdentifier()));
                     }
                 }
+                return UnknownAnalyzer.PROXY_OBJECT;
             }
-        }
-        if (circleDependency) {
-            throw new AnalysisException(String.format("unsupported type %s in module %s ", typeReserved, module.getIdentifier()));
         }
         return UnknownAnalyzer.PROXY_OBJECT;
     }
@@ -113,10 +112,10 @@ public abstract class AbstractAnalyzer {
     public abstract Definition parse(List<Module> modules, Module module, String primitiveType, String text, String moduleText) throws AnalysisException;
 
     public static String getPrimitiveType(String typeDef) {
-        String matcher = RegexUtil.matcher(typeDef.indexOf(Operator.ASSIGNMENT), "(" + AbstractAnalyzer.REGEX_IDENTIFIER + "[ ]*)+", typeDef).trim();
+        String matcher = RegexUtil.matcher(typeDef.indexOf(Operator.ASSIGNMENT), "(" + AbstractAnalyzer.REGEX_IDENTIFIER + "\\s*)+", typeDef).trim();
         if (RegexUtil.matches(Reserved.SEQUENCE + "\\s*" + Reserved.SIZE, matcher)) {
             typeDef = typeDef.replaceFirst(SequenceOfAnalyzer.REGEX_SEQUENCE_OF_RANGE, "");
-            matcher = RegexUtil.matcher(typeDef.indexOf(Operator.ASSIGNMENT), "(" + AbstractAnalyzer.REGEX_IDENTIFIER + "[ ]*)+", typeDef).trim();
+            matcher = RegexUtil.matcher(typeDef.indexOf(Operator.ASSIGNMENT), "(" + AbstractAnalyzer.REGEX_IDENTIFIER + "\\s*)+", typeDef).trim();
         }
         return matcher;
     }
