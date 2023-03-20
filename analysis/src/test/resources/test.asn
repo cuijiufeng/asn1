@@ -749,6 +749,70 @@ FROM V2XSecDataTypes
   }
 END
 
+ScmsEeMaInterface
+DEFINITIONS AUTOMATIC TAGS ::= BEGIN
+EXPORTS ALL;
+  EeMaInterfacePdu ::= NULL
+END
+
+
+ScmsLaMaInterface
+DEFINITIONS AUTOMATIC TAGS ::= BEGIN
+EXPORTS ALL;
+IMPORTS
+  HashedId8,
+  IValue,
+  LaId,
+  LinkageSeed,
+  LinkageValue,
+  Uint32
+FROM V2XSecBaseTypes
+;
+
+  IndividualLV ::= SEQUENCE {
+    iValue    IValue,
+    lv        LinkageValue
+  }
+
+  GroupLV ::= SEQUENCE {
+    iValue    IValue,
+    j         Uint32,
+    lv        LinkageValue
+  }
+
+  MaLaLinkageSeedRequest ::= SEQUENCE{
+    maId     	      OCTET STRING (SIZE(0..255)),
+    individualLVs   SEQUENCE (SIZE(0..MAX)) OF IndividualLV,
+    groupLVs        SEQUENCE (SIZE(0..MAX)) OF GroupLV
+  }
+
+  IndividualLSInfo ::= SEQUENCE {
+    i     IValue,
+    lv    LinkageValue,
+    ls    LinkageSeed
+  }
+
+  GroupLSInfo ::= SEQUENCE {
+    i     IValue,
+    j     Uint32,
+    lv    LinkageValue,
+    ls    LinkageSeed
+  }
+
+  LaMaLinkageSeedResponse ::= SEQUENCE{
+    requestHash         HashedId8,
+    laId                LaId,
+    individualLSInfos   SEQUENCE (SIZE(0..MAX)) OF IndividualLSInfo,
+    groupLSInfos        SEQUENCE (SIZE(0..MAX)) OF GroupLSInfo
+  }
+
+  LaMaInterfacePdu ::= CHOICE {
+    maLaLinkageSeedRequest    MaLaLinkageSeedRequest,
+    laMaLinkageSeedResponse   LaMaLinkageSeedResponse,
+    ...
+  }
+END
+
 
 ScmsAcaRaInterface
 DEFINITIONS AUTOMATIC TAGS ::= BEGIN
@@ -1031,13 +1095,6 @@ PermissibleCrls ::= SEQUENCE OF CrlSeries
 END
 
 
-ScmsEeMaInterface
-DEFINITIONS AUTOMATIC TAGS ::= BEGIN
-EXPORTS ALL;
-  EeMaInterfacePdu ::= NULL
-END
-
-
 ScmsEeRaInterface
 DEFINITIONS AUTOMATIC TAGS ::= BEGIN
 EXPORTS ALL;
@@ -1133,63 +1190,6 @@ FROM ScmsProtocol
     aaaUrl                  UTF8String (SIZE(0..511)) OPTIONAL
   }
   SequenceOfAaaAuthorizationInfo ::= SEQUENCE OF AaaAuthorizationInfo
-END
-
-
-ScmsLaMaInterface
-DEFINITIONS AUTOMATIC TAGS ::= BEGIN
-EXPORTS ALL;
-IMPORTS
-  HashedId8,
-  IValue,
-  LaId,
-  LinkageSeed,
-  LinkageValue,
-  Uint32
-FROM V2XSecBaseTypes
-;
-  LaMaInterfacePdu ::= CHOICE {
-    maLaLinkageSeedRequest    MaLaLinkageSeedRequest,
-    laMaLinkageSeedResponse   LaMaLinkageSeedResponse,
-    ...
-  }
-
-  MaLaLinkageSeedRequest ::= SEQUENCE{
-    maId     	      OCTET STRING (SIZE(0..255)),
-    individualLVs   SEQUENCE (SIZE(0..MAX)) OF IndividualLV,
-    groupLVs        SEQUENCE (SIZE(0..MAX)) OF GroupLV
-  }
-
-  IndividualLV ::= SEQUENCE {
-    iValue    IValue,
-    lv        LinkageValue
-  }
-
-  GroupLV ::= SEQUENCE {
-    iValue    IValue,
-    j         Uint32,
-    lv        LinkageValue
-  }
-
-  LaMaLinkageSeedResponse ::= SEQUENCE{
-    requestHash         HashedId8, 
-    laId                LaId,
-    individualLSInfos   SEQUENCE (SIZE(0..MAX)) OF IndividualLSInfo,
-    groupLSInfos        SEQUENCE (SIZE(0..MAX)) OF GroupLSInfo
-  }
-
-  IndividualLSInfo ::= SEQUENCE {
-    i     IValue,
-    lv    LinkageValue, 
-    ls    LinkageSeed
-  }
-
-  GroupLSInfo ::= SEQUENCE {
-    i     IValue, 
-    j     Uint32,
-    lv    LinkageValue,
-    ls    LinkageSeed
-  }
 END
 
 
