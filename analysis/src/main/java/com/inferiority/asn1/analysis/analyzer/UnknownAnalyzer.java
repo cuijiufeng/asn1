@@ -5,6 +5,8 @@ import com.inferiority.asn1.analysis.common.Operator;
 import com.inferiority.asn1.analysis.model.CircleDependency;
 import com.inferiority.asn1.analysis.model.Definition;
 import com.inferiority.asn1.analysis.model.Module;
+import com.inferiority.asn1.analysis.util.AopUtil;
+import com.inferiority.asn1.analysis.util.ReflectUtil;
 import com.inferiority.asn1.analysis.util.RegexUtil;
 
 import java.util.LinkedList;
@@ -15,6 +17,7 @@ import java.util.List;
  * @date 2023/3/18 14:55
  */
 public class UnknownAnalyzer extends AbstractAnalyzer {
+    public static final UnknownAnalyzer PROXY_OBJECT;
     public static final List<CircleDependency> UNKNOWN_CACHE = new LinkedList<>();
 
     private static final UnknownAnalyzer analyzer = new UnknownAnalyzer();
@@ -23,6 +26,14 @@ public class UnknownAnalyzer extends AbstractAnalyzer {
 
     public static AbstractAnalyzer getInstance() {
         return analyzer;
+    }
+
+    static {
+        PROXY_OBJECT = AopUtil.proxyObject(UnknownAnalyzer.class, "parse", (obj, method, args, proxy) -> {
+            Object ret = proxy.invokeSuper(obj, args);
+            UNKNOWN_CACHE.add(new CircleDependency(args, ReflectUtil.cast(Definition.class, ret)));
+            return ret;
+        });
     }
 
     @Override

@@ -3,12 +3,9 @@ package com.inferiority.asn1.analysis.analyzer;
 import com.inferiority.asn1.analysis.AnalysisException;
 import com.inferiority.asn1.analysis.common.Operator;
 import com.inferiority.asn1.analysis.common.Reserved;
-import com.inferiority.asn1.analysis.model.CircleDependency;
 import com.inferiority.asn1.analysis.model.Definition;
 import com.inferiority.asn1.analysis.model.Module;
-import com.inferiority.asn1.analysis.util.AopUtil;
 import com.inferiority.asn1.analysis.util.ArrayUtil;
-import com.inferiority.asn1.analysis.util.ReflectUtil;
 import com.inferiority.asn1.analysis.util.RegexUtil;
 
 import java.lang.reflect.Method;
@@ -80,6 +77,9 @@ public abstract class AbstractAnalyzer {
         } else if (typeReserved.equals(Reserved.OCTET + " " + Reserved.STRING)) {
             return OctetStringAnalyzer.getInstance();
         } else if (RegexUtil.matches(Reserved.SEQUENCE + "\\s*" + Reserved.OF, typeReserved)) {
+            if (getInstance(modules, module, typeReserved.split("\\s+", 3)[2], false) instanceof UnknownAnalyzer) {
+                throw new AnalysisException(String.format("unsupported type %s in module %s ", typeReserved, module.getIdentifier()));
+            }
             return SequenceOfAnalyzer.getInstance();
         }
         //已知的定义类型
@@ -105,26 +105,20 @@ public abstract class AbstractAnalyzer {
             }
         }
         if (circleDependency) {
-            throw new AnalysisException("unsupported type: " + typeReserved);
+            throw new AnalysisException(String.format("unsupported type %s in module %s ", typeReserved, module.getIdentifier()));
         }
-        return AopUtil.proxyObject(UnknownAnalyzer.class, "parse", (obj, method, args, proxy) -> {
-            Object ret = proxy.invokeSuper(obj, args);
-            UnknownAnalyzer.UNKNOWN_CACHE.add(new CircleDependency(args, ReflectUtil.cast(Definition.class, ret)));
-            return ret;
-        });
+        return UnknownAnalyzer.PROXY_OBJECT;
     }
 
     public abstract Definition parse(List<Module> modules, Module module, String primitiveType, String text, String moduleText) throws AnalysisException;
 
     public static String getPrimitiveType(String typeDef) {
-        String matcher = RegexUtil.matcher(typeDef.indexOf(Operator.ASSIGNMENT),
-                Reserved.SEQUENCE + CRLF + SequenceOfAnalyzer.REGEX_SEQUENCE_OF_RANGE + "?" + CRLF + Reserved.OF  + CRLF + AbstractAnalyzer.REGEX_IDENTIFIER,
-                typeDef);
-        //单独处理sequence-of
-        if (matcher != null) {
-            return matcher.replaceFirst(SequenceOfAnalyzer.REGEX_SEQUENCE_OF_RANGE, "");
+        String matcher = RegexUtil.matcher(typeDef.indexOf(Operator.ASSIGNMENT), "(" + AbstractAnalyzer.REGEX_IDENTIFIER + "[ ]*)+", typeDef).trim();
+        if (RegexUtil.matches(Reserved.SEQUENCE + "\\s*" + Reserved.SIZE, matcher)) {
+            typeDef = typeDef.replaceFirst(SequenceOfAnalyzer.REGEX_SEQUENCE_OF_RANGE, "");
+            matcher = RegexUtil.matcher(typeDef.indexOf(Operator.ASSIGNMENT), "(" + AbstractAnalyzer.REGEX_IDENTIFIER + "[ ]*)+", typeDef).trim();
         }
-        return RegexUtil.matcher(typeDef.indexOf(Operator.ASSIGNMENT), "(" + AbstractAnalyzer.REGEX_IDENTIFIER + "[ ]*)+", typeDef).trim();
+        return matcher;
     }
 
     public String substringBody(int start, char[] body, Character[] brace) {

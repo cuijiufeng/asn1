@@ -17,9 +17,9 @@ import java.util.List;
 public class SequenceOfAnalyzer extends AbstractAnalyzer {
     private static final SequenceOfAnalyzer analyzer = new SequenceOfAnalyzer();
 
-    public static final String REGEX_SEQUENCE_OF_RANGE = "(" + Reserved.SIZE + Operator.LEFT_BRACKET +
+    public static final String REGEX_SEQUENCE_OF_RANGE = "(" + Operator.LEFT_BRACKET + "?" + Reserved.SIZE + CRLF + Operator.LEFT_BRACKET +
             REGEX_NUM_COMPOUND + "(" + Operator.RANGE + REGEX_NUM_COMPOUND + ")?" +
-            Operator.RIGHT_BRACKET + ")";
+            Operator.RIGHT_BRACKET + Operator.RIGHT_BRACKET +  "?)";
 
     public static final String REGEX_SEQUENCE_OF = CRLF + REGEX_IDENTIFIER + CRLF + Operator.ASSIGNMENT + CRLF +
             "(" + Reserved.SEQUENCE + " " + REGEX_SEQUENCE_OF_RANGE + "?" + CRLF + Reserved.OF + CRLF_LEAST + REGEX_IDENTIFIER + ")" +

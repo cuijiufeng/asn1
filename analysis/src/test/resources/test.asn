@@ -814,6 +814,210 @@ FROM V2XSecBaseTypes
 END
 
 
+CrlBaseTypes
+DEFINITIONS AUTOMATIC TAGS ::= BEGIN
+EXPORTS ALL;
+IMPORTS
+  CrlSeries,
+  GeographicRegion,
+  HashedId8,
+  HashedId10,
+  IValue,
+  LaId,
+  LinkageSeed,
+  Opaque,
+  Aid,
+  Signature,
+  Time32,
+  Uint3,
+  Uint8,
+  Uint16,
+  Uint32,
+  ValidityPeriod
+FROM V2XSecBaseTypes
+;
+
+--
+--
+--  CRL contents
+--
+--
+
+CrlPriorityInfo ::= SEQUENCE {
+    priority    Uint8 OPTIONAL,
+    ...
+}
+
+HashBasedRevocationInfo ::= SEQUENCE {
+    id          HashedId10,
+    expiry      Time32,
+    ...
+}
+SequenceOfHashBasedRevocationInfo ::= SEQUENCE OF HashBasedRevocationInfo
+
+ToBeSignedHashIdCrl ::= SEQUENCE {
+    crlSerial       Uint32,
+    entries         SequenceOfHashBasedRevocationInfo,
+    ...
+}
+
+IndividualRevocation ::= SEQUENCE {
+    linkageSeed1    LinkageSeed,
+    linkageSeed2    LinkageSeed,
+    ...
+}
+SequenceOfIndividualRevocation ::= SEQUENCE OF IndividualRevocation
+
+SequenceOfLinkageSeed ::= SEQUENCE OF LinkageSeed
+
+IMaxGroup ::= SEQUENCE {
+    iMax            Uint16,
+    contents        SequenceOfIndividualRevocation,
+    ...,
+    singleSeeds     SequenceOfLinkageSeed
+}
+SequenceOfIMaxGroup ::= SEQUENCE OF IMaxGroup
+
+LAGroup ::= SEQUENCE {
+    la1Id       LaId,
+    la2Id       LaId,
+    contents    SequenceOfIMaxGroup,
+    ...
+}
+SequenceOfLAGroup ::= SEQUENCE OF LAGroup
+
+JMaxGroup ::= SEQUENCE {
+    jmax        Uint8,
+    contents    SequenceOfLAGroup,
+    ...
+}
+SequenceOfJMaxGroup ::= SEQUENCE OF JMaxGroup
+
+GroupCrlEntry ::= SEQUENCE {
+    iMax            Uint16,
+    la1Id           LaId,
+    linkageSeed1    LinkageSeed,
+    la2Id           LaId,
+    linkageSeed2    LinkageSeed,
+    ...
+}
+SequenceOfGroupCrlEntry ::= SEQUENCE OF GroupCrlEntry
+
+GroupSingleSeedCrlEntry ::= SEQUENCE {
+    iMax            Uint16,
+    laId            LaId,
+    linkageSeed     LinkageSeed
+}
+SequenceOfGroupSingleSeedCrlEntry ::= SEQUENCE OF GroupSingleSeedCrlEntry
+
+ToBeSignedLinkageValueCrl ::= SEQUENCE {
+    iRev                IValue,
+    indexWithinI        Uint8,
+    individual          SequenceOfJMaxGroup OPTIONAL,
+    groups              SequenceOfGroupCrlEntry OPTIONAL,
+    ...,
+    groupsSingleSeed    SequenceOfGroupSingleSeedCrlEntry OPTIONAL
+}
+(WITH COMPONENTS {..., individual PRESENT} |
+ WITH COMPONENTS {..., groups PRESENT})
+
+CrlContents ::= SEQUENCE {
+    version         Uint8 (1),
+    crlSeries       CrlSeries,
+    crlCraca        HashedId8,
+    issueDate       Time32,
+    nextCrl         Time32,
+    priorityInfo    CrlPriorityInfo,
+    typeSpecific    CHOICE {
+        fullHashCrl         ToBeSignedHashIdCrl,
+        deltaHashCrl        ToBeSignedHashIdCrl,
+        fullLinkedCrl       ToBeSignedLinkageValueCrl,
+        deltaLinkedCrl      ToBeSignedLinkageValueCrl,
+        ...
+    }
+}
+END
+
+
+CrlDataTypes
+DEFINITIONS AUTOMATIC TAGS ::= BEGIN
+EXPORTS ALL;
+IMPORTS
+  V2XSecData
+FROM V2XSecDataTypes,
+  Opaque,
+  Aid
+FROM V2XSecBaseTypes,
+  CrlContents
+FROM CrlBaseTypes
+;
+
+CrlAid ::= Aid(3628)
+
+SecuredCrl ::= V2XSecData (WITH COMPONENTS {...,
+  content (WITH COMPONENTS {
+    signedData (WITH COMPONENTS {...,
+      tbsData (WITH COMPONENTS {
+        payload (WITH COMPONENTS {...,
+          data (WITH COMPONENTS {...,
+             content (WITH COMPONENTS {
+                unsecuredData (CONTAINING CrlContents)
+            })
+          })
+        }),
+        headerInfo (WITH COMPONENTS {...,
+          aid (CrlAid),
+          generationTime ABSENT,
+          expiryTime ABSENT,
+          generationLocation ABSENT,
+          p2pcdLearningRequest ABSENT,
+          missingCrlIdentifier ABSENT,
+          encryptionKey ABSENT
+        })
+      })
+    })
+  })
+})
+END
+
+
+ScmsMaRaInterface
+DEFINITIONS AUTOMATIC TAGS ::= BEGIN
+EXPORTS ALL;
+  MaRaInterfacePdu ::= NULL
+END
+
+ScmsCertManagement
+DEFINITIONS AUTOMATIC TAGS ::= BEGIN
+EXPORTS ALL;
+IMPORTS
+  Time32,
+  Uint8
+FROM V2XSecBaseTypes,
+  Certificate,
+  SequenceOfCertificate
+FROM V2XSecDataTypes,
+  SecuredCrl
+FROM CrlDataTypes
+;
+  CompositeCrl ::= SEQUENCE {
+    crl   SEQUENCE SIZE (0..MAX) OF SecuredCrl,
+    ...
+  }
+
+  CertificateChain ::= SEQUENCE {
+    others    SEQUENCE SIZE (0..MAX) OF Certificate,
+    ...
+  }
+
+  CertManagementPdu ::= CHOICE {
+    compositeCrl        CompositeCrl,
+    certificateChain    CertificateChain,
+    ...
+  }
+END
+
+
 ScmsAcaRaInterface
 DEFINITIONS AUTOMATIC TAGS ::= BEGIN
 EXPORTS ALL;
@@ -872,204 +1076,6 @@ FROM ScmsLaRaInterface
     acaRaCertResponse  AcaRaCertResponse,
     ...
   }
-END
-
-
-ScmsCertManagement
-DEFINITIONS AUTOMATIC TAGS ::= BEGIN
-EXPORTS ALL;
-IMPORTS
-  Time32,
-  Uint8
-FROM V2XSecBaseTypes,
-  Certificate,
-  SequenceOfCertificate
-FROM V2XSecDataTypes,
-  SecuredCrl
-FROM CrlDataTypes
-;
-  CertManagementPdu ::= CHOICE {
-    compositeCrl        CompositeCrl,
-    certificateChain    CertificateChain,
-    ...
-  }
-
-  CompositeCrl ::= SEQUENCE {
-    crl   SEQUENCE SIZE (0..MAX) OF SecuredCrl,
-    ...
-  }
-
-  CertificateChain ::= SEQUENCE {
-    others    SEQUENCE SIZE (0..MAX) OF Certificate,
-    ...
-  }
-END
-
-
-CrlBaseTypes
-DEFINITIONS AUTOMATIC TAGS ::= BEGIN
-EXPORTS ALL;
-IMPORTS
-  CrlSeries,
-  GeographicRegion,
-  HashedId8,
-  HashedId10,
-  IValue,
-  LaId,
-  LinkageSeed,
-  Opaque,
-  Aid,
-  Signature,
-  Time32,
-  Uint3,
-  Uint8,
-  Uint16, 
-  Uint32,
-  ValidityPeriod
-FROM V2XSecBaseTypes
-;
-
---
---
---  CRL contents
---
---
-
-CrlContents ::= SEQUENCE {
-    version         Uint8 (1),
-    crlSeries       CrlSeries,
-    crlCraca        HashedId8,
-    issueDate       Time32,   
-    nextCrl         Time32,  
-    priorityInfo    CrlPriorityInfo,
-    typeSpecific    CHOICE {
-        fullHashCrl         ToBeSignedHashIdCrl,
-        deltaHashCrl        ToBeSignedHashIdCrl,
-        fullLinkedCrl       ToBeSignedLinkageValueCrl,
-        deltaLinkedCrl      ToBeSignedLinkageValueCrl,
-        ...
-    }
-}    
-
-CrlPriorityInfo ::= SEQUENCE {
-    priority    Uint8 OPTIONAL,
-    ...
-}
-
-ToBeSignedHashIdCrl ::= SEQUENCE {  
-    crlSerial       Uint32,
-    entries         SequenceOfHashBasedRevocationInfo,
-    ...
-}
-
-HashBasedRevocationInfo ::= SEQUENCE {
-    id          HashedId10,
-    expiry      Time32,
-    ...
-}
-SequenceOfHashBasedRevocationInfo ::= SEQUENCE OF HashBasedRevocationInfo
-
-ToBeSignedLinkageValueCrl ::= SEQUENCE {
-    iRev                IValue,
-    indexWithinI        Uint8,
-    individual          SequenceOfJMaxGroup OPTIONAL,
-    groups              SequenceOfGroupCrlEntry OPTIONAL,
-    ...,
-    groupsSingleSeed    SequenceOfGroupSingleSeedCrlEntry OPTIONAL
-} 
-(WITH COMPONENTS {..., individual PRESENT} |
- WITH COMPONENTS {..., groups PRESENT})
-
-JMaxGroup ::= SEQUENCE {
-    jmax        Uint8,
-    contents    SequenceOfLAGroup,
-    ...
-}
-SequenceOfJMaxGroup ::= SEQUENCE OF JMaxGroup
-
-LAGroup ::= SEQUENCE {
-    la1Id       LaId,
-    la2Id       LaId,
-    contents    SequenceOfIMaxGroup,
-    ...
-}
-SequenceOfLAGroup ::= SEQUENCE OF LAGroup
-
-IMaxGroup ::= SEQUENCE {
-    iMax            Uint16,
-    contents        SequenceOfIndividualRevocation,
-    ...,
-    singleSeeds     SequenceOfLinkageSeed
-}
-SequenceOfIMaxGroup ::= SEQUENCE OF IMaxGroup
-
-IndividualRevocation ::= SEQUENCE { 
-    linkageSeed1    LinkageSeed,
-    linkageSeed2    LinkageSeed,
-    ...
-}
-SequenceOfIndividualRevocation ::= SEQUENCE OF IndividualRevocation
-
-SequenceOfLinkageSeed ::= SEQUENCE OF LinkageSeed
-
-GroupCrlEntry ::= SEQUENCE {
-    iMax            Uint16,
-    la1Id           LaId,
-    linkageSeed1    LinkageSeed,
-    la2Id           LaId,
-    linkageSeed2    LinkageSeed,
-    ...
-}
-SequenceOfGroupCrlEntry ::= SEQUENCE OF GroupCrlEntry
-
-GroupSingleSeedCrlEntry ::= SEQUENCE {
-    iMax            Uint16,
-    laId            LaId,
-    linkageSeed     LinkageSeed
-}
-SequenceOfGroupSingleSeedCrlEntry ::= SEQUENCE OF GroupSingleSeedCrlEntry
-END
-
-
-CrlDataTypes
-DEFINITIONS AUTOMATIC TAGS ::= BEGIN
-EXPORTS ALL;
-IMPORTS
-  V2XSecData
-FROM V2XSecDataTypes,
-  Opaque,
-  Aid
-FROM V2XSecBaseTypes,
-  CrlContents
-FROM CrlBaseTypes
-;
-
-CrlAid ::= Aid(3628)
-
-SecuredCrl ::= V2XSecData (WITH COMPONENTS {..., 
-  content (WITH COMPONENTS {
-    signedData (WITH COMPONENTS {...,
-      tbsData (WITH COMPONENTS {
-        payload (WITH COMPONENTS {...,
-          data (WITH COMPONENTS {...,
-             content (WITH COMPONENTS {
-                unsecuredData (CONTAINING CrlContents)
-            })
-          })
-        }),
-        headerInfo (WITH COMPONENTS {...,
-          aid (CrlAid),
-          generationTime ABSENT,
-          expiryTime ABSENT,
-          generationLocation ABSENT,
-          p2pcdLearningRequest ABSENT,
-          missingCrlIdentifier ABSENT,
-          encryptionKey ABSENT
-        })
-      })
-    })
-  })
-})
 END
 
 
@@ -1298,13 +1304,6 @@ FROM ScmsProtocol
 END
 
 
-ScmsMaRaInterface
-DEFINITIONS AUTOMATIC TAGS ::= BEGIN
-EXPORTS ALL;
-  MaRaInterfacePdu ::= NULL
-END
-
-
 ScmsProtocol
 DEFINITIONS AUTOMATIC TAGS ::= BEGIN
 EXPORTS ALL;
@@ -1337,27 +1336,27 @@ FROM V2XSecBaseTypes,
   VerificationKeyIndicator
 FROM V2XSecDataTypes,
   AcaEeInterfacePdu
-FROM ScmsAcaEeInterface,
+FROM ScmsAcaEeInterface,--yes
   AcaLaInterfacePdu
-FROM ScmsAcaLaInterface,
+FROM ScmsAcaLaInterface,--yes
   AcaMaInterfacePdu
-FROM ScmsAcaMaInterface,
+FROM ScmsAcaMaInterface,--yes
   AcaRaInterfacePdu
 FROM ScmsAcaRaInterface,
   CertManagementPdu
-FROM ScmsCertManagement,
+FROM ScmsCertManagement,--yes
   EcaEeInterfacePdu
-FROM ScmsEcaEeInterface,
+FROM ScmsEcaEeInterface,--yes
   EeMaInterfacePdu
-FROM ScmsEeMaInterface,
+FROM ScmsEeMaInterface,--yes
   EeRaInterfacePdu
 FROM ScmsEeRaInterface,
   LaMaInterfacePdu
-FROM ScmsLaMaInterface,
+FROM ScmsLaMaInterface,--yes
   LaRaInterfacePdu
 FROM ScmsLaRaInterface,
   MaRaInterfacePdu
-FROM ScmsMaRaInterface 
+FROM ScmsMaRaInterface--yes
 ;
   SecurityMgmtAid ::= Aid (3627)
 
