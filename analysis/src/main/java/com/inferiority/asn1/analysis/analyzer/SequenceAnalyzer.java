@@ -43,10 +43,10 @@ public class SequenceAnalyzer extends AbstractAnalyzer {
         //identifier
         definition.setIdentifier(RegexUtil.matcher(REGEX_IDENTIFIER, text));
         //body
-        String replaceText = RegexUtil.matcherReplaceConsumer(REGEX_SEQUENCE_BODY, text, definition::setSubBodyText);
-        if (replaceText != null) {
-            definition.setSubDefs(parseBody(modules, module, substringBody(definition.getSubBodyText().toCharArray())));
-        }
+        String replaceText = RegexUtil.matcherReplaceConsumer(REGEX_SEQUENCE_BODY, text, body -> {
+            definition.setSubDefs(parseBody(modules, module, substringBody(body.toCharArray())));
+            definition.setSubBodyText(body);
+        });
         //constraint
         // TODO: 2023/3/19 bug 会把子定义的约束在父级就给处理了
         definition.setConstraintText(RegexUtil.matcherFunc(REGEX_SEQUENCE_CONSTRAINT, replaceText, str -> {

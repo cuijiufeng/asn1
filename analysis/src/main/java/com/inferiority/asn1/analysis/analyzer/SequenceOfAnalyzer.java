@@ -36,6 +36,7 @@ public class SequenceOfAnalyzer extends AbstractAnalyzer {
         }
         Definition definition = new Definition();
         definition.setDefinitionText(text);
+        definition.setPrimitiveType(primitiveType);
         //identifier
         definition.setIdentifier(RegexUtil.matcher(REGEX_IDENTIFIER, text));
         //range
@@ -47,8 +48,6 @@ public class SequenceOfAnalyzer extends AbstractAnalyzer {
             definition.setRangeMin(range[0]);
             definition.setRangeMax(range[range.length - 1]);
         });
-        text = text.replaceFirst(REGEX_SEQUENCE_OF_RANGE, "");
-        definition.setPrimitiveType(AbstractAnalyzer.getPrimitiveType(text));
         return definition;
     }
 }

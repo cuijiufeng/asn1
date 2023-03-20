@@ -3,12 +3,9 @@ package com.inferiority.asn1.analysis.analyzer;
 import com.inferiority.asn1.analysis.AnalysisException;
 import com.inferiority.asn1.analysis.common.Operator;
 import com.inferiority.asn1.analysis.common.Reserved;
-import com.inferiority.asn1.analysis.model.CircleDependency;
 import com.inferiority.asn1.analysis.model.Definition;
 import com.inferiority.asn1.analysis.model.Module;
-import com.inferiority.asn1.analysis.util.AopUtil;
 import com.inferiority.asn1.analysis.util.ArrayUtil;
-import com.inferiority.asn1.analysis.util.ReflectUtil;
 import com.inferiority.asn1.analysis.util.RegexUtil;
 
 import java.lang.reflect.Method;
@@ -68,16 +65,15 @@ public abstract class AbstractAnalyzer {
             return EnumeratedAnalyzer.getInstance();
         } else if (Reserved.UTF8String.equals(typeReserved)) {
             return UTF8StringAnalyzer.getInstance();
-        } else if (typeReserved.equals(Reserved.BIT + " " + Reserved.STRING)) {
-            return BitStringAnalyzer.getInstance();
-        } else if (typeReserved.equals(Reserved.OCTET + " " + Reserved.STRING)) {
-            return OctetStringAnalyzer.getInstance();
         } else if (Reserved.SEQUENCE.equals(typeReserved)) {
             return SequenceAnalyzer.getInstance();
         } else if (Reserved.CHOICE.equals(typeReserved)) {
             return ChoiceAnalyzer.getInstance();
-        } else if (typeReserved.startsWith(Reserved.SEQUENCE + " " + Reserved.OF)
-                || typeReserved.startsWith(Reserved.SEQUENCE + " " + Reserved.SIZE)) {
+        } else if (typeReserved.equals(Reserved.BIT + " " + Reserved.STRING)) {
+            return BitStringAnalyzer.getInstance();
+        } else if (typeReserved.equals(Reserved.OCTET + " " + Reserved.STRING)) {
+            return OctetStringAnalyzer.getInstance();
+        } else if (RegexUtil.matches(Reserved.SEQUENCE + "\\s*" + Reserved.OF, typeReserved)) {
             return SequenceOfAnalyzer.getInstance();
         }
         //已知的定义类型
@@ -88,7 +84,8 @@ public abstract class AbstractAnalyzer {
             }
         }
         //从依赖模块中查找
-        for (Map.Entry<String[], String> entry : module.getImports()) {
+        for (int i = 0; module.getImports() != null && i < module.getImports().size(); i++) {
+            Map.Entry<String[], String> entry = module.getImports().get(i);
             if (ArrayUtil.contains(entry.getKey(), typeReserved)) {
                 for (Module m : modules) {
                     if (m.getIdentifier().equals(entry.getValue())) {
@@ -104,16 +101,23 @@ public abstract class AbstractAnalyzer {
         if (circleDependency) {
             throw new AnalysisException("unsupported type: " + typeReserved);
         }
-        return AopUtil.proxyObject(UnknownAnalyzer.class, "parse", (obj, method, args, proxy) -> {
-            Object ret = proxy.invokeSuper(obj, args);
-            UnknownAnalyzer.UNKNOWN_CACHE.add(new CircleDependency(args, ReflectUtil.cast(Definition.class, ret)));
-            return ret;
-        });
+        //return AopUtil.proxyObject(UnknownAnalyzer.class, "parse", (obj, method, args, proxy) -> {
+        //    Object ret = proxy.invokeSuper(obj, args);
+        //    UnknownAnalyzer.UNKNOWN_CACHE.add(new CircleDependency(args, ReflectUtil.cast(Definition.class, ret)));
+        //    return ret;
+        //});
+        throw new AnalysisException("unsupported type: " + typeReserved);
     }
 
     public abstract Definition parse(List<Module> modules, Module module, String primitiveType, String text, String moduleText) throws AnalysisException;
 
     public static String getPrimitiveType(String typeDef) {
+        String matcher = RegexUtil.matcher(typeDef.indexOf(Operator.ASSIGNMENT),
+                Reserved.SEQUENCE + CRLF + SequenceOfAnalyzer.REGEX_SEQUENCE_OF_RANGE + "?" + CRLF + Reserved.OF  + CRLF + AbstractAnalyzer.REGEX_IDENTIFIER,
+                typeDef);
+        if (matcher != null) {
+            return matcher.replaceFirst(SequenceOfAnalyzer.REGEX_SEQUENCE_OF_RANGE, "");
+        }
         return RegexUtil.matcher(typeDef.indexOf(Operator.ASSIGNMENT), "(" + AbstractAnalyzer.REGEX_IDENTIFIER + "[ ]*)+", typeDef).trim();
     }
 
@@ -133,8 +137,11 @@ public abstract class AbstractAnalyzer {
     }
 
     public List<Map.Entry<String, String>> parseValues(String regex, String text, Function<String, AbstractMap.SimpleEntry<String, String>> apply) {
+        if (text == null) {
+            return null;
+        }
         List<Map.Entry<String, String>> values = new ArrayList<>(16);
-        while (text != null) {
+        while (RegexUtil.matches(regex, text)) {
             text = RegexUtil.matcherReplaceConsumer(regex, text, valueText -> values.add(apply.apply(valueText)));
         }
         return values.isEmpty() ? null : values;

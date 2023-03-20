@@ -57,7 +57,7 @@ public class RegexUtil {
             consumer.accept(matcher.group());
             return input.substring(0, matcher.start()) + input.substring(matcher.end());
         }
-        return null;
+        return input;
     }
 
     /**

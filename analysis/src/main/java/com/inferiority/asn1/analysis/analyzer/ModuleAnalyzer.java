@@ -116,7 +116,7 @@ public class ModuleAnalyzer {
                 .toArray(String[]::new)));
         RegexUtil.matcherConsumer(REGEX_IMPORTS, moduleText, str -> {
             List<Map.Entry<String[], String>> imports = new ArrayList<>();
-            while (str != null) {
+            while (RegexUtil.matches(REGEX_IMPORT, str)) {
                 str = RegexUtil.matcherReplaceConsumer(REGEX_IMPORT, str, s -> {
                     String[] split = s.split(Reserved.FROM);
                     imports.add(new AbstractMap.SimpleEntry<>(
