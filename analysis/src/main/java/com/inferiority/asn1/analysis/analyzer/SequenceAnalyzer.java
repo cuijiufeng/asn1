@@ -18,12 +18,18 @@ import java.util.List;
 public class SequenceAnalyzer extends AbstractAnalyzer {
     private static final SequenceAnalyzer analyzer = new SequenceAnalyzer();
 
+    public static final String REGEX_SEQUENCE_PARAM = "(" + Operator.OPENING_BRACE +
+            "(" + REGEX_IDENTIFIER + Operator.COMMA + "?" + CRLF + ")+" + Operator.CLOSING_BRACE + ")?";
+
     public static final String REGEX_SEQUENCE_CONSTRAINT = "(" + Operator.LEFT_BRACKET +
             Reserved.WITH + " " + Reserved.COMPONENTS + "[\\S\\s]*" + Operator.RIGHT_BRACKET + ")";
 
     public static final String REGEX_SEQUENCE_BODY = "(" + Operator.OPENING_BRACE + "[\\s\\S]*" + Operator.CLOSING_BRACE + ")";
 
-    public static final String REGEX_SEQUENCE = CRLF + REGEX_IDENTIFIER + CRLF + Operator.ASSIGNMENT + CRLF + REGEX_IDENTIFIER + CRLF +
+    public static final String REGEX_SEQUENCE = CRLF + REGEX_IDENTIFIER + CRLF +
+            REGEX_SEQUENCE_PARAM + "?" + CRLF +
+            Operator.ASSIGNMENT + CRLF +
+            REGEX_IDENTIFIER + CRLF +
             REGEX_SEQUENCE_BODY + "?" + CRLF +
             REGEX_SEQUENCE_CONSTRAINT + "?" + CRLF;
 

@@ -1040,6 +1040,108 @@ FROM CrlDataTypes
 END
 
 
+ScmsLaRaInterface
+DEFINITIONS AUTOMATIC TAGS ::= BEGIN
+EXPORTS ALL;
+IMPORTS
+  Hostname,
+  LaId,
+  Uint8,
+  Uint16,
+  Uint32
+FROM V2XSecBaseTypes,
+  EncryptedData,
+  RecipientInfo
+FROM V2XSecDataTypes
+;
+
+  PraLaRequestHeader ::= SEQUENCE{
+    iMin     Uint16,
+    iMax     Uint16,
+    praId    Hostname,
+    pcaId    Hostname
+  }
+
+  LinkageChainId ::= EncryptedData (WITH COMPONENTS {
+    recipients (SIZE (1) INTERSECTION (WITH COMPONENT (
+      RecipientInfo (WITH COMPONENTS {
+        certRecipInfo
+      })
+    ))),
+    ciphertext
+  })
+
+  PraLaIndividualLinkageValueRequest ::= SEQUENCE {
+    header              PraLaRequestHeader,
+    jMax                Uint8,
+    numberOfFreshInd    Uint32 OPTIONAL,
+    continuationsInd    SEQUENCE OF LinkageChainId OPTIONAL
+  }
+
+  PraLaGroupLinkageValueRequest ::= SEQUENCE {
+    header             PraLaRequestHeader,
+    jMax               Uint32,
+    groupIdentifier    OCTET STRING (SIZE(4))
+  }
+
+  PraLaLinkageValueRequest ::= CHOICE {
+    individualLVRequest    PraLaIndividualLinkageValueRequest,
+    groupLVRequest         PraLaGroupLinkageValueRequest
+  }
+
+  EncryptedIndividualLV ::= SEQUENCE {
+    version    Uint8(1),
+    laId       LaId,
+    enc-lv     EncryptedData (WITH COMPONENTS {
+      recipients (SIZE (1) INTERSECTION (WITH COMPONENT (
+        RecipientInfo (WITH COMPONENTS {
+          certRecipInfo
+        })
+      ))),
+      ciphertext
+    })
+  }
+
+  IndividualLVResponseLinkageChain ::= SEQUENCE {
+    jMax              Uint8,
+    values            SEQUENCE OF SEQUENCE OF	EncryptedIndividualLV,
+    linkageChainId    LinkageChainId
+  }
+
+  EncryptedGroupLV ::= SEQUENCE {
+    version         Uint8(1),
+    laId            LaId,
+    enc-lv          EncryptedData (WITH COMPONENTS {
+      recipients (SIZE (1) INTERSECTION (WITH COMPONENT (
+        RecipientInfo (WITH COMPONENTS {
+          certRecipInfo
+        })
+      ))),
+      ciphertext
+    })
+  }
+
+  GroupLVResponseLinkageChain ::= SEQUENCE {
+    jMax               Uint32,
+    values             SEQUENCE OF SEQUENCE OF EncryptedGroupLV,
+    groupIdentifier    OCTET STRING (SIZE(4))
+  }
+
+  LaPraLinkageValueResponse ::= SEQUENCE {
+    iMin             Uint16,
+    iMax             Uint16,
+    individualLVs    SEQUENCE (SIZE (0..MAX)) OF IndividualLVResponseLinkageChain,
+    groupLVs         SEQUENCE (SIZE (0..MAX)) OF GroupLVResponseLinkageChain
+  }
+
+  LaRaInterfacePdu ::= CHOICE {
+    praLaLinkageValueRequest     PraLaLinkageValueRequest,
+    laPraLinkageValueResponse    LaPraLinkageValueResponse,
+    ...
+  }
+END
+
+
 ScmsEeRaInterface
 DEFINITIONS AUTOMATIC TAGS ::= BEGIN
 EXPORTS ALL;
@@ -1138,112 +1240,6 @@ FROM ScmsProtocol
 END
 
 
-ScmsLaRaInterface
-DEFINITIONS AUTOMATIC TAGS ::= BEGIN
-EXPORTS ALL;
-IMPORTS
-  Hostname,
-  LaId,
-  Uint8,
-  Uint16,
-  Uint32
-FROM V2XSecBaseTypes,
-  EncryptedData,
-  RecipientInfo
-FROM V2XSecDataTypes,
-  ScmsPdu-Scoped,
-  SecurityMgmtAid,
-  V2XSecData-SignedEncrypted
-FROM ScmsProtocol
-;
-
-  PraLaRequestHeader ::= SEQUENCE{
-    iMin     Uint16,
-    iMax     Uint16,
-    praId    Hostname,
-    pcaId    Hostname
-  }
-
-  LinkageChainId ::= EncryptedData (WITH COMPONENTS {
-    recipients (SIZE (1) INTERSECTION (WITH COMPONENT (
-      RecipientInfo (WITH COMPONENTS {
-        certRecipInfo
-      })
-    ))),
-    ciphertext
-  })
-
-  PraLaIndividualLinkageValueRequest ::= SEQUENCE {
-    header              PraLaRequestHeader,
-    jMax                Uint8,
-    numberOfFreshInd    Uint32 OPTIONAL,
-    continuationsInd    SEQUENCE OF LinkageChainId OPTIONAL
-  }
-
-  PraLaGroupLinkageValueRequest ::= SEQUENCE {
-    header             PraLaRequestHeader,
-    jMax               Uint32,
-    groupIdentifier    OCTET STRING (SIZE(4))
-  }
-
-  PraLaLinkageValueRequest ::= CHOICE {
-    individualLVRequest    PraLaIndividualLinkageValueRequest,
-    groupLVRequest         PraLaGroupLinkageValueRequest
-  }
-
-  EncryptedIndividualLV ::= SEQUENCE {
-    version    Uint8(1),
-    laId       LaId,
-    enc-lv     EncryptedData (WITH COMPONENTS {
-      recipients (SIZE (1) INTERSECTION (WITH COMPONENT (
-        RecipientInfo (WITH COMPONENTS {
-          certRecipInfo
-        })
-      ))),
-      ciphertext
-    })
-  }
-
-  IndividualLVResponseLinkageChain ::= SEQUENCE {
-    jMax              Uint8,
-    values            SEQUENCE OF SEQUENCE OF	EncryptedIndividualLV,
-    linkageChainId    LinkageChainId
-  }
-
-  EncryptedGroupLV ::= SEQUENCE {
-    version         Uint8(1),
-    laId            LaId,
-    enc-lv          EncryptedData (WITH COMPONENTS {
-      recipients (SIZE (1) INTERSECTION (WITH COMPONENT (
-        RecipientInfo (WITH COMPONENTS {
-          certRecipInfo
-        })
-      ))),
-      ciphertext
-    })
-  }
-
-  GroupLVResponseLinkageChain ::= SEQUENCE {
-    jMax               Uint32,
-    values             SEQUENCE OF SEQUENCE OF EncryptedGroupLV,
-    groupIdentifier    OCTET STRING (SIZE(4))
-  }
-
-  LaPraLinkageValueResponse ::= SEQUENCE {
-    iMin             Uint16,
-    iMax             Uint16,
-    individualLVs    SEQUENCE (SIZE (0..MAX)) OF IndividualLVResponseLinkageChain,
-    groupLVs         SEQUENCE (SIZE (0..MAX)) OF GroupLVResponseLinkageChain
-  }
-
-  LaRaInterfacePdu ::= CHOICE {
-    praLaLinkageValueRequest     PraLaLinkageValueRequest,
-    laPraLinkageValueResponse    LaPraLinkageValueResponse,
-    ...
-  }
-END
-
-
 ScmsAcaRaInterface
 DEFINITIONS AUTOMATIC TAGS ::= BEGIN
 EXPORTS ALL;
@@ -1337,27 +1333,27 @@ FROM V2XSecBaseTypes,
   VerificationKeyIndicator
 FROM V2XSecDataTypes,
   AcaEeInterfacePdu
-FROM ScmsAcaEeInterface,--yes
+FROM ScmsAcaEeInterface,
   AcaLaInterfacePdu
-FROM ScmsAcaLaInterface,--yes
+FROM ScmsAcaLaInterface,
   AcaMaInterfacePdu
-FROM ScmsAcaMaInterface,--yes
+FROM ScmsAcaMaInterface,
   AcaRaInterfacePdu
-FROM ScmsAcaRaInterface,--yes
+FROM ScmsAcaRaInterface,
   CertManagementPdu
-FROM ScmsCertManagement,--yes
+FROM ScmsCertManagement,
   EcaEeInterfacePdu
-FROM ScmsEcaEeInterface,--yes
+FROM ScmsEcaEeInterface,
   EeMaInterfacePdu
-FROM ScmsEeMaInterface,--yes
+FROM ScmsEeMaInterface,
   EeRaInterfacePdu
-FROM ScmsEeRaInterface,--yes
+FROM ScmsEeRaInterface,
   LaMaInterfacePdu
-FROM ScmsLaMaInterface,--yes
+FROM ScmsLaMaInterface,
   LaRaInterfacePdu
-FROM ScmsLaRaInterface,--yes
+FROM ScmsLaRaInterface,
   MaRaInterfacePdu
-FROM ScmsMaRaInterface--yes
+FROM ScmsMaRaInterface
 ;
   SecurityMgmtAid ::= Aid (3627)
 
@@ -1460,7 +1456,7 @@ FROM ScmsMaRaInterface--yes
       }))
     })
   })
-
+  --todo 报错
   V2XSecData-SignedEncrypted {Tbse, Aid} ::= V2XSecData-Encrypted {
     V2XSecData-Signed {
       Tbse,
@@ -1501,7 +1497,6 @@ FROM ScmsMaRaInterface--yes
 --                            Certificate Requests                           --
 -------------------------------------------------------------------------------
 
---/*
   ScopedCertificateRequest ::= ScmsPdu (
     ScmsPdu-Scoped {
       AcaRaInterfacePdu (WITH COMPONENTS {
@@ -1524,7 +1519,6 @@ FROM ScmsMaRaInterface--yes
       })
     }
   )
---*/
 
 --asn1c will report an error when compiling ScopedCertificateRequest,
 --then you may use the following ScopedCertificateRequest data structure,
@@ -1828,22 +1822,6 @@ FROM ScmsMaRaInterface--yes
 --                       Service Specific Permissions                        --
 -------------------------------------------------------------------------------
 
-
-  ScmsSsp ::= CHOICE {
-    root    RootCaSsp,
-    ma      MaSsp,
-    pg      PgSsp,
-    ica     IcaSsp,
-    eca     EcaSsp,
-    cra     CraSsp,
-    dcm     DcmSsp,
-    aca     AcaSsp,
-    la      LaSsp,
-    ra      RaSsp,
-    ee      EeSsp,
-    ...
-  }
-
   RootCaSsp ::= SEQUENCE {
     version    Uint8 (1),
     ...
@@ -1898,6 +1876,21 @@ FROM ScmsMaRaInterface--yes
 
   EeSsp ::= SEQUENCE {
     version    Uint8 (1),
+    ...
+  }
+
+  ScmsSsp ::= CHOICE {
+    root    RootCaSsp,
+    ma      MaSsp,
+    pg      PgSsp,
+    ica     IcaSsp,
+    eca     EcaSsp,
+    cra     CraSsp,
+    dcm     DcmSsp,
+    aca     AcaSsp,
+    la      LaSsp,
+    ra      RaSsp,
+    ee      EeSsp,
     ...
   }
 END

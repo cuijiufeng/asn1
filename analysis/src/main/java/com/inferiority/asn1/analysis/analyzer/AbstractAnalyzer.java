@@ -37,7 +37,9 @@ public abstract class AbstractAnalyzer {
 
     public static final String REGEX_NUM_COMPOUND = "(" + REGEX_NUM + "|" + Reserved.MIN + "|" + Reserved.MAX + "|" + REGEX_IDENTIFIER + ")";
 
-    public static final String REGEX_DEFINITION = REGEX_IDENTIFIER + CRLF + Operator.ASSIGNMENT + CRLF + "(" + REGEX_IDENTIFIER + "[ ]*)+";
+    public static final String REGEX_DEFINITION = REGEX_IDENTIFIER + CRLF +
+            "(" + Operator.OPENING_BRACE + "(" + REGEX_IDENTIFIER + Operator.COMMA + "?" + CRLF + ")+" + Operator.CLOSING_BRACE + ")?" + CRLF +
+            Operator.ASSIGNMENT + CRLF + "(" + REGEX_IDENTIFIER + "[ ]*)+";
 
     static {
         try {
@@ -103,7 +105,6 @@ public abstract class AbstractAnalyzer {
                         throw new AnalysisException(String.format("type %s not found in module %s", typeReserved, m.getIdentifier()));
                     }
                 }
-                return UnknownAnalyzer.PROXY_OBJECT;
             }
         }
         return UnknownAnalyzer.PROXY_OBJECT;
