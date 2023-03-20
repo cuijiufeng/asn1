@@ -18,6 +18,7 @@ import java.util.Map;
 public class Definition {
     private String definitionText;
     private String identifier;
+    private List<String> sequenceParameters;
     private String primitiveType;
     private String subBodyText;
     private String rangeMin;

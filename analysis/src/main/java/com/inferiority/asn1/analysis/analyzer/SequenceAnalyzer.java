@@ -8,7 +8,9 @@ import com.inferiority.asn1.analysis.model.Module;
 import com.inferiority.asn1.analysis.util.RegexUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author cuijiufeng
@@ -19,7 +21,7 @@ public class SequenceAnalyzer extends AbstractAnalyzer {
     private static final SequenceAnalyzer analyzer = new SequenceAnalyzer();
 
     public static final String REGEX_SEQUENCE_PARAM = "(" + Operator.OPENING_BRACE +
-            "(" + REGEX_IDENTIFIER + Operator.COMMA + "?" + CRLF + ")+" + Operator.CLOSING_BRACE + ")?";
+            "(" + REGEX_IDENTIFIER + Operator.COMMA + "?" + CRLF + ")+" + Operator.CLOSING_BRACE + ")";
 
     public static final String REGEX_SEQUENCE_CONSTRAINT = "(" + Operator.LEFT_BRACKET +
             Reserved.WITH + " " + Reserved.COMPONENTS + "[\\S\\s]*" + Operator.RIGHT_BRACKET + ")";
@@ -47,12 +49,24 @@ public class SequenceAnalyzer extends AbstractAnalyzer {
         definition.setDefinitionText(text);
         //identifier
         definition.setIdentifier(RegexUtil.matcher(REGEX_IDENTIFIER, text));
+        //parameter
+        definition.setSequenceParameters(RegexUtil.matcherFunc(
+                REGEX_SEQUENCE_PARAM,
+                text.substring(0, text.indexOf(Operator.ASSIGNMENT)),
+                param -> Arrays.stream(param.replaceAll(Operator.OPENING_BRACE, "")
+                    .replaceAll(Operator.CLOSING_BRACE, "")
+                    .split(Operator.COMMA))
+                .map(String::trim)
+                .collect(Collectors.toList())));
         //body
         String body = substringBody(text.indexOf(Operator.ASSIGNMENT), text.toCharArray(), new Character[]{'{', '}'});
         if (body != null) {
             definition.setSubBodyText(body);
-            definition.setSubDefs(parseBody(modules, module, body.substring(1, body.length() - 1)));
             text = text.replace(body, "");
+            //参数化类型定义
+            if (definition.getSequenceParameters() == null) {
+                definition.setSubDefs(parseBody(modules, module, body.substring(1, body.length() - 1)));
+            }
         }
         //constraint
         String constraint = substringBody(text.indexOf(Operator.ASSIGNMENT), text.toCharArray(), new Character[]{'(', ')'});

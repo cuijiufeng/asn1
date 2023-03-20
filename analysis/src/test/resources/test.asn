@@ -659,7 +659,7 @@ EXPORTS ALL;
 IMPORTS
   Certificate,
   IssuerIdentifier
-FROM V2XSecDataTypes,
+FROM V2XSecDataTypes
   Signature,
   Time32,
   Uint8,
@@ -695,7 +695,7 @@ EXPORTS ALL;
 IMPORTS
   IssuerIdentifier,
   SequenceOfCertificate
-FROM V2XSecDataTypes,
+FROM V2XSecDataTypes
   Uint8,
   Uint16,
   Signature,
@@ -732,7 +732,7 @@ EXPORTS ALL;
 IMPORTS
   Time32,
   Uint8
-FROM V2XSecBaseTypes,
+FROM V2XSecBaseTypes
   Certificate
 FROM V2XSecDataTypes
 ;
@@ -776,7 +776,7 @@ IMPORTS
   PublicVerificationKey,
   Time32,
   Uint8
-FROM V2XSecBaseTypes,
+FROM V2XSecBaseTypes
   Certificate,
   CertificateType,
   SequenceOfCertificate,
@@ -1040,10 +1040,10 @@ DEFINITIONS AUTOMATIC TAGS ::= BEGIN
 EXPORTS ALL;
 IMPORTS
   V2XSecData
-FROM V2XSecDataTypes,
+FROM V2XSecDataTypes
   Opaque,
   Aid
-FROM V2XSecBaseTypes,
+FROM V2XSecBaseTypes
   CrlContents
 FROM CrlBaseTypes
 ;
@@ -1089,10 +1089,10 @@ EXPORTS ALL;
 IMPORTS
   Time32,
   Uint8
-FROM V2XSecBaseTypes,
+FROM V2XSecBaseTypes
   Certificate,
   SequenceOfCertificate
-FROM V2XSecDataTypes,
+FROM V2XSecDataTypes
   SecuredCrl
 FROM CrlDataTypes
 ;
@@ -1123,7 +1123,7 @@ IMPORTS
   Uint8,
   Uint16,
   Uint32
-FROM V2XSecBaseTypes,
+FROM V2XSecBaseTypes
   EncryptedData,
   RecipientInfo
 FROM V2XSecDataTypes
@@ -1227,10 +1227,10 @@ IMPORTS
   PublicVerificationKey,
   Time32,
   Uint8
-FROM V2XSecBaseTypes,
+FROM V2XSecBaseTypes
   CertificateType,
   ToBeSignedCertificate
-FROM V2XSecDataTypes,
+FROM V2XSecDataTypes
   EeEcaCertRequestSpdu
 FROM ScmsProtocol
 ;
@@ -1323,13 +1323,13 @@ IMPORTS
   PublicEncryptionKey,
   Time32,
   Uint8
-FROM V2XSecBaseTypes,
+FROM V2XSecBaseTypes
   ToBeSignedCertificate
-FROM V2XSecDataTypes,
+FROM V2XSecDataTypes
   AcaEeCertResponsePlainSpdu,
   AcaEeCertResponsePrivateSpdu,
   AcaEeCertResponseCubkSpdu
-FROM ScmsProtocol,
+FROM ScmsProtocol
   EncryptedIndividualLV
 FROM ScmsLaRaInterface
 ;
@@ -1397,7 +1397,7 @@ IMPORTS
   Uint8,
   Uint16,
   ValidityPeriod
-FROM V2XSecBaseTypes,
+FROM V2XSecBaseTypes
   Certificate,
   CertificateId,
   V2XSecData,
@@ -1405,27 +1405,27 @@ FROM V2XSecBaseTypes,
   SequenceOfAidGroupPermissions,
   SignerIdentifier,
   VerificationKeyIndicator
-FROM V2XSecDataTypes,
+FROM V2XSecDataTypes
   AcaEeInterfacePdu
-FROM ScmsAcaEeInterface,
+FROM ScmsAcaEeInterface
   AcaLaInterfacePdu
-FROM ScmsAcaLaInterface,
+FROM ScmsAcaLaInterface
   AcaMaInterfacePdu
-FROM ScmsAcaMaInterface,
+FROM ScmsAcaMaInterface
   AcaRaInterfacePdu
-FROM ScmsAcaRaInterface,
+FROM ScmsAcaRaInterface
   CertManagementPdu
-FROM ScmsCertManagement,
+FROM ScmsCertManagement
   EcaEeInterfacePdu
-FROM ScmsEcaEeInterface,
+FROM ScmsEcaEeInterface
   EeMaInterfacePdu
-FROM ScmsEeMaInterface,
+FROM ScmsEeMaInterface
   EeRaInterfacePdu
-FROM ScmsEeRaInterface,
+FROM ScmsEeRaInterface
   LaMaInterfacePdu
-FROM ScmsLaMaInterface,
+FROM ScmsLaMaInterface
   LaRaInterfacePdu
-FROM ScmsLaRaInterface,
+FROM ScmsLaRaInterface
   MaRaInterfacePdu
 FROM ScmsMaRaInterface
 ;
@@ -1530,7 +1530,6 @@ FROM ScmsMaRaInterface
       }))
     })
   })
-  --todo 报错
   V2XSecData-SignedEncrypted {Tbse, Aid} ::= V2XSecData-Encrypted {
     V2XSecData-Signed {
       Tbse,
@@ -1655,6 +1654,7 @@ FROM ScmsMaRaInterface
     }
   }
 
+  --todo 报错
   AcaEeCertResponsePrivateSpdu ::= V2XSecData-EncryptedSigned {
     ScmsPdu-Scoped {
       AcaEeInterfacePdu (WITH COMPONENTS {
@@ -1976,6 +1976,7 @@ CScmsPolicyTypes DEFINITIONS AUTOMATIC TAGS ::= BEGIN
         Duration,
         Opaque,
         Time32,
+        Hostname,
         Uint8
     FROM V2XSecBaseTypes
         SecurityMgmtAid,
