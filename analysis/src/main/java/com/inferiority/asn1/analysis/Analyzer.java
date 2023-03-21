@@ -75,7 +75,7 @@ public class Analyzer {
         return modules;
     }
 
-    public String nextModule(FileReader reader) throws AnalysisException {
+    private String nextModule(FileReader reader) throws AnalysisException {
         String line = null;
         StringBuilder module = new StringBuilder();
         while ((line = reader.nextValidLine()) != null) {
