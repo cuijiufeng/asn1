@@ -114,7 +114,16 @@ public abstract class AbstractAnalyzer {
         return new AbstractMap.SimpleEntry<>(UnknownAnalyzer.PROXY_OBJECT, new ArrayList<>());
     }
 
-    public abstract Definition parse(List<Module> modules, Module module, String primitiveType, List<Definition> parents, String text, String moduleText) throws AnalysisException;
+    public Definition parse(List<Module> modules, Module module, String primitiveType, List<Definition> parents, String text, String moduleText)
+            throws AnalysisException {
+        Definition definition = parseInternal(modules, module, primitiveType, parents, text, moduleText);
+        definition.setDependencies(parents);
+        definition.setModule(module);
+        return definition;
+    }
+
+    protected abstract Definition parseInternal(List<Module> modules, Module module, String primitiveType, List<Definition> parents, String text, String moduleText)
+            throws AnalysisException;
 
     public static String getPrimitiveType(String typeDef) {
         String matcher = RegexUtil.matcher(typeDef.indexOf(Operator.ASSIGNMENT), "(" + AbstractAnalyzer.REGEX_IDENTIFIER + "\\s*)+", typeDef).trim();

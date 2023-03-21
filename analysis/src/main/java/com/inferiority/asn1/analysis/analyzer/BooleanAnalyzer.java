@@ -28,7 +28,8 @@ public class BooleanAnalyzer extends AbstractAnalyzer {
     }
 
     @Override
-    public Definition parse(List<Module> modules, Module module, String primitiveType, List<Definition> parents, String text, String moduleText) throws AnalysisException {
+    protected Definition parseInternal(List<Module> modules, Module module, String primitiveType, List<Definition> parents, String text, String moduleText)
+            throws AnalysisException {
         if (!RegexUtil.matches(REGEX_BOOLEAN, text)) {
             throw new AnalysisException("not a valid boolean type definition.\n" + text);
         }

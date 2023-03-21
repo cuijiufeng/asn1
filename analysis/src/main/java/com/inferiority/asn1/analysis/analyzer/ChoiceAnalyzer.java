@@ -29,7 +29,8 @@ public class ChoiceAnalyzer extends AbstractAnalyzer {
     }
 
     @Override
-    public Definition parse(List<Module> modules, Module module, String primitiveType, List<Definition> parents, String text, String moduleText) throws AnalysisException {
+    protected Definition parseInternal(List<Module> modules, Module module, String primitiveType, List<Definition> parents, String text, String moduleText)
+            throws AnalysisException {
         if (!RegexUtil.matches(REGEX_CHOICE, text)) {
             throw new AnalysisException("not a valid choice type definition.\n" + text);
         }

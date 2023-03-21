@@ -30,6 +30,10 @@ public class Definition {
     private String constraintText;
     private List<Map.Entry<String, String>> values;
 
+    //
+    private List<Definition> dependencies;
+    private Module module;
+
     public Definition() {
     }
 

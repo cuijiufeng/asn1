@@ -27,7 +27,8 @@ public class NullAnalyzer extends AbstractAnalyzer {
     }
 
     @Override
-    public Definition parse(List<Module> modules, Module module, String primitiveType, List<Definition> parents, String text, String moduleText) throws AnalysisException {
+    protected Definition parseInternal(List<Module> modules, Module module, String primitiveType, List<Definition> parents, String text, String moduleText)
+            throws AnalysisException {
         if (!RegexUtil.matches(REGEX_NULL, text)) {
             throw new AnalysisException("not a valid NULL type definition.\n" + text);
         }
