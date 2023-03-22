@@ -14,10 +14,16 @@ import java.util.Objects;
 @Getter
 @ToString
 public class MappingContext {
+    private final String outputPath;
+    private final String packageName;
     private final Definition definition;
 
-    public MappingContext(Definition definition) {
+    public MappingContext(String outputPath, String packageName, Definition definition) {
+        Objects.requireNonNull(outputPath, "output path can't be null");
+        Objects.requireNonNull(packageName, "package name can't be null");
         Objects.requireNonNull(definition, "definition can't be null");
+        this.outputPath = outputPath;
+        this.packageName = packageName;
         this.definition = definition;
     }
 }

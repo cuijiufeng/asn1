@@ -26,6 +26,12 @@
                 <artifactId>asn1-maven-plugin</artifactId>
                 <version>1.0.0</version>
                 <configuration>
+                    <project>${project}</project>
+                    <asn1FilePath>${basedir}/src/test/resources/test.asn</asn1FilePath>
+                    <outputPath>${project.build.directory}/classes</outputPath>
+                    <packageMapping>
+                        <V2XSecBaseTypes>com.inferiority.protocol.sec.base</V2XSecBaseTypes>
+                    </packageMapping>
                 </configuration>
             </plugin>
         </plugins>

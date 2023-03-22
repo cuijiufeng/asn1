@@ -10,7 +10,7 @@ import javassist.NotFoundException;
  * @Date 2023/3/21 11:55
  */
 public class Mapping {
-    public Mapping() throws NotFoundException {
+    public Mapping() {
     }
 
     public void mapping(final MappingContext context) throws NotFoundException {

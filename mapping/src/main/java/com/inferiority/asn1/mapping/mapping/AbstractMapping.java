@@ -55,7 +55,7 @@ public abstract class AbstractMapping {
         try {
             mappingInternal(context);
         } catch (Exception e) {
-            throw new MappingException("=================================================", e);
+            throw new MappingException(context.getDefinition() + "mapping to class error", e);
         }
     }
 

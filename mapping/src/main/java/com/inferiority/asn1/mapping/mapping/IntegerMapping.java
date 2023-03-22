@@ -1,7 +1,6 @@
 package com.inferiority.asn1.mapping.mapping;
 
 import com.inferiority.asn1.analysis.model.Definition;
-import com.inferiority.asn1.analysis.model.Module;
 import com.inferiority.asn1.mapping.model.MappingContext;
 import javassist.CannotCompileException;
 import javassist.CtClass;
@@ -23,9 +22,8 @@ public class IntegerMapping extends AbstractMapping {
 
     @Override
     public void mappingInternal(MappingContext context) throws CannotCompileException, IOException {
-        Module module = context.getDefinition().getModule();
         Definition definition = context.getDefinition();
-        CtClass JavassistTestClass = CLASS_POOL.makeClass(module.getIdentifier() + "." + definition.getIdentifier());
+        CtClass JavassistTestClass = CLASS_POOL.makeClass(context.getPackageName() + "." + definition.getIdentifier());
         JavassistTestClass.setSuperclass(ASN1INTEGER_CLASS);
         JavassistTestClass.addField(CtField.make(
                 "public static final java.math.BigInteger RANGE_MIN = new java.math.BigInteger(\"" + definition.getRangeMin() + "\");",
@@ -39,6 +37,6 @@ public class IntegerMapping extends AbstractMapping {
         JavassistTestClass.addConstructor(CtNewConstructor.make(new CtClass[]{CtClass.intType}, null,
                 "super(RANGE_MIN, RANGE_MAX);",
                 JavassistTestClass));
-        JavassistTestClass.writeFile("target\\test-classes");
+        JavassistTestClass.writeFile(context.getOutputPath());
     }
 }
