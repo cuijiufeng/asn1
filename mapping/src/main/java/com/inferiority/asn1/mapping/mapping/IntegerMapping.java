@@ -22,6 +22,10 @@ public class IntegerMapping extends AbstractMapping {
 
     @Override
     public void mappingInternal(MappingContext context) throws CannotCompileException, IOException {
+        //TODO 2023/3/22 16:57 类注解标记
+        //@javax.annotation.Generated(
+        //    value = "by gRPC proto compiler (version 1.30.2)",
+        //    comments = "Source: mcp/v1alpha1/mcp.proto")
         Definition definition = context.getDefinition();
         CtClass JavassistTestClass = CLASS_POOL.makeClass(context.getPackageName() + "." + definition.getIdentifier());
         JavassistTestClass.setSuperclass(ASN1INTEGER_CLASS);
