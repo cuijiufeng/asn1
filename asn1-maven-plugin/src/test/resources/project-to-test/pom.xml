@@ -25,6 +25,8 @@
                 <groupId>com.inferiority.asn1</groupId>
                 <artifactId>asn1-maven-plugin</artifactId>
                 <version>1.0.0</version>
+                <configuration>
+                </configuration>
             </plugin>
         </plugins>
     </build>

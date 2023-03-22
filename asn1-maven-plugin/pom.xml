@@ -53,11 +53,16 @@
             <version>${maven.plugin.version}</version>
             <scope>provided</scope>
         </dependency>
+        <!--
+            test setUpt error添加依赖
+            org.codehaus.plexus.component.repository.exception.ComponentLookupException: java.util.NoSuchElementException
+                role: org.apache.maven.repository.RepositorySystem
+        -->
         <dependency>
             <groupId>org.apache.maven</groupId>
-            <artifactId>maven-core</artifactId>
+            <artifactId>maven-compat</artifactId>
             <version>${maven.plugin.version}</version>
-            <scope>provided</scope>
+            <scope>test</scope>
         </dependency>
         <!--maven plugin test-->
         <dependency>
