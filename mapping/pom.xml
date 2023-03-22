@@ -5,7 +5,7 @@
     <parent>
         <artifactId>asn1-parent</artifactId>
         <groupId>com.inferiority.asn1</groupId>
-        <version>${revision}</version>
+        <version>1.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -26,13 +26,13 @@
         <dependency>
             <groupId>com.inferiority.asn1</groupId>
             <artifactId>analysis</artifactId>
-            <version>${revision}</version>
+            <version>${analysis.version}</version>
         </dependency>
         <!--codec-->
         <dependency>
             <groupId>com.inferiority.asn1</groupId>
             <artifactId>codec</artifactId>
-            <version>${revision}</version>
+            <version>${codec.version}</version>
         </dependency>
     </dependencies>
 </project>

@@ -7,7 +7,7 @@
     <groupId>com.inferiority.asn1</groupId>
     <artifactId>asn1-parent</artifactId>
     <packaging>pom</packaging>
-    <version>${revision}</version>
+    <version>1.0.0</version>
     <modules>
         <module>codec</module>
         <module>analysis</module>
@@ -15,7 +15,10 @@
     </modules>
 
     <properties>
-        <revision>1.0.0</revision>
+        <analysis.version>1.0.0</analysis.version>
+        <codec.version>1.0.0</codec.version>
+        <mapping.version>1.0.0</mapping.version>
+
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- Compiler settings properties -->
