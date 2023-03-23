@@ -26,13 +26,13 @@
         <dependency>
             <groupId>com.inferiority.asn1</groupId>
             <artifactId>analysis</artifactId>
-            <version>${analysis.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <!--codec-->
         <dependency>
             <groupId>com.inferiority.asn1</groupId>
             <artifactId>codec</artifactId>
-            <version>${codec.version}</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

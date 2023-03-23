@@ -15,10 +15,6 @@
     </modules>
 
     <properties>
-        <analysis.version>1.0.0</analysis.version>
-        <codec.version>1.0.0</codec.version>
-        <mapping.version>1.0.0</mapping.version>
-
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- Compiler settings properties -->
