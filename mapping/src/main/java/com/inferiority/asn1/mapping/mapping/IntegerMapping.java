@@ -6,7 +6,6 @@ import javassist.CannotCompileException;
 import javassist.CtClass;
 import javassist.CtField;
 import javassist.CtNewConstructor;
-import javassist.NotFoundException;
 
 import java.io.IOException;
 
@@ -16,9 +15,7 @@ import java.io.IOException;
  * @Date 2023/3/21 14:50
  */
 public class IntegerMapping extends AbstractMapping {
-
-    protected IntegerMapping() throws NotFoundException {
-    }
+    public static final IntegerMapping MAPPING = new IntegerMapping();
 
     @Override
     public void mappingInternal(MappingContext context) throws CannotCompileException, IOException {
