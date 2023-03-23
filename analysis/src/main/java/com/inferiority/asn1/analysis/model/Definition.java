@@ -23,6 +23,7 @@ public class Definition {
     private String subBodyText;
     private String rangeMin;
     private String rangeMax;
+    @ToString.Exclude
     private List<Definition> subDefs;
     private String bodyText;
     private String optional;
@@ -31,7 +32,9 @@ public class Definition {
     private List<Map.Entry<String, String>> values;
 
     //
+    @ToString.Exclude
     private List<Definition> dependencies;
+    @ToString.Exclude
     private Module module;
 
     public Definition() {

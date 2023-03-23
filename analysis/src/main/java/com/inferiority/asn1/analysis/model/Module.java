@@ -22,5 +22,6 @@ public class Module {
     private String[] exports;
     private List<Map.Entry<String[], String>> imports;
     private String moduleBodyText;
+    @ToString.Exclude
     private List<Definition> definitions;
 }
