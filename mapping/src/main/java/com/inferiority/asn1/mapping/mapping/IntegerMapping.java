@@ -31,7 +31,7 @@ public class IntegerMapping extends AbstractMapping {
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
                 .initializer("new BigInteger($S)", definition.getRangeMin())
                 .build();
-        FieldSpec rangeMax = FieldSpec.builder(BigInteger.class, "RANGE_MIN")
+        FieldSpec rangeMax = FieldSpec.builder(BigInteger.class, "RANGE_MAX")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
                 .initializer("new BigInteger($S)", definition.getRangeMax())
                 .build();
@@ -40,11 +40,11 @@ public class IntegerMapping extends AbstractMapping {
                 .build();
         MethodSpec constructor2 = MethodSpec.constructorBuilder()
                 .addParameter(int.class, "value")
-                .addStatement("super($N, $N, $N)", "value", rangeMin, rangeMax)
+                .addStatement("super(new BigInteger(String.valueOf($N)), $N, $N)", "value", rangeMin, rangeMax)
                 .build();
         AnnotationSpec GeneratedAnno = AnnotationSpec.builder(Generated.class)
-                .addMember("value", "asn1 to class")
-                .addMember("comments", "Source: t.asn1")
+                .addMember("value", "$S", "by " + this.getClass().getSimpleName() + " generated")
+                .addMember("comments", "$S", "Source: " + definition.getModule().getIdentifier() + " --> " + definition.getIdentifier())
                 .build();
         TypeSpec integerPoet = TypeSpec.classBuilder(definition.getIdentifier())
                 .addModifiers(Modifier.PUBLIC)

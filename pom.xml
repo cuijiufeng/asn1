@@ -12,6 +12,7 @@
         <module>codec</module>
         <module>analysis</module>
         <module>mapping</module>
+        <module>asn1-maven-plugin</module>
     </modules>
 
     <properties>
