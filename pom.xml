@@ -46,6 +46,12 @@
                 <artifactId>javassist</artifactId>
                 <version>3.29.2-GA</version>
             </dependency>
+            <!--javapoet-->
+            <dependency>
+                <groupId>com.squareup</groupId>
+                <artifactId>javapoet</artifactId>
+                <version>1.13.0</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

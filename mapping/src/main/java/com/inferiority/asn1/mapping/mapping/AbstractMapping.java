@@ -2,15 +2,8 @@ package com.inferiority.asn1.mapping.mapping;
 
 import com.inferiority.asn1.analysis.common.Reserved;
 import com.inferiority.asn1.analysis.util.RegexUtil;
-import com.inferiority.asn1.codec.oer.ASN1Integer;
-import com.inferiority.asn1.codec.oer.ASN1Null;
 import com.inferiority.asn1.mapping.MappingException;
 import com.inferiority.asn1.mapping.model.MappingContext;
-import javassist.CannotCompileException;
-import javassist.ClassClassPath;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.NotFoundException;
 
 import java.io.IOException;
 
@@ -20,20 +13,8 @@ import java.io.IOException;
  * @Date 2023/3/21 14:30
  */
 public abstract class AbstractMapping {
-    protected static ClassPool CLASS_POOL;
-    protected static CtClass ASN1INTEGER_CLASS;
 
-    static {
-        try {
-            CLASS_POOL = ClassPool.getDefault();
-            CLASS_POOL.appendClassPath(new ClassClassPath(ASN1Null.class));
-            ASN1INTEGER_CLASS = CLASS_POOL.getCtClass(ASN1Integer.class.getName());
-        } catch (NotFoundException e) {
-            throw new ExceptionInInitializerError(e);
-        }
-    }
-
-    public static AbstractMapping getInstance(MappingContext context) throws NotFoundException {
+    public static AbstractMapping getInstance(MappingContext context) {
         if (Reserved.NULL.equals(context.getDefinition().getPrimitiveType())) {
             return null;
         } else if (Reserved.BOOLEAN.equals(context.getDefinition().getPrimitiveType())) {
@@ -68,5 +49,5 @@ public abstract class AbstractMapping {
         }
     }
 
-    protected abstract void mappingInternal(MappingContext context) throws CannotCompileException, IOException;
+    protected abstract void mappingInternal(MappingContext context) throws IOException;
 }

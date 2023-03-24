@@ -1,39 +1,33 @@
-package com.inferiority.asn1.mapping.mapping;
+package com.inferiority.asn1.mapping;
 
-import com.inferiority.asn1.analysis.model.Definition;
 import com.inferiority.asn1.codec.oer.ASN1Integer;
-import com.inferiority.asn1.mapping.model.MappingContext;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
+import org.junit.Test;
 
 import javax.annotation.Generated;
 import javax.lang.model.element.Modifier;
-import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 
 /**
  * @author cuijiufeng
- * @Class IntegerMapping
- * @Date 2023/3/21 14:50
+ * @Class TestGenerateClass
+ * @Date 2023/3/24 17:12
  */
-public class IntegerMapping extends AbstractMapping {
-    public static final IntegerMapping MAPPING = new IntegerMapping();
-
-    @Override
-    public void mappingInternal(MappingContext context) throws IOException {
-        Definition definition = context.getDefinition();
-
+public class GenerateClassTest {
+    @Test
+    public void testGenerateClass() throws IOException {
         FieldSpec rangeMin = FieldSpec.builder(BigInteger.class, "RANGE_MIN")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                .initializer("new BigInteger($S)", definition.getRangeMin())
+                .initializer("new BigInteger($S)", 0)
                 .build();
         FieldSpec rangeMax = FieldSpec.builder(BigInteger.class, "RANGE_MIN")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                .initializer("new BigInteger($S)", definition.getRangeMax())
+                .initializer("new BigInteger($S)", 255)
                 .build();
         MethodSpec constructor1 = MethodSpec.constructorBuilder()
                 .addStatement("super($N, $N)", rangeMin, rangeMax)
@@ -43,10 +37,10 @@ public class IntegerMapping extends AbstractMapping {
                 .addStatement("super($N, $N, $N)", "value", rangeMin, rangeMax)
                 .build();
         AnnotationSpec GeneratedAnno = AnnotationSpec.builder(Generated.class)
-                .addMember("value", "asn1 to class")
-                .addMember("comments", "Source: t.asn1")
+                .addMember("value", "fadsfdasfa")
+                .addMember("comments", "")
                 .build();
-        TypeSpec integerPoet = TypeSpec.classBuilder(definition.getIdentifier())
+        TypeSpec integerPoet = TypeSpec.classBuilder("Uint3")
                 .addModifiers(Modifier.PUBLIC)
                 .addField(rangeMin)
                 .addField(rangeMax)
@@ -57,9 +51,9 @@ public class IntegerMapping extends AbstractMapping {
                 .build();
         //申明一个java文件输出对象
         JavaFile javaFile = JavaFile
-                .builder(context.getPackageName(), integerPoet)
+                .builder("a", integerPoet)
                 .build();
         //输出文件
-        javaFile.writeTo(new File(context.getOutputPath()));
+        javaFile.writeTo(System.out);
     }
 }
