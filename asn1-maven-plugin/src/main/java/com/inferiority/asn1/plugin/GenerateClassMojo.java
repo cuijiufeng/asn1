@@ -72,7 +72,7 @@ public class GenerateClassMojo extends AbstractMojo {
                     getLog().debug(String.format("definition of %s in module %s mapping to class", definition.getIdentifier(), module.getIdentifier()));
                 } catch (Exception e) {
                     if (ignoreErrorDefinition) {
-                        getLog().warn(String.format("definition of %s in module %s mapping to class error, \n\te --> %s",
+                        getLog().warn(String.format("definition of %s in module %s mapping to class error, \ne --> %s",
                                 definition.getIdentifier(), module.getIdentifier(), e));
                         continue;
                     }

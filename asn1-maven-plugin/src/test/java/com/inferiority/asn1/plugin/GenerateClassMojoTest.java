@@ -15,7 +15,7 @@ public class GenerateClassMojoTest extends AbstractMojoTestCase {
      * @throws Exception
      */
     public void testMojoGenerateGoal() throws Exception {
-        File pom = getTestFile( "src/test/resources/project-to-test/pom.xml" );
+        File pom = getTestFile( "src/it/project-to-test/pom.xml" );
         assertNotNull( pom );
         assertTrue( pom.exists() );
 

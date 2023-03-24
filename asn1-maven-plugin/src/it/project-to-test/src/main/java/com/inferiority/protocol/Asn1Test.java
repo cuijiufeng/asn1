@@ -1,7 +1,5 @@
 package com.inferiority.protocol;
 
-import com.inferiority.protocol.sec.base.Uint3;
-
 /**
  * @author cuijiufeng
  * @Class Asn1Test
