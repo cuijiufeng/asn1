@@ -21,7 +21,7 @@ public abstract class AbstractMapping {
         if (Reserved.NULL.equals(context.getDefinition().getPrimitiveType())) {
             return NullMapping.MAPPING;
         } else if (Reserved.BOOLEAN.equals(context.getDefinition().getPrimitiveType())) {
-            return null;
+            return BooleanMapping.MAPPING;
         } else if (Reserved.INTEGER.equals(context.getDefinition().getPrimitiveType())) {
             return IntegerMapping.MAPPING;
         } else if (Reserved.ENUMERATED.equals(context.getDefinition().getPrimitiveType())) {
