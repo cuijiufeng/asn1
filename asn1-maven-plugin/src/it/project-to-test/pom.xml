@@ -44,6 +44,7 @@
                     <sourceFile>${basedir}/src/test/resources/test.asn</sourceFile>
                     <attachSourceFile>true</attachSourceFile>
                     <ignoreErrorDefinition>true</ignoreErrorDefinition>
+                    <enumSuffix>Enum</enumSuffix>
                     <packageMapping>
                         <V2XSecBaseTypes>com.inferiority.protocol.sec.base</V2XSecBaseTypes>
                     </packageMapping>

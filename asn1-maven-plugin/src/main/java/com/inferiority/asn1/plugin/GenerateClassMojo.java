@@ -45,9 +45,13 @@ public class GenerateClassMojo extends AbstractMojo {
     @Parameter(name = "attachSourceFile", defaultValue = "true", readonly = true)
     private boolean attachSourceFile;
     @Parameter(name = "packageMapping", readonly = true)
-    private Map<String, String> packageMapping;
+    private Map<String, String> packageMapping = Collections.emptyMap();
     @Parameter(name = "ignoreErrorDefinition", defaultValue = "false", readonly = true)
     private boolean ignoreErrorDefinition;
+    @Parameter(name = "enumPrefix", readonly = true)
+    private String enumPrefix = "";
+    @Parameter(name = "enumSuffix", readonly = true)
+    private String enumSuffix = "";
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -68,7 +72,7 @@ public class GenerateClassMojo extends AbstractMojo {
             for (Definition definition : module.getDefinitions()) {
                 try {
                     String packageName = packageMapping.getOrDefault(definition.getModule().getIdentifier(), definition.getModule().getIdentifier());
-                    MAPPING.mapping(new MappingContext(outputDirectory, packageName, definition));
+                    MAPPING.mapping(new MappingContext(outputDirectory, packageName, definition, enumPrefix, enumSuffix));
                     getLog().debug(String.format("definition of %s in module %s mapping to class", definition.getIdentifier(), module.getIdentifier()));
                 } catch (Exception e) {
                     if (ignoreErrorDefinition) {
