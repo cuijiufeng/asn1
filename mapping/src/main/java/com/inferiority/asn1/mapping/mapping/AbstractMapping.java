@@ -27,9 +27,9 @@ public abstract class AbstractMapping {
         } else if (Reserved.ENUMERATED.equals(context.getDefinition().getPrimitiveType())) {
             return EnumeratedMapping.MAPPING;
         } else if (Reserved.IA5String.equals(context.getDefinition().getPrimitiveType())) {
-            return null;
+            return IA5StringMapping.MAPPING;
         } else if (Reserved.UTF8String.equals(context.getDefinition().getPrimitiveType())) {
-            return null;
+            return UTF8StringMapping.MAPPING;
         } else if (Reserved.SEQUENCE.equals(context.getDefinition().getPrimitiveType())) {
             return null;
         } else if (Reserved.CHOICE.equals(context.getDefinition().getPrimitiveType())) {
