@@ -5,14 +5,12 @@ import com.inferiority.asn1.analysis.model.Definition;
 import com.inferiority.asn1.analysis.util.RegexUtil;
 import com.inferiority.asn1.codec.oer.ASN1Integer;
 import com.inferiority.asn1.mapping.model.MappingContext;
-import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 
-import javax.annotation.Generated;
 import javax.lang.model.element.Modifier;
 import java.io.File;
 import java.io.IOException;
@@ -52,14 +50,10 @@ public class IntegerMapping extends AbstractMapping {
                 .addParameter(int.class, "value")
                 .addStatement("super(new BigInteger(String.valueOf($N)), $N, $N)", "value", rangeMin.build(), rangeMax.build())
                 .build();
-        AnnotationSpec GeneratedAnno = AnnotationSpec.builder(Generated.class)
-                .addMember("value", "$S", "by " + this.getClass().getSimpleName() + " generated")
-                .addMember("comments", "$S", "Source: " + definition.getModule().getIdentifier() + " --> " + definition.getIdentifier())
-                .build();
         TypeSpec.Builder integerPoet = TypeSpec.classBuilder(definition.getIdentifier())
                 .addModifiers(Modifier.PUBLIC)
                 .superclass(ASN1Integer.class)
-                .addAnnotation(GeneratedAnno)
+                .addAnnotation(getGeneratedAnno(definition))
                 .addField(rangeMin.build())
                 .addField(rangeMax.build())
                 .addMethod(constructor1)

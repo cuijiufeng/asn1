@@ -1,10 +1,13 @@
 package com.inferiority.asn1.mapping.mapping;
 
 import com.inferiority.asn1.analysis.common.Reserved;
+import com.inferiority.asn1.analysis.model.Definition;
 import com.inferiority.asn1.analysis.util.RegexUtil;
 import com.inferiority.asn1.mapping.MappingException;
 import com.inferiority.asn1.mapping.model.MappingContext;
+import com.squareup.javapoet.AnnotationSpec;
 
+import javax.annotation.Generated;
 import java.io.IOException;
 
 /**
@@ -36,7 +39,7 @@ public abstract class AbstractMapping {
         } else if (context.getDefinition().getPrimitiveType().equals(Reserved.OCTET + " " + Reserved.STRING)) {
             return null;
         } else if (RegexUtil.matches(Reserved.SEQUENCE + "\\s*" + Reserved.OF, context.getDefinition().getPrimitiveType())) {
-            return null;
+            return SequenceOfMapping.MAPPING;
         }
         return null;
     }
@@ -50,4 +53,11 @@ public abstract class AbstractMapping {
     }
 
     protected abstract void mappingInternal(MappingContext context) throws IOException;
+
+    protected AnnotationSpec getGeneratedAnno(Definition definition) {
+        return AnnotationSpec.builder(Generated.class)
+                .addMember("value", "$S", "by " + this.getClass().getSimpleName() + " generated")
+                .addMember("comments", "$S", "Source: " + definition.getModule().getIdentifier() + " --> " + definition.getIdentifier())
+                .build();
+    }
 }

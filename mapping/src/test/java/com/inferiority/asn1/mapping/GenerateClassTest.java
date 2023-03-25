@@ -1,11 +1,14 @@
 package com.inferiority.asn1.mapping;
 
 import com.inferiority.asn1.codec.oer.ASN1Integer;
+import com.inferiority.asn1.codec.oer.ASN1SequenceOf;
 import com.squareup.javapoet.AnnotationSpec;
+import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
 import org.junit.Test;
 
@@ -13,6 +16,7 @@ import javax.annotation.Generated;
 import javax.lang.model.element.Modifier;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.function.Supplier;
 
 /**
  * @author cuijiufeng
@@ -21,7 +25,7 @@ import java.math.BigInteger;
  */
 public class GenerateClassTest {
     @Test
-    public void testGenerateClass() throws IOException {
+    public void testIntegerGenerateClass() throws IOException {
         FieldSpec rangeMin = FieldSpec.builder(BigInteger.class, "RANGE_MIN")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
                 .initializer("new BigInteger($S)", 0)
@@ -53,6 +57,34 @@ public class GenerateClassTest {
                 .initializer("new $N($L)", integerPoet.build(), "900000001")
                 .build();
         integerPoet.addField(fieldSpec);
+        //申明一个java文件输出对象
+        JavaFile javaFile = JavaFile
+                .builder("a", integerPoet.build())
+                .build();
+        //输出文件
+        javaFile.writeTo(System.out);
+    }
+
+    @Test
+    public void testSequenceOfGeneratedClass() throws IOException {
+        MethodSpec constructor1 = MethodSpec.constructorBuilder()
+                .addParameter(Supplier.class, "instance")
+                .addStatement("super($N)", "instance")
+                .build();
+        MethodSpec constructor2 = MethodSpec.constructorBuilder()
+                .addParameter(ArrayTypeName.of(ClassName.bestGuess("Uint3")), "sequences")
+                .addStatement("super($N)", "sequences")
+                .build();
+        AnnotationSpec GeneratedAnno = AnnotationSpec.builder(Generated.class)
+                .addMember("value", "fadsfdasfa")
+                .addMember("comments", "")
+                .build();
+        TypeSpec.Builder integerPoet = TypeSpec.classBuilder("SequenceOfUint3")
+                .addModifiers(Modifier.PUBLIC)
+                .addAnnotation(GeneratedAnno)
+                .superclass(ParameterizedTypeName.get(ClassName.get(ASN1SequenceOf.class), ClassName.bestGuess("SequenceOfUint3")))
+                .addMethod(constructor1)
+                .addMethod(constructor2);
         //申明一个java文件输出对象
         JavaFile javaFile = JavaFile
                 .builder("a", integerPoet.build())
