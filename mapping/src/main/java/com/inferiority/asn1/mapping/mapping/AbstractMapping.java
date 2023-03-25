@@ -37,7 +37,7 @@ public abstract class AbstractMapping {
         } else if (context.getDefinition().getPrimitiveType().equals(Reserved.BIT + " " + Reserved.STRING)) {
             return null;
         } else if (context.getDefinition().getPrimitiveType().equals(Reserved.OCTET + " " + Reserved.STRING)) {
-            return null;
+            return OctetStringMapping.MAPPING;
         } else if (RegexUtil.matches(Reserved.SEQUENCE + "\\s*" + Reserved.OF, context.getDefinition().getPrimitiveType())) {
             return SequenceOfMapping.MAPPING;
         }
