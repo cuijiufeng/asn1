@@ -26,8 +26,6 @@ public class ASN1SequenceOf<T extends ASN1Object> extends ASN1Object implements 
     public ASN1SequenceOf(Supplier<T> instance) {
         Objects.requireNonNull(instance, "instance cannot be null");
         this.instance = instance;
-        //noinspection unchecked
-        this.sequences = (T[]) Array.newInstance(ASN1Boolean.class, 0);
     }
 
     public ASN1SequenceOf(T[] sequences) {
@@ -49,7 +47,7 @@ public class ASN1SequenceOf<T extends ASN1Object> extends ASN1Object implements 
         ASN1Integer quantity = new ASN1Integer(BigInteger.ZERO, null);
         quantity.decode(is);
         //noinspection unchecked
-        this.sequences = (T[]) Array.newInstance(ASN1Boolean.class, quantity.intValue());
+        this.sequences = (T[]) Array.newInstance(instance.get().getClass(), quantity.intValue());
         for (int i = 0; i < quantity.intValue(); i++) {
             this.sequences[i] = instance.get();
             this.sequences[i].decode(is);
