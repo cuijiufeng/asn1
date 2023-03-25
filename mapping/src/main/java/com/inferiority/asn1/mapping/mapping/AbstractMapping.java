@@ -19,7 +19,7 @@ public abstract class AbstractMapping {
 
     public static AbstractMapping getInstance(MappingContext context) {
         if (Reserved.NULL.equals(context.getDefinition().getPrimitiveType())) {
-            return null;
+            return NullMapping.MAPPING;
         } else if (Reserved.BOOLEAN.equals(context.getDefinition().getPrimitiveType())) {
             return null;
         } else if (Reserved.INTEGER.equals(context.getDefinition().getPrimitiveType())) {
