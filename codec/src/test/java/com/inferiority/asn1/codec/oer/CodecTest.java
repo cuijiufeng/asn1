@@ -103,7 +103,7 @@ public class CodecTest {
     public void testBitString() throws CodecException {
         //固定大小
         //00000011 00000000 00000000=03 00 00                   Y       Y
-        ASN1BitString bitString0 = new ASN1BitString(new byte[] {0x03,0x00,0x00}, null, true);
+        ASN1BitString bitString0 = new ASN1BitString(new byte[] {0x03,0x00,0x00}, true, null);
         log.debug("   bitString: {}", HexEncoder.encodeString(bitString0.getEncoded()));
         ASN1BitString decodeBitString0 = new ASN1BitString(3, null);
         decodeBitString0.fromByteArray(bitString0.getEncoded());
@@ -113,34 +113,34 @@ public class CodecTest {
 
         //非固定大小
         //00000000                  =01 00              2       N
-        ASN1BitString bitString1 = new ASN1BitString(new byte[] {0x00}, 2, false);
+        ASN1BitString bitString1 = new ASN1BitString(new byte[] {0x00}, false, new String[2]);
         log.debug("   bitString: {}", HexEncoder.encodeString(bitString1.getEncoded()));
-        ASN1BitString decodeBitString1 = new ASN1BitString(null, 2);
+        ASN1BitString decodeBitString1 = new ASN1BitString(null, new String[2]);
         decodeBitString1.fromByteArray(bitString1.getEncoded());
         Assert.assertEquals(bitString1, decodeBitString1);
         log.debug(decodeBitString1.toObjectString());
         log.debug(decodeBitString1.toJsonString());
 
         //00000000 00110000         =03 04 00 30        2       Y       Y
-        ASN1BitString bitString4 = new ASN1BitString(new byte[] {0x00,0x30}, 2, false);
+        ASN1BitString bitString4 = new ASN1BitString(new byte[] {0x00,0x30}, false, new String[2]);
         log.debug("   bitString: {}", HexEncoder.encodeString(bitString4.getEncoded()));
-        ASN1BitString decodeBitString4 = new ASN1BitString(null, 2);
+        ASN1BitString decodeBitString4 = new ASN1BitString(null, new String[2]);
         decodeBitString4.fromByteArray(bitString4.getEncoded());
         Assert.assertEquals(bitString4, decodeBitString4);
         log.debug(decodeBitString4.toObjectString());
         log.debug(decodeBitString4.toJsonString());
 
         //00000000 00000011         =03 00 00 03        2       Y       Y
-        ASN1BitString bitString5 = new ASN1BitString(new byte[] {0x00,0x03}, 2, false);
+        ASN1BitString bitString5 = new ASN1BitString(new byte[] {0x00,0x03}, false, new String[2]);
         log.debug("   bitString: {}", HexEncoder.encodeString(bitString5.getEncoded()));
-        ASN1BitString decodeBitString5 = new ASN1BitString(null, 2);
+        ASN1BitString decodeBitString5 = new ASN1BitString(null, new String[2]);
         decodeBitString5.fromByteArray(bitString5.getEncoded());
         Assert.assertEquals(bitString5, decodeBitString5);
         log.debug(decodeBitString5.toObjectString());
         log.debug(decodeBitString5.toJsonString());
 
         //00000000                  =02 00 00                   Y       Y
-        ASN1BitString bitString6 = new ASN1BitString(new byte[] {0x00}, null, false);
+        ASN1BitString bitString6 = new ASN1BitString(new byte[] {0x00}, false, null);
         log.debug("   bitString: {}", HexEncoder.encodeString(bitString6.getEncoded()));
         ASN1BitString decodeBitString6 = new ASN1BitString(null, null);
         decodeBitString6.fromByteArray(bitString6.getEncoded());
@@ -149,7 +149,7 @@ public class CodecTest {
         log.debug(decodeBitString6.toJsonString());
 
         //00000000 00000000 00000000=04 00 00 00 00             Y       Y
-        ASN1BitString bitString7 = new ASN1BitString(new byte[] {(byte) 0x00,0x00,0x00}, null, false);
+        ASN1BitString bitString7 = new ASN1BitString(new byte[] {(byte) 0x00,0x00,0x00}, false, null);
         log.debug("   bitString: {}", HexEncoder.encodeString(bitString7.getEncoded()));
         ASN1BitString decodeBitString7 = new ASN1BitString(null, null);
         decodeBitString7.fromByteArray(bitString7.getEncoded());
@@ -158,7 +158,7 @@ public class CodecTest {
         log.debug(decodeBitString7.toJsonString());
 
         //10000000 00000000 00000000=04 00 80 00 00             Y       Y
-        ASN1BitString bitString8 = new ASN1BitString(new byte[] {(byte) 0x80,0x00,0x00}, null, false);
+        ASN1BitString bitString8 = new ASN1BitString(new byte[] {(byte) 0x80,0x00,0x00}, false, null);
         log.debug("   bitString: {}", HexEncoder.encodeString(bitString8.getEncoded()));
         ASN1BitString decodeBitString8 = new ASN1BitString(null, null);
         decodeBitString8.fromByteArray(bitString8.getEncoded());
@@ -167,7 +167,7 @@ public class CodecTest {
         log.debug(decodeBitString8.toJsonString());
 
         //10000000 00000000 00010000=04 00 80 00 10             Y       Y
-        ASN1BitString bitString9 = new ASN1BitString(new byte[] {(byte) 0x80,0x00,0x10}, null, false);
+        ASN1BitString bitString9 = new ASN1BitString(new byte[] {(byte) 0x80,0x00,0x10}, false, null);
         log.debug("   bitString: {}", HexEncoder.encodeString(bitString9.getEncoded()));
         ASN1BitString decodeBitString9 = new ASN1BitString(null, null);
         decodeBitString9.fromByteArray(bitString9.getEncoded());
@@ -176,36 +176,36 @@ public class CodecTest {
         log.debug(decodeBitString9.toJsonString());
 
         //10000000 00000000 00010000=04 04 80 00 10     19      Y       Y
-        ASN1BitString bitString10 = new ASN1BitString(new byte[] {(byte) 0x80,0x00,0x10}, 19, false);
+        ASN1BitString bitString10 = new ASN1BitString(new byte[] {(byte) 0x80,0x00,0x10}, false, new String[19]);
         log.debug("   bitString: {}", HexEncoder.encodeString(bitString10.getEncoded()));
-        ASN1BitString decodeBitString10 = new ASN1BitString(null, 19);
+        ASN1BitString decodeBitString10 = new ASN1BitString(null, new String[19]);
         decodeBitString10.fromByteArray(bitString10.getEncoded());
         Assert.assertEquals(bitString10, decodeBitString10);
         log.debug(decodeBitString10.toObjectString());
         log.debug(decodeBitString10.toJsonString());
 
         //10000000 00000000 01000000=04 06 80 00 40     19      Y       Y
-        ASN1BitString bitString11 = new ASN1BitString(new byte[] {(byte) 0x80,0x00,0x40}, 19, false);
+        ASN1BitString bitString11 = new ASN1BitString(new byte[] {(byte) 0x80,0x00,0x40}, false, new String[19]);
         log.debug("   bitString: {}", HexEncoder.encodeString(bitString11.getEncoded()));
-        ASN1BitString decodeBitString11 = new ASN1BitString(null, 19);
+        ASN1BitString decodeBitString11 = new ASN1BitString(null, new String[19]);
         decodeBitString11.fromByteArray(bitString11.getEncoded());
         Assert.assertEquals(bitString11, decodeBitString11);
         log.debug(decodeBitString11.toObjectString());
         log.debug(decodeBitString11.toJsonString());
 
         //10000000 00000000 00000010=04 01 80 00 02     19      Y       Y
-        ASN1BitString bitString12 = new ASN1BitString(new byte[] {(byte) 0x80,0x00,0x02}, 19, false);
+        ASN1BitString bitString12 = new ASN1BitString(new byte[] {(byte) 0x80,0x00,0x02}, false, new String[19]);
         log.debug("   bitString: {}", HexEncoder.encodeString(bitString12.getEncoded()));
-        ASN1BitString decodeBitString12 = new ASN1BitString(null, 19);
+        ASN1BitString decodeBitString12 = new ASN1BitString(null, new String[19]);
         decodeBitString12.fromByteArray(bitString12.getEncoded());
         Assert.assertEquals(bitString12, decodeBitString12);
         log.debug(decodeBitString12.toObjectString());
         log.debug(decodeBitString12.toJsonString());
 
         //10000000 00000000 00000000=02 07 80           19      Y
-        ASN1BitString bitString13 = new ASN1BitString(new byte[] {(byte) 0x80,0x00,0x00}, 19, false);
+        ASN1BitString bitString13 = new ASN1BitString(new byte[] {(byte) 0x80,0x00,0x00}, false, new String[19]);
         log.debug("   bitString: {}", HexEncoder.encodeString(bitString13.getEncoded()));
-        ASN1BitString decodeBitString13 = new ASN1BitString(null, 19);
+        ASN1BitString decodeBitString13 = new ASN1BitString(null, new String[19]);
         decodeBitString13.fromByteArray(bitString13.getEncoded());
         Assert.assertEquals(bitString13, decodeBitString13);
         log.debug(decodeBitString13.toObjectString());

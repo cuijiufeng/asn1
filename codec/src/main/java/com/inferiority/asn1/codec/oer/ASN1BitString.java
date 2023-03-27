@@ -20,22 +20,22 @@ public class ASN1BitString extends ASN1Object {
     //大端序存储数据
     private byte[] bits;
     private final Integer bytes;
-    private Integer maxValidBit;
+    private String[] bitLabels;
 
     public ASN1BitString(byte b) {
         this.bytes = 1;
         this.bits = new byte[1];
     }
 
-    public ASN1BitString(@Nullable Integer bytes, @Nullable Integer maxValidBit) {
+    public ASN1BitString(@Nullable Integer bytes, @Nullable String[] bitLabels) {
         this.bytes = bytes;
-        this.maxValidBit = maxValidBit;
+        this.bitLabels = bitLabels;
     }
 
-    public ASN1BitString(byte[] bits, @Nullable Integer maxValidBit, boolean fixed) {
+    public ASN1BitString(byte[] bits, boolean fixed, @Nullable String[] bitLabels) {
         Objects.requireNonNull(bits, "bits cannot be null");
         this.bytes = fixed ? bits.length : null;
-        this.maxValidBit = maxValidBit;
+        this.bitLabels = bitLabels;
         this.bits = Arrays.copyOf(bits, bits.length);
     }
 
@@ -46,7 +46,7 @@ public class ASN1BitString extends ASN1Object {
             os.write(this.bits, 0, this.bits.length);
         } else {
             //非固定大小
-            if (Objects.isNull(maxValidBit)) {
+            if (Objects.isNull(bitLabels)) {
                 //1.length prefix
                 os.writeLengthDetermine(this.bits.length + 1);
                 //2.unused-bit count prefix
@@ -86,8 +86,8 @@ public class ASN1BitString extends ASN1Object {
             if (this.bits.length != 0 && this.bits.length != is.read(this.bits, 0, length - 1)) {
                 throw new EOFException(String.format("expected to read %s bytes", length - 1));
             }
-            if (Objects.nonNull(maxValidBit)) {
-                this.bits = Arrays.copyOf(this.bits, Math.max(length - 1, ((maxValidBit + 7) & ~7) / 8));
+            if (Objects.nonNull(bitLabels)) {
+                this.bits = Arrays.copyOf(this.bits, Math.max(length - 1, ((bitLabels.length + 7) & ~7) / 8));
             }
         }
     }
@@ -137,7 +137,7 @@ public class ASN1BitString extends ASN1Object {
         }
         ASN1BitString that = (ASN1BitString) obj;
         if (!Objects.equals(bytes, that.bytes)) return false;
-        if (!Objects.equals(maxValidBit, that.maxValidBit)) return false;
+        if (!Arrays.equals(bitLabels, that.bitLabels)) return false;
         return Arrays.equals(bits, that.bits);
     }
 
@@ -154,8 +154,8 @@ public class ASN1BitString extends ASN1Object {
     @Override
     public int hashCode() {
         int result = Arrays.hashCode(bits);
+        result = 31 * result + Arrays.hashCode(bitLabels);
         result = 31 * result + (bytes != null ? bytes.hashCode() : 0);
-        result = 31 * result + (maxValidBit != null ? maxValidBit.hashCode() : 0);
         return result;
     }
 }

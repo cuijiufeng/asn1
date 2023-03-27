@@ -17,8 +17,8 @@ public class CodecExceptionTest {
     public void testException1() throws CodecException {
         ThrowingRunnable runnable = () -> {
             try {
-                new ASN1BitString(1, 1).getEncoded();
-                new ASN1BitString(100, 1).fromByteArray(new byte[]{-1, -1, 1});
+                new ASN1BitString(1, new String[1]).getEncoded();
+                new ASN1BitString(100, new String[1]).fromByteArray(new byte[]{-1, -1, 1});
             } catch (CodecException e) {
                 log.info("", e);
                 throw e;

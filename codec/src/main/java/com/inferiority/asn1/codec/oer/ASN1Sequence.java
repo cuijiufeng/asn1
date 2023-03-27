@@ -91,7 +91,7 @@ public class ASN1Sequence extends ASN1Object {
         }
 
         int bits = extensible ? markeds.length + 1 : markeds.length;
-        ASN1BitString preamble = new ASN1BitString(new byte[((bits + 7) & ~7) / 8], null, true);
+        ASN1BitString preamble = new ASN1BitString(new byte[((bits + 7) & ~7) / 8], true, null);
         int bitIdx = 0;
         //a) extension bit (optional);
         if (extensible) {
@@ -116,7 +116,7 @@ public class ASN1Sequence extends ASN1Object {
             //initial octet
             os.write(8 - (bits & 7));
             //subsequent octets
-            ASN1BitString bitmap = new ASN1BitString(new byte[bytes], null, true);
+            ASN1BitString bitmap = new ASN1BitString(new byte[bytes], true, null);
             for (int i = 0; i < this.extensions.size(); i++) {
                 bitmap.setBit(i, Objects.nonNull(this.extensions.get(i).component));
             }
@@ -155,7 +155,7 @@ public class ASN1Sequence extends ASN1Object {
         }
 
         int bits = extensible ? markeds.length + 1 : markeds.length;
-        ASN1BitString preamble = new ASN1BitString(new byte[((bits + 7) & ~7) / 8], null, true);
+        ASN1BitString preamble = new ASN1BitString(new byte[((bits + 7) & ~7) / 8], true, null);
         preamble.decode(is);
         return preamble;
     }
@@ -168,7 +168,7 @@ public class ASN1Sequence extends ASN1Object {
             if (bytes.length != is.read(bytes, 0, bytes.length)) {
                 throw new EOFException(String.format("expected to read %s bytes", bytes.length));
             }
-            return new ASN1BitString(bytes, null, true);
+            return new ASN1BitString(bytes, true, null);
         }
         return null;
     }
