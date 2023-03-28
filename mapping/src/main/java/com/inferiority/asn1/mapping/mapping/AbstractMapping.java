@@ -18,27 +18,28 @@ import java.io.IOException;
 public abstract class AbstractMapping {
 
     public static AbstractMapping getInstance(MappingContext context) {
-        if (Reserved.NULL.equals(context.getDefinition().getPrimitiveType())) {
+        Definition definition = context.getDefinition();
+        if (Reserved.NULL.equals(definition.getPrimitiveType())) {
             return NullMapping.MAPPING;
-        } else if (Reserved.BOOLEAN.equals(context.getDefinition().getPrimitiveType())) {
+        } else if (Reserved.BOOLEAN.equals(definition.getPrimitiveType())) {
             return BooleanMapping.MAPPING;
-        } else if (Reserved.INTEGER.equals(context.getDefinition().getPrimitiveType())) {
+        } else if (Reserved.INTEGER.equals(definition.getPrimitiveType())) {
             return IntegerMapping.MAPPING;
-        } else if (Reserved.ENUMERATED.equals(context.getDefinition().getPrimitiveType())) {
+        } else if (Reserved.ENUMERATED.equals(definition.getPrimitiveType())) {
             return EnumeratedMapping.MAPPING;
-        } else if (Reserved.IA5String.equals(context.getDefinition().getPrimitiveType())) {
+        } else if (Reserved.IA5String.equals(definition.getPrimitiveType())) {
             return IA5StringMapping.MAPPING;
-        } else if (Reserved.UTF8String.equals(context.getDefinition().getPrimitiveType())) {
+        } else if (Reserved.UTF8String.equals(definition.getPrimitiveType())) {
             return UTF8StringMapping.MAPPING;
-        } else if (Reserved.SEQUENCE.equals(context.getDefinition().getPrimitiveType())) {
-            return null;
-        } else if (Reserved.CHOICE.equals(context.getDefinition().getPrimitiveType())) {
-            return null;
-        } else if (context.getDefinition().getPrimitiveType().equals(Reserved.BIT + " " + Reserved.STRING)) {
-            return null;
-        } else if (context.getDefinition().getPrimitiveType().equals(Reserved.OCTET + " " + Reserved.STRING)) {
+        } else if (Reserved.SEQUENCE.equals(definition.getPrimitiveType())) {
+            return SequenceMapping.MAPPING;
+        } else if (Reserved.CHOICE.equals(definition.getPrimitiveType())) {
+            return ChoiceMapping.MAPPING;
+        } else if (definition.getPrimitiveType().equals(Reserved.BIT + " " + Reserved.STRING)) {
+            return BitStringMapping.MAPPING;
+        } else if (definition.getPrimitiveType().equals(Reserved.OCTET + " " + Reserved.STRING)) {
             return OctetStringMapping.MAPPING;
-        } else if (RegexUtil.matches(Reserved.SEQUENCE + "\\s*" + Reserved.OF, context.getDefinition().getPrimitiveType())) {
+        } else if (RegexUtil.matches(Reserved.SEQUENCE + "\\s*" + Reserved.OF, definition.getPrimitiveType())) {
             return SequenceOfMapping.MAPPING;
         }
         return null;
