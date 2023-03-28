@@ -50,8 +50,8 @@ public class BitStringAnalyzer extends AbstractAnalyzer {
                     .replaceAll(Operator.RIGHT_BRACKET, "")
                     .replaceAll(Reserved.SIZE, "")
                     .split(Operator.RANGE);
-            definition.setRangeMin(range[0]);
-            definition.setRangeMax(range[range.length - 1]);
+            definition.setRangeMin(range[0].trim());
+            definition.setRangeMax(range[range.length - 1].trim());
         });
         //body
         definition.setSubBodyText(RegexUtil.matcherFunc(REGEX_BITSTRING_BODY, text, group -> {
