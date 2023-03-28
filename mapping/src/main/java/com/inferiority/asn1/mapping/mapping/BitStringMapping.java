@@ -52,8 +52,8 @@ public class BitStringMapping extends AbstractMapping {
         } else {
             sizeField.initializer("$L", definition.getRangeMin());
 
-            int size = Integer.parseInt(definition.getRangeMin());
-            constructor1.addStatement("super($L, $L)", ((size + 7) & ~7) / 8, bitLabels);
+            int size = ((Integer.parseInt(definition.getRangeMin()) + 7) & ~7) / 8;
+            constructor1.addStatement("super($L, $L)", size, bitLabels);
             if (size > 1) {
                 constructor2.addParameter(byte[].class, "bits")
                         .addStatement("super($N, $L, $L)", "bits", "true", bitLabels);
