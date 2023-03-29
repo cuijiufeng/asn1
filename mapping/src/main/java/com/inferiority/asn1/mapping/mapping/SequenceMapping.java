@@ -1,8 +1,7 @@
 package com.inferiority.asn1.mapping.mapping;
 
 import com.inferiority.asn1.mapping.model.MappingContext;
-
-import java.io.IOException;
+import com.squareup.javapoet.TypeSpec;
 
 /**
  * @author cuijiufeng
@@ -12,7 +11,7 @@ public class SequenceMapping extends AbstractMapping {
     public static final SequenceMapping MAPPING = new SequenceMapping();
 
     @Override
-    protected void mappingInternal(MappingContext context) throws IOException {
-
+    protected TypeSpec mappingInternal(MappingContext context) {
+        return null;
     }
 }

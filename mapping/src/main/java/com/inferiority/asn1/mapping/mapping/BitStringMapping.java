@@ -6,13 +6,10 @@ import com.inferiority.asn1.analysis.util.RegexUtil;
 import com.inferiority.asn1.codec.oer.ASN1BitString;
 import com.inferiority.asn1.mapping.model.MappingContext;
 import com.squareup.javapoet.FieldSpec;
-import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 
 import javax.lang.model.element.Modifier;
-import java.io.File;
-import java.io.IOException;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -24,7 +21,7 @@ public class BitStringMapping extends AbstractMapping {
     public static final BitStringMapping MAPPING = new BitStringMapping();
 
     @Override
-    protected void mappingInternal(MappingContext context) throws IOException {
+    protected TypeSpec mappingInternal(MappingContext context) {
         Definition definition = context.getDefinition();
 
         assert 0 == Objects.compare(definition.getRangeMin(), definition.getRangeMax(), String.CASE_INSENSITIVE_ORDER);
@@ -70,12 +67,6 @@ public class BitStringMapping extends AbstractMapping {
                 .addField(sizeField.build())
                 .addMethod(constructor1.build())
                 .addMethod(constructor2.build());
-
-        //申明一个java文件输出对象
-        JavaFile javaFile = JavaFile
-                .builder(context.getPackageName(), bitStringPoet.build())
-                .build();
-        //输出文件
-        javaFile.writeTo(new File(context.getOutputPath()));
+        return bitStringPoet.build();
     }
 }

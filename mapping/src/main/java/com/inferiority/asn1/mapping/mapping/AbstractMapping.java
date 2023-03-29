@@ -6,9 +6,11 @@ import com.inferiority.asn1.analysis.util.RegexUtil;
 import com.inferiority.asn1.mapping.MappingException;
 import com.inferiority.asn1.mapping.model.MappingContext;
 import com.squareup.javapoet.AnnotationSpec;
+import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.TypeSpec;
 
 import javax.annotation.Generated;
-import java.io.IOException;
+import java.io.File;
 
 /**
  * @author cuijiufeng
@@ -47,13 +49,19 @@ public abstract class AbstractMapping {
 
     public void mapping(MappingContext context) {
         try {
-            mappingInternal(context);
+            TypeSpec typeSpec = mappingInternal(context);
+            //申明一个java文件输出对象
+            JavaFile javaFile = JavaFile
+                    .builder(context.getPackageName(), typeSpec)
+                    .build();
+            //输出文件
+            javaFile.writeTo(new File(context.getOutputPath()));
         } catch (Exception e) {
             throw new MappingException("mapping to class error -> " + e.getMessage() + "\n" + context.getDefinition(), e);
         }
     }
 
-    protected abstract void mappingInternal(MappingContext context) throws IOException;
+    protected abstract TypeSpec mappingInternal(MappingContext context);
 
     protected AnnotationSpec getGeneratedAnno(Definition definition) {
         return AnnotationSpec.builder(Generated.class)

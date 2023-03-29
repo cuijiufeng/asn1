@@ -6,14 +6,11 @@ import com.inferiority.asn1.analysis.util.RegexUtil;
 import com.inferiority.asn1.codec.oer.ASN1Enumerated;
 import com.inferiority.asn1.mapping.model.MappingContext;
 import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
 
 import javax.lang.model.element.Modifier;
-import java.io.File;
-import java.io.IOException;
 
 /**
  * @author cuijiufeng
@@ -23,7 +20,7 @@ public class EnumeratedMapping extends AbstractMapping {
     public static final EnumeratedMapping MAPPING = new EnumeratedMapping();
 
     @Override
-    protected void mappingInternal(MappingContext context) throws IOException {
+    protected TypeSpec mappingInternal(MappingContext context) {
         Definition definition = context.getDefinition();
 
         TypeSpec.Builder enumBuilder = TypeSpec.enumBuilder(context.getEnumPrefix() + definition.getIdentifier() + context.getEnumSuffix())
@@ -53,12 +50,6 @@ public class EnumeratedMapping extends AbstractMapping {
                 .addType(enumPoet)
                 .addMethod(constructor1)
                 .addMethod(constructor2);
-
-        //申明一个java文件输出对象
-        JavaFile javaFile = JavaFile
-                .builder(context.getPackageName(), enumeratedPoet.build())
-                .build();
-        //输出文件
-        javaFile.writeTo(new File(context.getOutputPath()));
+        return enumeratedPoet.build();
     }
 }

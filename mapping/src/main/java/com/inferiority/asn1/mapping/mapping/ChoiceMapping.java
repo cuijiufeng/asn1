@@ -6,17 +6,15 @@ import com.inferiority.asn1.analysis.util.RegexUtil;
 import com.inferiority.asn1.codec.oer.ASN1Choice;
 import com.inferiority.asn1.codec.oer.ASN1Object;
 import com.inferiority.asn1.mapping.model.MappingContext;
-import com.inferiority.asn1.mapping.utils.IdentifierUtil;
-import com.inferiority.asn1.mapping.utils.PrimitiveTypeUtil;
+import com.inferiority.asn1.mapping.utils.JavaPoetUtil;
+import com.inferiority.asn1.mapping.utils.StringUtil;
 import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
 
 import javax.lang.model.element.Modifier;
-import java.io.File;
-import java.io.IOException;
+import java.util.Map;
 
 /**
  * @author cuijiufeng
@@ -26,7 +24,7 @@ public class ChoiceMapping extends AbstractMapping {
     public static final ChoiceMapping MAPPING = new ChoiceMapping();
 
     @Override
-    protected void mappingInternal(MappingContext context) throws IOException {
+    protected TypeSpec mappingInternal(MappingContext context) {
         Definition definition = context.getDefinition();
 
         TypeSpec.Builder enumBuilder = TypeSpec.enumBuilder(context.getEnumPrefix() + definition.getIdentifier() + context.getEnumSuffix())
@@ -35,6 +33,7 @@ public class ChoiceMapping extends AbstractMapping {
         boolean isExtension = false;
         for (Definition subDef : definition.getSubDefs()) {
             if (!RegexUtil.matches(Operator.ELLIPSIS, subDef.getIdentifier())) {
+                Map.Entry<String, Object[]> returnStatement = JavaPoetUtil.builderReturnStatement(subDef);
                 TypeSpec typeSpec = TypeSpec.anonymousClassBuilder("")
                         .addMethod(MethodSpec.methodBuilder("isExtension")
                                 .addAnnotation(Override.class)
@@ -46,10 +45,10 @@ public class ChoiceMapping extends AbstractMapping {
                                 .addAnnotation(Override.class)
                                 .addModifiers(Modifier.PUBLIC)
                                 .returns(ASN1Object.class)
-                                .addStatement("return new $T()", PrimitiveTypeUtil.primitiveType(subDef.getPrimitiveType()))
+                                .addStatement(returnStatement.getKey(), returnStatement.getValue())
                                 .build())
                         .build();
-                enumBuilder.addEnumConstant(IdentifierUtil.throughline2Underline(subDef.getIdentifier()), typeSpec);
+                enumBuilder.addEnumConstant(StringUtil.throughline2Underline(subDef.getIdentifier()), typeSpec);
             } else {
                 isExtension = true;
             }
@@ -75,12 +74,6 @@ public class ChoiceMapping extends AbstractMapping {
                 .addType(enumPoet)
                 .addMethod(constructor1)
                 .addMethod(constructor2);
-
-        //申明一个java文件输出对象
-        JavaFile javaFile = JavaFile
-                .builder(context.getPackageName(), choicePoet.build())
-                .build();
-        //输出文件
-        javaFile.writeTo(new File(context.getOutputPath()));
+        return choicePoet.build();
     }
 }

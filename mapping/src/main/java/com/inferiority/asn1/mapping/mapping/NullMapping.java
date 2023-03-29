@@ -5,12 +5,9 @@ import com.inferiority.asn1.codec.oer.ASN1Null;
 import com.inferiority.asn1.mapping.model.MappingContext;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
-import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
 
 import javax.lang.model.element.Modifier;
-import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -21,7 +18,7 @@ public class NullMapping extends AbstractMapping {
     public static final NullMapping MAPPING = new NullMapping();
 
     @Override
-    protected void mappingInternal(MappingContext context) throws IOException {
+    protected TypeSpec mappingInternal(MappingContext context) {
         Definition definition = context.getDefinition();
 
         TypeSpec.Builder nullPoet = TypeSpec.classBuilder(definition.getIdentifier())
@@ -36,11 +33,6 @@ public class NullMapping extends AbstractMapping {
                 nullPoet.addField(fieldSpec);
             }
         }
-        //申明一个java文件输出对象
-        JavaFile javaFile = JavaFile
-                .builder(context.getPackageName(), nullPoet.build())
-                .build();
-        //输出文件
-        javaFile.writeTo(new File(context.getOutputPath()));
+        return nullPoet.build();
     }
 }

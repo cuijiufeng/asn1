@@ -6,13 +6,10 @@ import com.inferiority.asn1.analysis.util.RegexUtil;
 import com.inferiority.asn1.codec.oer.ASN1Object;
 import com.inferiority.asn1.mapping.model.MappingContext;
 import com.squareup.javapoet.FieldSpec;
-import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 
 import javax.lang.model.element.Modifier;
-import java.io.File;
-import java.io.IOException;
 
 /**
  * @author cuijiufeng
@@ -23,7 +20,7 @@ public abstract class AbstractStringMapping extends AbstractMapping {
     public abstract Class<? extends ASN1Object> getSuperclass();
 
     @Override
-    public void mappingInternal(MappingContext context) throws IOException {
+    public TypeSpec mappingInternal(MappingContext context) {
         Definition definition = context.getDefinition();
 
         FieldSpec.Builder rangeMin = FieldSpec.builder(Integer.class, "RANGE_MIN", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL);
@@ -56,12 +53,6 @@ public abstract class AbstractStringMapping extends AbstractMapping {
                 .addField(rangeMax.build())
                 .addMethod(constructor1)
                 .addMethod(constructor2);
-
-        //申明一个java文件输出对象
-        JavaFile javaFile = JavaFile
-                .builder(context.getPackageName(), stringPoet.build())
-                .build();
-        //输出文件
-        javaFile.writeTo(new File(context.getOutputPath()));
+        return stringPoet.build();
     }
 }
