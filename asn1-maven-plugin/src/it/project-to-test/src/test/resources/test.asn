@@ -1988,6 +1988,12 @@ CScmsPolicyTypes DEFINITIONS AUTOMATIC TAGS ::= BEGIN
       SecurityMgmtAid
     }
 
+    RequestInfo ::= SEQUENCE {
+        url UTF8String (SIZE (0..511)),
+        retryInterval Duration DEFAULT minutes:10,
+        maxRetries Uint8 DEFAULT 5
+    }
+
     LocalPolicyFile ::= SEQUENCE {
         version Uint8(1),
         generationTime Time32,
@@ -1999,61 +2005,17 @@ CScmsPolicyTypes DEFINITIONS AUTOMATIC TAGS ::= BEGIN
         ecaCertificateId Hostname,
         praCertificateId Hostname,
         maCertificateId Hostname,
-        pcRequest SEQUENCE {
-            url UTF8String (SIZE (0..511)),
-            retryInterval Duration DEFAULT minutes:10,
-            maxRetries Uint8 DEFAULT 5
-        },
-        pcDownload SEQUENCE {
-            url UTF8String (SIZE (0..511)),
-            retryInterval Duration DEFAULT minutes:10,
-            maxRetries Uint8 DEFAULT 5
-        },
-        ecRenew SEQUENCE {
-            url UTF8String (SIZE (0..511)),
-            retryInterval Duration DEFAULT minutes:10,
-            maxRetries Uint8 DEFAULT 5
-        },
-        trclDownload SEQUENCE {
-            url UTF8String (SIZE (0..511)),
-            retryInterval Duration DEFAULT minutes:10,
-            maxRetries Uint8 DEFAULT 5
-        },
-        tdclDownload SEQUENCE {
-            url UTF8String (SIZE (0..511)),
-            retryInterval Duration DEFAULT minutes:10,
-            maxRetries Uint8 DEFAULT 5
-        },
-        tcmfCertDownload SEQUENCE {
-            url UTF8String (SIZE (0..511)),
-            retryInterval Duration DEFAULT minutes:10,
-            maxRetries Uint8 DEFAULT 5
-        },
-        tcmfLinkCertDownload SEQUENCE {
-            url UTF8String (SIZE (0..511)),
-            retryInterval Duration DEFAULT minutes:10,
-            maxRetries Uint8 DEFAULT 5
-        },
-        lpfDownload SEQUENCE {
-            url UTF8String (SIZE (0..511)),
-            retryInterval Duration DEFAULT minutes:10,
-            maxRetries Uint8 DEFAULT 5
-        },
-        crlDownload SEQUENCE {
-            url UTF8String (SIZE (0..511)),
-            retryInterval Duration DEFAULT minutes:10,
-            maxRetries Uint8 DEFAULT 5
-        },
-        ma SEQUENCE {
-            url UTF8String (SIZE (0..511)),
-            retryInterval Duration DEFAULT minutes:10,
-            maxRetries Uint8 DEFAULT 5
-        },
-        er SEQUENCE {
-            url UTF8String (SIZE (0..511)),
-            retryInterval Duration DEFAULT minutes:10,
-            maxRetries Uint8 DEFAULT 5
-        },
+        pcRequest RequestInfo,
+        pcDownload RequestInfo,
+        ecRenew RequestInfo,
+        trclDownload RequestInfo,
+        tdclDownload RequestInfo,
+        tcmfCertDownload RequestInfo,
+        tcmfLinkCertDownload RequestInfo,
+        lpfDownload RequestInfo,
+        crlDownload RequestInfo,
+        ma RequestInfo,
+        er RequestInfo,
         apiGwX509TlsCert Opaque OPTIONAL,
         ...
     }
@@ -2073,11 +2035,11 @@ CScmsErrorReport DEFINITIONS AUTOMATIC TAGS ::= BEGIN
     ;
 
     ErrorReport::= SEQUENCE {
-        errorcode                Uint16,
-        errormsg                 UTF8String (SIZE(0..1023)),
-        esn                          UTF8String (SIZE(0..255)),
-        generationTime     Time32,
-        filename                 UTF8String (SIZE(0..255)),
+        errorcode       Uint16,
+        errormsg        UTF8String (SIZE(0..1023)),
+        esn             UTF8String (SIZE(0..255)),
+        generationTime  Time32,
+        filename        UTF8String (SIZE(0..255)),
         ...
     }
 
