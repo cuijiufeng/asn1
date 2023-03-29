@@ -5,14 +5,12 @@ import com.inferiority.asn1.analysis.model.Definition;
 import com.inferiority.asn1.analysis.util.RegexUtil;
 import com.inferiority.asn1.codec.oer.ASN1Integer;
 import com.inferiority.asn1.mapping.model.MappingContext;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 
 import javax.lang.model.element.Modifier;
 import java.math.BigInteger;
-import java.util.Map;
 
 /**
  * @author cuijiufeng
@@ -47,22 +45,14 @@ public class IntegerMapping extends AbstractMapping {
                 .addParameter(int.class, "value")
                 .addStatement("super(new BigInteger(String.valueOf($N)), $N, $N)", "value", rangeMin.build(), rangeMax.build())
                 .build();
-        TypeSpec.Builder integerPoet = TypeSpec.classBuilder(definition.getIdentifier())
+        TypeSpec.Builder integerPoet = getBuilder(context, definition)
                 .addModifiers(Modifier.PUBLIC)
                 .superclass(ASN1Integer.class)
-                .addAnnotation(getGeneratedAnno(definition))
                 .addField(rangeMin.build())
                 .addField(rangeMax.build())
                 .addMethod(constructor1)
                 .addMethod(constructor2);
-        if (definition.getValues() != null) {
-            for (Map.Entry<String, String> entry : definition.getValues()) {
-                FieldSpec fieldSpec = FieldSpec.builder(ClassName.bestGuess(definition.getIdentifier()), entry.getKey(), Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                        .initializer("new $N($L)", integerPoet.build(), entry.getValue())
-                        .build();
-                integerPoet.addField(fieldSpec);
-            }
-        }
+        valuesField(integerPoet, definition, (field, value) -> field.initializer("new $N($L)", integerPoet.build(), value));
         return integerPoet.build();
     }
 }

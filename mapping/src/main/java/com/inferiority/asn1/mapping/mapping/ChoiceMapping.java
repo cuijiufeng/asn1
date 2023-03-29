@@ -38,9 +38,8 @@ public class ChoiceMapping extends AbstractMapping {
             if (!RegexUtil.matches(Operator.ELLIPSIS, subDef.getIdentifier())) {
                 Map.Entry<String, Object[]> returnStatement = JavaPoetUtil.builderReturnStatement(subDef);
                 if (subDef.getSubDefs() != null && !subDef.getSubDefs().isEmpty()) {
-                    //TODO 2023/3/29 16:04
                     AbstractMapping instance = AbstractMapping.getInstance(
-                            new MappingContext(null, null, subDef, context.getEnumPrefix(), context.getEnumSuffix()));
+                            new MappingContext(null, null, subDef, context.getEnumPrefix(), context.getEnumSuffix(), true));
                     subDefAnonymousClasses.add(instance.mappingInternal(context));
                 }
                 TypeSpec typeSpec = TypeSpec.anonymousClassBuilder("")
@@ -76,13 +75,13 @@ public class ChoiceMapping extends AbstractMapping {
                 .addStatement("super($N, $N)", "choice", "value")
                 .build();
 
-        TypeSpec.Builder choicePoet = TypeSpec.classBuilder(definition.getIdentifier())
+        TypeSpec.Builder choicePoet = getBuilder(context, definition)
                 .addModifiers(Modifier.PUBLIC)
                 .superclass(ASN1Choice.class)
-                .addAnnotation(getGeneratedAnno(definition))
                 .addType(enumPoet)
                 .addMethod(constructor1)
                 .addMethod(constructor2);
+        subDefAnonymousClasses.forEach(choicePoet::addType);
         return choicePoet.build();
     }
 }

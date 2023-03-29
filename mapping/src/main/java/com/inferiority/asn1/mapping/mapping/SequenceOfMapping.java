@@ -33,10 +33,9 @@ public class SequenceOfMapping extends AbstractMapping {
                 .addParameter(ArrayTypeName.of(ClassName.bestGuess(primitiveType)), "sequences")
                 .addStatement("super($N)", "sequences")
                 .build();
-        TypeSpec.Builder sequenceOfPoet = TypeSpec.classBuilder(definition.getIdentifier())
+        TypeSpec.Builder sequenceOfPoet = getBuilder(context, definition)
                 .addModifiers(Modifier.PUBLIC)
                 .superclass(ParameterizedTypeName.get(ClassName.get(ASN1SequenceOf.class), ClassName.bestGuess(primitiveType)))
-                .addAnnotation(getGeneratedAnno(definition))
                 .addMethod(constructor1)
                 .addMethod(constructor2);
         return sequenceOfPoet.build();

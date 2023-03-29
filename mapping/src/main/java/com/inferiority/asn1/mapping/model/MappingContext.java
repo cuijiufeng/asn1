@@ -22,8 +22,6 @@ public class MappingContext {
     private boolean anonymousClass = false;
 
     public MappingContext(String outputPath, String packageName, Definition definition, String enumPrefix, String enumSuffix) {
-        Objects.requireNonNull(outputPath, "output path can't be null");
-        Objects.requireNonNull(packageName, "package name can't be null");
         Objects.requireNonNull(definition, "definition can't be null");
         Objects.requireNonNull(enumPrefix, "enum prefix can't be null");
         Objects.requireNonNull(enumSuffix, "enum suffix can't be null");
@@ -37,5 +35,8 @@ public class MappingContext {
     public MappingContext(String outputPath, String packageName, Definition definition, String enumPrefix, String enumSuffix, boolean anonymousClass) {
         this(outputPath, packageName, definition, enumPrefix, enumSuffix);
         this.anonymousClass = anonymousClass;
+        if (anonymousClass) {
+            definition.setIdentifier(definition.getIdentifier() + "Anonymous");
+        }
     }
 }

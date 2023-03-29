@@ -3,13 +3,10 @@ package com.inferiority.asn1.mapping.mapping;
 import com.inferiority.asn1.analysis.model.Definition;
 import com.inferiority.asn1.codec.oer.ASN1Boolean;
 import com.inferiority.asn1.mapping.model.MappingContext;
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 
 import javax.lang.model.element.Modifier;
-import java.util.Map;
 
 /**
  * @author cuijiufeng
@@ -30,20 +27,12 @@ public class BooleanMapping extends AbstractMapping {
                 .addStatement("super($N)", "value")
                 .build();
 
-        TypeSpec.Builder booleanPoet = TypeSpec.classBuilder(definition.getIdentifier())
+        TypeSpec.Builder booleanPoet = getBuilder(context, definition)
                 .addModifiers(Modifier.PUBLIC)
                 .superclass(ASN1Boolean.class)
-                .addAnnotation(getGeneratedAnno(definition))
                 .addMethod(constructor1)
                 .addMethod(constructor2);
-        if (definition.getValues() != null) {
-            for (Map.Entry<String, String> entry : definition.getValues()) {
-                FieldSpec fieldSpec = FieldSpec.builder(ClassName.bestGuess(definition.getIdentifier()), entry.getKey(), Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                        .initializer("new $N($L)", booleanPoet.build(), entry.getValue())
-                        .build();
-                booleanPoet.addField(fieldSpec);
-            }
-        }
+        valuesField(booleanPoet, definition, (field, value) -> field.initializer("new $N($L)", booleanPoet.build(), value));
         return booleanPoet.build();
     }
 }

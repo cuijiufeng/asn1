@@ -60,10 +60,9 @@ public class BitStringMapping extends AbstractMapping {
             }
         }
 
-        TypeSpec.Builder bitStringPoet = TypeSpec.classBuilder(definition.getIdentifier())
+        TypeSpec.Builder bitStringPoet = getBuilder(context, definition)
                 .addModifiers(Modifier.PUBLIC)
                 .superclass(ASN1BitString.class)
-                .addAnnotation(getGeneratedAnno(definition))
                 .addField(sizeField.build())
                 .addMethod(constructor1.build())
                 .addMethod(constructor2.build());

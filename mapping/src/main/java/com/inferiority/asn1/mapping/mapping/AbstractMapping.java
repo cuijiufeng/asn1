@@ -6,11 +6,16 @@ import com.inferiority.asn1.analysis.util.RegexUtil;
 import com.inferiority.asn1.mapping.MappingException;
 import com.inferiority.asn1.mapping.model.MappingContext;
 import com.squareup.javapoet.AnnotationSpec;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
 
 import javax.annotation.Generated;
+import javax.lang.model.element.Modifier;
 import java.io.File;
+import java.util.Map;
+import java.util.function.BiConsumer;
 
 /**
  * @author cuijiufeng
@@ -68,5 +73,23 @@ public abstract class AbstractMapping {
                 .addMember("value", "$S", "by " + this.getClass().getSimpleName() + " generated")
                 .addMember("comments", "$S", "Source: " + definition.getModule().getIdentifier() + " --> " + definition.getIdentifier())
                 .build();
+    }
+
+    protected void valuesField(TypeSpec.Builder builder, Definition definition, BiConsumer<FieldSpec.Builder, String> consumer) {
+        if (definition.getValues() != null) {
+            for (Map.Entry<String, String> entry : definition.getValues()) {
+                FieldSpec.Builder initializer = FieldSpec.builder(ClassName.bestGuess(definition.getIdentifier()), entry.getKey(), Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                        .initializer("new $N($L)", builder.build(), entry.getValue());
+                consumer.accept(initializer, entry.getValue());
+                builder.addField(initializer.build());
+            }
+        }
+    }
+
+    protected TypeSpec.Builder getBuilder(MappingContext context, Definition definition) {
+        return context.isAnonymousClass()
+                ? TypeSpec.anonymousClassBuilder(definition.getIdentifier())
+                : TypeSpec.classBuilder(definition.getIdentifier())
+                    .addAnnotation(getGeneratedAnno(definition));
     }
 }
