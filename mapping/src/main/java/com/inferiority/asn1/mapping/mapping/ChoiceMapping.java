@@ -14,6 +14,8 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
 
 import javax.lang.model.element.Modifier;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -31,9 +33,16 @@ public class ChoiceMapping extends AbstractMapping {
                 .addModifiers(Modifier.PUBLIC)
                 .addSuperinterface(ASN1Choice.ASN1ChoiceEnum.class);
         boolean isExtension = false;
+        List<TypeSpec> subDefAnonymousClasses = new ArrayList<>();
         for (Definition subDef : definition.getSubDefs()) {
             if (!RegexUtil.matches(Operator.ELLIPSIS, subDef.getIdentifier())) {
                 Map.Entry<String, Object[]> returnStatement = JavaPoetUtil.builderReturnStatement(subDef);
+                if (subDef.getSubDefs() != null && !subDef.getSubDefs().isEmpty()) {
+                    //TODO 2023/3/29 16:04
+                    AbstractMapping instance = AbstractMapping.getInstance(
+                            new MappingContext(null, null, subDef, context.getEnumPrefix(), context.getEnumSuffix()));
+                    subDefAnonymousClasses.add(instance.mappingInternal(context));
+                }
                 TypeSpec typeSpec = TypeSpec.anonymousClassBuilder("")
                         .addMethod(MethodSpec.methodBuilder("isExtension")
                                 .addAnnotation(Override.class)
