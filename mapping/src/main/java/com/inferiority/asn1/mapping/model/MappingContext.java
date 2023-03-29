@@ -19,6 +19,7 @@ public class MappingContext {
     private final Definition definition;
     private final String enumPrefix;
     private final String enumSuffix;
+    private boolean anonymousClass = false;
 
     public MappingContext(String outputPath, String packageName, Definition definition, String enumPrefix, String enumSuffix) {
         Objects.requireNonNull(outputPath, "output path can't be null");
@@ -31,5 +32,10 @@ public class MappingContext {
         this.definition = definition;
         this.enumPrefix = enumPrefix;
         this.enumSuffix = enumSuffix;
+    }
+
+    public MappingContext(String outputPath, String packageName, Definition definition, String enumPrefix, String enumSuffix, boolean anonymousClass) {
+        this(outputPath, packageName, definition, enumPrefix, enumSuffix);
+        this.anonymousClass = anonymousClass;
     }
 }
