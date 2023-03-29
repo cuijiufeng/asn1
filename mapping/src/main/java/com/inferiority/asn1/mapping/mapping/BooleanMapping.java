@@ -27,8 +27,9 @@ public class BooleanMapping extends AbstractMapping {
                 .addStatement("super($N)", "value")
                 .build();
 
-        TypeSpec.Builder booleanPoet = getBuilder(context, definition)
-                .addModifiers(Modifier.PUBLIC)
+        TypeSpec.Builder booleanPoet = TypeSpec.classBuilder(definition.getIdentifier())
+                .addAnnotation(getGeneratedAnno(definition))
+                .addModifiers(context.isInnerClass() ? new Modifier[]{Modifier.PUBLIC, Modifier.STATIC} : new Modifier[]{Modifier.PUBLIC})
                 .superclass(ASN1Boolean.class)
                 .addMethod(constructor1)
                 .addMethod(constructor2);

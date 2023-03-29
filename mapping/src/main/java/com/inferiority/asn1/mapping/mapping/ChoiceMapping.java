@@ -33,15 +33,10 @@ public class ChoiceMapping extends AbstractMapping {
                 .addModifiers(Modifier.PUBLIC)
                 .addSuperinterface(ASN1Choice.ASN1ChoiceEnum.class);
         boolean isExtension = false;
-        List<TypeSpec> subDefAnonymousClasses = new ArrayList<>();
+        List<TypeSpec> subDefInnerClasses = new ArrayList<>();
         for (Definition subDef : definition.getSubDefs()) {
             if (!RegexUtil.matches(Operator.ELLIPSIS, subDef.getIdentifier())) {
-                Map.Entry<String, Object[]> returnStatement = JavaPoetUtil.builderReturnStatement(subDef);
-                if (subDef.getSubDefs() != null && !subDef.getSubDefs().isEmpty()) {
-                    AbstractMapping instance = AbstractMapping.getInstance(
-                            new MappingContext(null, null, subDef, context.getEnumPrefix(), context.getEnumSuffix(), true));
-                    subDefAnonymousClasses.add(instance.mappingInternal(context));
-                }
+                Map.Entry<String, Object[]> newStatement = JavaPoetUtil.builderNewStatement(subDef);
                 TypeSpec typeSpec = TypeSpec.anonymousClassBuilder("")
                         .addMethod(MethodSpec.methodBuilder("isExtension")
                                 .addAnnotation(Override.class)
@@ -53,10 +48,12 @@ public class ChoiceMapping extends AbstractMapping {
                                 .addAnnotation(Override.class)
                                 .addModifiers(Modifier.PUBLIC)
                                 .returns(ASN1Object.class)
-                                .addStatement(returnStatement.getKey(), returnStatement.getValue())
+                                .addStatement("return " + newStatement.getKey(), newStatement.getValue())
                                 .build())
                         .build();
-                enumBuilder.addEnumConstant(StringUtil.throughline2Underline(subDef.getIdentifier()), typeSpec);
+                enumBuilder.addEnumConstant(StringUtil.throughline2underline(subDef.getIdentifier()), typeSpec);
+
+                subDefInnerClass(context, subDef, subDefInnerClasses::add);
             } else {
                 isExtension = true;
             }
@@ -75,13 +72,14 @@ public class ChoiceMapping extends AbstractMapping {
                 .addStatement("super($N, $N)", "choice", "value")
                 .build();
 
-        TypeSpec.Builder choicePoet = getBuilder(context, definition)
-                .addModifiers(Modifier.PUBLIC)
+        TypeSpec.Builder choicePoet = TypeSpec.classBuilder(definition.getIdentifier())
+                .addAnnotation(getGeneratedAnno(definition))
+                .addModifiers(context.isInnerClass() ? new Modifier[]{Modifier.PUBLIC, Modifier.STATIC} : new Modifier[]{Modifier.PUBLIC})
                 .superclass(ASN1Choice.class)
                 .addType(enumPoet)
                 .addMethod(constructor1)
                 .addMethod(constructor2);
-        subDefAnonymousClasses.forEach(choicePoet::addType);
+        subDefInnerClasses.forEach(choicePoet::addType);
         return choicePoet.build();
     }
 }

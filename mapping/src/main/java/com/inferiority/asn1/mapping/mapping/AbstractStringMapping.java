@@ -45,8 +45,9 @@ public abstract class AbstractStringMapping extends AbstractMapping {
                 .addStatement("super($N, $N, $N)", "string", rangeMin.build(), rangeMax.build())
                 .build();
 
-        TypeSpec.Builder stringPoet = getBuilder(context, definition)
-                .addModifiers(Modifier.PUBLIC)
+        TypeSpec.Builder stringPoet = TypeSpec.classBuilder(definition.getIdentifier())
+                .addAnnotation(getGeneratedAnno(definition))
+                .addModifiers(context.isInnerClass() ? new Modifier[]{Modifier.PUBLIC, Modifier.STATIC} : new Modifier[]{Modifier.PUBLIC})
                 .superclass(getSuperclass())
                 .addField(rangeMin.build())
                 .addField(rangeMax.build())

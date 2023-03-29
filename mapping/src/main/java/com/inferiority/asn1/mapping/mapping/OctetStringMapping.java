@@ -44,8 +44,9 @@ public class OctetStringMapping extends AbstractMapping {
                 .addStatement("super($N, $N, $N)", "value", rangeMin.build(), rangeMax.build())
                 .build();
 
-        TypeSpec.Builder octetStringPoet = getBuilder(context, definition)
-                .addModifiers(Modifier.PUBLIC)
+        TypeSpec.Builder octetStringPoet = TypeSpec.classBuilder(definition.getIdentifier())
+                .addAnnotation(getGeneratedAnno(definition))
+                .addModifiers(context.isInnerClass() ? new Modifier[]{Modifier.PUBLIC, Modifier.STATIC} : new Modifier[]{Modifier.PUBLIC})
                 .superclass(ASN1OctetString.class)
                 .addField(rangeMin.build())
                 .addField(rangeMax.build())

@@ -2,6 +2,7 @@ package com.inferiority.asn1.mapping.model;
 
 import com.inferiority.asn1.analysis.model.Definition;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 import java.util.Objects;
@@ -11,6 +12,7 @@ import java.util.Objects;
  * @Class MappingContext
  * @Date 2023/3/21 13:44
  */
+@Setter
 @Getter
 @ToString
 public class MappingContext {
@@ -19,7 +21,7 @@ public class MappingContext {
     private final Definition definition;
     private final String enumPrefix;
     private final String enumSuffix;
-    private boolean anonymousClass = false;
+    private boolean innerClass = false;
 
     public MappingContext(String outputPath, String packageName, Definition definition, String enumPrefix, String enumSuffix) {
         Objects.requireNonNull(definition, "definition can't be null");
@@ -32,11 +34,8 @@ public class MappingContext {
         this.enumSuffix = enumSuffix;
     }
 
-    public MappingContext(String outputPath, String packageName, Definition definition, String enumPrefix, String enumSuffix, boolean anonymousClass) {
+    public MappingContext(String outputPath, String packageName, Definition definition, String enumPrefix, String enumSuffix, boolean innerClass) {
         this(outputPath, packageName, definition, enumPrefix, enumSuffix);
-        this.anonymousClass = anonymousClass;
-        if (anonymousClass) {
-            definition.setIdentifier(definition.getIdentifier() + "Anonymous");
-        }
+        this.innerClass = innerClass;
     }
 }

@@ -45,8 +45,9 @@ public class IntegerMapping extends AbstractMapping {
                 .addParameter(int.class, "value")
                 .addStatement("super(new BigInteger(String.valueOf($N)), $N, $N)", "value", rangeMin.build(), rangeMax.build())
                 .build();
-        TypeSpec.Builder integerPoet = getBuilder(context, definition)
-                .addModifiers(Modifier.PUBLIC)
+        TypeSpec.Builder integerPoet = TypeSpec.classBuilder(definition.getIdentifier())
+                .addAnnotation(getGeneratedAnno(definition))
+                .addModifiers(context.isInnerClass() ? new Modifier[]{Modifier.PUBLIC, Modifier.STATIC} : new Modifier[]{Modifier.PUBLIC})
                 .superclass(ASN1Integer.class)
                 .addField(rangeMin.build())
                 .addField(rangeMax.build())

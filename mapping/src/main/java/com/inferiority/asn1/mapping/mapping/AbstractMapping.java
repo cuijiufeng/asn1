@@ -5,6 +5,7 @@ import com.inferiority.asn1.analysis.model.Definition;
 import com.inferiority.asn1.analysis.util.RegexUtil;
 import com.inferiority.asn1.mapping.MappingException;
 import com.inferiority.asn1.mapping.model.MappingContext;
+import com.inferiority.asn1.mapping.utils.StringUtil;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
@@ -16,6 +17,7 @@ import javax.lang.model.element.Modifier;
 import java.io.File;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * @author cuijiufeng
@@ -86,10 +88,12 @@ public abstract class AbstractMapping {
         }
     }
 
-    protected TypeSpec.Builder getBuilder(MappingContext context, Definition definition) {
-        return context.isAnonymousClass()
-                ? TypeSpec.anonymousClassBuilder(definition.getIdentifier())
-                : TypeSpec.classBuilder(definition.getIdentifier())
-                    .addAnnotation(getGeneratedAnno(definition));
+    protected void subDefInnerClass(MappingContext context, Definition definition, Consumer<TypeSpec> consumer) {
+        if (definition.getSubDefs() != null && !definition.getSubDefs().isEmpty()) {
+            MappingContext subContext = new MappingContext(null, null, definition, context.getEnumPrefix(), context.getEnumSuffix(), true);
+            AbstractMapping instance = AbstractMapping.getInstance(subContext);
+            subContext.getDefinition().setIdentifier(StringUtil.throughline2hump(subContext.getDefinition().getIdentifier()));
+            consumer.accept(instance.mappingInternal(subContext));
+        }
     }
 }

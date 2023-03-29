@@ -43,8 +43,9 @@ public class EnumeratedMapping extends AbstractMapping {
                 .addStatement("super($N)", "enumerated")
                 .build();
 
-        TypeSpec.Builder enumeratedPoet = getBuilder(context, definition)
-                .addModifiers(Modifier.PUBLIC)
+        TypeSpec.Builder enumeratedPoet = TypeSpec.classBuilder(definition.getIdentifier())
+                .addAnnotation(getGeneratedAnno(definition))
+                .addModifiers(context.isInnerClass() ? new Modifier[]{Modifier.PUBLIC, Modifier.STATIC} : new Modifier[]{Modifier.PUBLIC})
                 .superclass(ASN1Enumerated.class)
                 .addType(enumPoet)
                 .addMethod(constructor1)
