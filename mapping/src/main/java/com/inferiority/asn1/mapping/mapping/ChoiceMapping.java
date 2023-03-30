@@ -36,7 +36,7 @@ public class ChoiceMapping extends AbstractMapping {
         List<TypeSpec> subDefInnerClasses = new ArrayList<>();
         for (Definition subDef : definition.getSubDefs()) {
             if (!RegexUtil.matches(Operator.ELLIPSIS, subDef.getIdentifier())) {
-                Map.Entry<String, Object[]> newStatement = JavaPoetUtil.builderNewStatement(subDef);
+                Map.Entry<String, Object[]> newStatement = JavaPoetUtil.builderNewStatement(subDef, false);
                 TypeSpec typeSpec = TypeSpec.anonymousClassBuilder("")
                         .addMethod(MethodSpec.methodBuilder("isExtension")
                                 .addAnnotation(Override.class)

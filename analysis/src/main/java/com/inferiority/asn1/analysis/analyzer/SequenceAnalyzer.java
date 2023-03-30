@@ -101,7 +101,7 @@ public class SequenceAnalyzer extends AbstractAnalyzer {
             String primitiveName = AbstractAnalyzer.getPrimitiveType(s);
             Map.Entry<AbstractAnalyzer, List<Definition>> entry = AbstractAnalyzer.getInstance(modules, module, primitiveName);
             Definition definition = entry.getKey().parse(modules, module, primitiveName, entry.getValue(), s, null);
-            definition.setOptional(optional);
+            definition.setOptional(optional == null ? "false" : "true");
             definition.setDefaulted(defaulted);
             subs.add(definition);
         }

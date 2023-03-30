@@ -11,6 +11,7 @@ import com.squareup.javapoet.TypeSpec;
 
 import javax.lang.model.element.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +26,7 @@ public class SequenceMapping extends AbstractMapping {
     protected TypeSpec mappingInternal(MappingContext context) {
         Definition definition = context.getDefinition();
 
-        int extensionIdx = -1;
+        int extensionIdx = Integer.MAX_VALUE;
         List<TypeSpec> subDefInnerClasses = new ArrayList<>();
         for (int i = 0; i < definition.getSubDefs().size(); i++) {
             Definition subDef = definition.getSubDefs().get(i);
@@ -37,16 +38,19 @@ public class SequenceMapping extends AbstractMapping {
         }
 
         MethodSpec.Builder constructor1 = MethodSpec.constructorBuilder()
-                .addStatement("super($L)", extensionIdx != -1);
+                .addStatement("super($L)", extensionIdx != Integer.MAX_VALUE);
         MethodSpec.Builder constructor2 = MethodSpec.constructorBuilder()
-                .addStatement("super($L)", extensionIdx != -1);
+                .addStatement("super($L)", extensionIdx != Integer.MAX_VALUE);
 
         for (int i = 0; i < definition.getSubDefs().size(); i++) {
             Definition subDef = definition.getSubDefs().get(i);
-            Map.Entry<String, Object[]> newStatement = JavaPoetUtil.builderNewStatement(subDef);
-            Object[] args = new Object[newStatement.getValue().length + 5];
-            {subDef.getIdentifier(), i, i > extensionIdx, subDef.getOptional(), , };
-            constructor1.addStatement("setElement($L, $L, $L, $L, " + newStatement.getKey() + ", $L)", args);
+            Map.Entry<String, Object[]> newValue = JavaPoetUtil.builderNewStatement(subDef, false);
+            Map.Entry<String, Object[]> newDefault = JavaPoetUtil.builderNewStatement(subDef, true);
+            Object[] valueArgs = {subDef.getIdentifier(), i, i > extensionIdx, subDef.getOptional()};
+            Object[] args = Arrays.copyOf(valueArgs, valueArgs.length + newValue.getValue().length + newDefault.getValue().length);
+            System.arraycopy(newValue.getValue(), 0, args, valueArgs.length, newValue.getValue().length);
+            System.arraycopy(newDefault.getValue(), 0, args, valueArgs.length + newValue.getValue().length, newDefault.getValue().length);
+            constructor1.addStatement("setElement($S, $L, $L, $L, " + newValue.getKey() + ", " + newDefault.getKey() + ")", args);
         }
 
         TypeSpec.Builder sequencePoet = TypeSpec.classBuilder(definition.getIdentifier())

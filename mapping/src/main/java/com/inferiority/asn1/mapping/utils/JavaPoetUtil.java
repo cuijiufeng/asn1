@@ -21,15 +21,24 @@ import java.util.Map;
  */
 public class JavaPoetUtil {
 
-    public static Map.Entry<String, Object[]> builderNewStatement(Definition definition) {
+    public static Map.Entry<String, Object[]> builderNewStatement(Definition definition, boolean withDefault) {
         if (Reserved.NULL.equals(definition.getPrimitiveType())) {
             return new AbstractMap.SimpleEntry<>("new $T()",
                     new Object[]{ClassName.get(ASN1Null.class)});
         } else if (Reserved.BOOLEAN.equals(definition.getPrimitiveType())) {
+            if (withDefault && definition.getDefaulted() != null) {
+                return new AbstractMap.SimpleEntry<>("new $T($L)",
+                        new Object[]{ClassName.get(ASN1Boolean.class), definition.getDefaulted()});
+            }
             return new AbstractMap.SimpleEntry<>("new $T()",
                     new Object[]{ClassName.get(ASN1Boolean.class)});
         } else if (Reserved.INTEGER.equals(definition.getPrimitiveType())) {
-            return new AbstractMap.SimpleEntry<>("new $T(new BigInteger($S), new BigInteger($S))",
+            if (withDefault && definition.getDefaulted() != null) {
+                return new AbstractMap.SimpleEntry<>(
+                        "new $T(" + newBigInteger(definition.getDefaulted()) + ", " + newBigInteger(definition.getRangeMin()) + ", " + newBigInteger(definition.getRangeMax()) + ")",
+                        new Object[]{ClassName.get(ASN1Integer.class), definition.getDefaulted(), definition.getRangeMin(), definition.getRangeMax()});
+            }
+            return new AbstractMap.SimpleEntry<>("new $T(" + newBigInteger(definition.getRangeMin()) + ", " + newBigInteger(definition.getRangeMax()) + ")",
                     new Object[]{ClassName.get(ASN1Integer.class), definition.getRangeMin(), definition.getRangeMax()});
         } else if (Reserved.ENUMERATED.equals(definition.getPrimitiveType())) {
             throw new IllegalArgumentException("unsupported type");
@@ -61,5 +70,12 @@ public class JavaPoetUtil {
         }
         return new AbstractMap.SimpleEntry<>("new $T()",
                 new Object[]{ClassName.bestGuess(definition.getPrimitiveType())});
+    }
+
+    private static String newBigInteger(String val) {
+        if(val != null) {
+            return "new BigInteger($S)";
+        }
+        return "$L";
     }
 }

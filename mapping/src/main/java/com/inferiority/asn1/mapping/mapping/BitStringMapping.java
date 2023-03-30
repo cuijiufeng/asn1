@@ -33,6 +33,9 @@ public class BitStringMapping extends AbstractMapping {
 
         String bitLabels = "null";
         if (definition.getSubDefs() != null && !definition.getSubDefs().isEmpty()) {
+            //TODO 2023/3/30 18:03
+            MethodSpec.Builder constructor3 = MethodSpec.constructorBuilder()
+                    .addStatement("super(new byte[$L], $L, $L)", definition.getSubDefs().size(), "true", bitLabels);
             bitLabels = definition.getSubDefs()
                     .stream()
                     .sorted((d1, d2) -> Objects.compare(d1.getSubBodyText(), d2.getSubBodyText(), String.CASE_INSENSITIVE_ORDER))
