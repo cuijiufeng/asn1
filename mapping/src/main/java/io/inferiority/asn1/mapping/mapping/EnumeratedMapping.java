@@ -32,9 +32,11 @@ public class EnumeratedMapping extends AbstractMapping {
         TypeSpec enumPoet = enumBuilder.build();
 
         MethodSpec constructor1 = MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.PUBLIC)
                 .addStatement("super($T.class)", ClassName.bestGuess(context.getEnumPrefix() + definition.getIdentifier() + context.getEnumSuffix()))
                 .build();
         MethodSpec constructor2 = MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.PUBLIC)
                 .addParameter(ClassName.bestGuess(context.getEnumPrefix() + definition.getIdentifier() + context.getEnumSuffix()), "enumerated")
                 .addStatement("super($N)", "enumerated")
                 .build();

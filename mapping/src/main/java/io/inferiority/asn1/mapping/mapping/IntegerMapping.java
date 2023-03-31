@@ -39,10 +39,12 @@ public class IntegerMapping extends AbstractMapping {
         }
 
         MethodSpec constructor1 = MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.PUBLIC)
                 .addStatement("super($N, $N)", rangeMin.build(), rangeMax.build())
                 .build();
         MethodSpec constructor2 = MethodSpec.constructorBuilder()
-                .addParameter(int.class, "value")
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(long.class, "value")
                 .addStatement("super($T.valueOf($N), $N, $N)", BigInteger.class, "value", rangeMin.build(), rangeMax.build())
                 .build();
         TypeSpec.Builder integerPoet = TypeSpec.classBuilder(definition.getIdentifier())

@@ -26,10 +26,12 @@ public class SequenceOfMapping extends AbstractMapping {
         String primitiveType = split[split.length - 1];
 
         MethodSpec constructor1 = MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.PUBLIC)
                 .addParameter(ParameterizedTypeName.get(ClassName.get(Supplier.class), ClassName.bestGuess(primitiveType)), "instance")
                 .addStatement("super($N)", "instance")
                 .build();
         MethodSpec constructor2 = MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.PUBLIC)
                 .addParameter(ArrayTypeName.of(ClassName.bestGuess(primitiveType)), "sequences")
                 .addStatement("super($N)", "sequences")
                 .build();

@@ -28,9 +28,12 @@ public class BitStringMapping extends AbstractMapping {
 
         FieldSpec.Builder sizeField = FieldSpec.builder(Integer.class, "SIZE", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL);
 
-        MethodSpec.Builder constructor1 = MethodSpec.constructorBuilder();
-        MethodSpec.Builder constructor2 = MethodSpec.constructorBuilder();
-        MethodSpec.Builder constructor3 = MethodSpec.constructorBuilder();
+        MethodSpec.Builder constructor1 = MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.PUBLIC);
+        MethodSpec.Builder constructor2 = MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.PUBLIC);
+        MethodSpec.Builder constructor3 = MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.PUBLIC);
 
         String bitLabels = "null";
         if (definition.getSubDefs() != null && !definition.getSubDefs().isEmpty()) {

@@ -37,9 +37,11 @@ public class OctetStringMapping extends AbstractMapping {
         }
 
         MethodSpec constructor1 = MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.PUBLIC)
                 .addStatement("super($N, $N)", rangeMin.build(), rangeMax.build())
                 .build();
         MethodSpec constructor2 = MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.PUBLIC)
                 .addParameter(byte[].class, "value")
                 .addStatement("super($N, $N, $N)", "value", rangeMin.build(), rangeMax.build())
                 .build();

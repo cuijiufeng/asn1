@@ -51,7 +51,10 @@ public abstract class AbstractMapping {
         } else if (RegexUtil.matches(Reserved.SEQUENCE + "\\s*" + Reserved.OF, definition.getPrimitiveType())) {
             return SequenceOfMapping.MAPPING;
         }
-        return null;
+        if (definition.getDependencies() == null || definition.getDependencies().isEmpty()) {
+            throw new IllegalArgumentException("unsupported type");
+        }
+        return getInstance(context.copy(definition.getDependencies().get(0)));
     }
 
     public void mapping(MappingContext context) {
@@ -64,7 +67,7 @@ public abstract class AbstractMapping {
             //输出文件
             javaFile.writeTo(new File(context.getOutputPath()));
         } catch (Exception e) {
-            throw new MappingException("mapping to class error -> " + e.getMessage() + "\n" + context.getDefinition(), e);
+            throw new MappingException("mapping to class error -> " + e.getMessage(), e);
         }
     }
 

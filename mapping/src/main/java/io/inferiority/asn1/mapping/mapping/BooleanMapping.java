@@ -20,9 +20,11 @@ public class BooleanMapping extends AbstractMapping {
         Definition definition = context.getDefinition();
 
         MethodSpec constructor1 = MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.PUBLIC)
                 .addStatement("super()")
                 .build();
         MethodSpec constructor2 = MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.PUBLIC)
                 .addParameter(boolean.class, "value")
                 .addStatement("super($N)", "value")
                 .build();

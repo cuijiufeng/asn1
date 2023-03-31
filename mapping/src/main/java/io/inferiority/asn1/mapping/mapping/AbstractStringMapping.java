@@ -38,9 +38,11 @@ public abstract class AbstractStringMapping extends AbstractMapping {
         }
 
         MethodSpec constructor1 = MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.PUBLIC)
                 .addStatement("super($N, $N)", rangeMin.build(), rangeMax.build())
                 .build();
         MethodSpec constructor2 = MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.PUBLIC)
                 .addParameter(String.class, "string")
                 .addStatement("super($N, $N, $N)", "string", rangeMin.build(), rangeMax.build())
                 .build();

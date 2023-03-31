@@ -38,4 +38,8 @@ public class MappingContext {
         this(outputPath, packageName, definition, enumPrefix, enumSuffix);
         this.innerClass = innerClass;
     }
+
+    public MappingContext copy(Definition definition) {
+        return new MappingContext(outputPath, packageName, definition, enumPrefix, enumSuffix, innerClass);
+    }
 }

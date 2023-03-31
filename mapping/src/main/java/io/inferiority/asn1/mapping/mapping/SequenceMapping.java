@@ -39,17 +39,23 @@ public class SequenceMapping extends AbstractMapping {
         }
 
         MethodSpec.Builder constructor1 = MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.PUBLIC)
                 .addStatement("super($L)", extensionIdx != Integer.MAX_VALUE);
         MethodSpec.Builder constructor2 = MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.PUBLIC)
                 .addStatement("super($L)", extensionIdx != Integer.MAX_VALUE);
 
         for (int i = 0; i < definition.getSubDefs().size(); i++) {
             Definition subDef = definition.getSubDefs().get(i);
+            if (RegexUtil.matches(Operator.ELLIPSIS, subDef.getIdentifier())) {
+                continue;
+            }
             String subIdentifier = StringUtil.throughline2hump(subDef.getIdentifier(), false);
             Map.Entry<String, Object[]> newValue1 = JavaPoetUtil.builderNewStatement(context, subDef, null, false);
             Map.Entry<String, Object[]> newDefault = JavaPoetUtil.builderNewStatement(context, subDef, null, true);
             Object[] args = {subDef.getIdentifier(), i, i > extensionIdx, subDef.getOptional()};
-            constructor1.addStatement("setElement($S, $L, $L, $L, " + newValue1.getKey() + ", " + newDefault.getKey() + ")",
+            constructor1.addModifiers(Modifier.PUBLIC)
+                    .addStatement("setElement($S, $L, $L, $L, " + newValue1.getKey() + ", " + newDefault.getKey() + ")",
                     ArrayUtil.concat(args, newValue1.getValue(), newDefault.getValue()));
             Map.Entry<String, Object[]> newValue2 = JavaPoetUtil.builderNewStatement(context, subDef, subIdentifier, false);
             constructor2.addParameter(JavaPoetUtil.javaTypeName(context, subDef), subIdentifier)
