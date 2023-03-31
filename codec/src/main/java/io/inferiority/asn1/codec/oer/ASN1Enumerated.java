@@ -3,6 +3,7 @@ package io.inferiority.asn1.codec.oer;
 import io.inferiority.asn1.codec.ASN1InputStream;
 import io.inferiority.asn1.codec.ASN1OutputStream;
 import io.inferiority.asn1.codec.Codeable;
+import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
 import java.io.EOFException;
 import java.util.Objects;
@@ -15,6 +16,16 @@ import java.util.Objects;
 public class ASN1Enumerated<T extends Enum<T>> extends ASN1Object {
     private T enumerated;
     private final Class<T> enumClass;
+
+    @SuppressWarnings("unchecked")
+    public ASN1Enumerated() {
+        try {
+            this.enumClass = (Class<T>) ((ParameterizedTypeImpl) this.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+            Objects.requireNonNull(enumClass, "enum class cannot be null");
+        } catch (Exception e) {
+            throw new UnsupportedOperationException("please call ASN1Enumerated(Class<T> enumClass) method");
+        }
+    }
 
     public ASN1Enumerated(Class<T> enumClass) {
         Objects.requireNonNull(enumClass, "enum class cannot be null");

@@ -4,6 +4,7 @@ import io.inferiority.asn1.codec.ASN1InputStream;
 import io.inferiority.asn1.codec.ASN1OutputStream;
 import io.inferiority.asn1.codec.Codeable;
 import io.inferiority.asn1.codec.CodecException;
+import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -17,6 +18,16 @@ public class ASN1Choice<T extends Enum<T> & ASN1Choice.ASN1ChoiceEnum> extends A
     private final Class<T> choiceClass;
     private T choice;
     private ASN1Object value;
+
+    @SuppressWarnings("unchecked")
+    public ASN1Choice() {
+        try {
+            this.choiceClass = (Class<T>) ((ParameterizedTypeImpl) this.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+            Objects.requireNonNull(choiceClass, "enum class cannot be null");
+        } catch (Exception e) {
+            throw new UnsupportedOperationException("please call ASN1Enumerated(Class<T> enumClass) method");
+        }
+    }
 
     public ASN1Choice(Class<T> choiceClass) {
         Objects.requireNonNull(choiceClass, "choice class cannot be null");
