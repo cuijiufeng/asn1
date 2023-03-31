@@ -44,9 +44,9 @@ public abstract class AbstractMapping {
             return SequenceMapping.MAPPING;
         } else if (Reserved.CHOICE.equals(definition.getPrimitiveType())) {
             return ChoiceMapping.MAPPING;
-        } else if (definition.getPrimitiveType().equals(Reserved.BIT + " " + Reserved.STRING)) {
+        } else if (RegexUtil.matches(Reserved.BIT + "\\s+" + Reserved.STRING, definition.getPrimitiveType())) {
             return BitStringMapping.MAPPING;
-        } else if (definition.getPrimitiveType().equals(Reserved.OCTET + " " + Reserved.STRING)) {
+        } else if (RegexUtil.matches(Reserved.OCTET + "\\s+" + Reserved.STRING, definition.getPrimitiveType())) {
             return OctetStringMapping.MAPPING;
         } else if (RegexUtil.matches(Reserved.SEQUENCE + "\\s*" + Reserved.OF, definition.getPrimitiveType())) {
             return SequenceOfMapping.MAPPING;

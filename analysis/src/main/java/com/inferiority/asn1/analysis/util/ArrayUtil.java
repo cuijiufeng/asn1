@@ -1,5 +1,7 @@
 package com.inferiority.asn1.analysis.util;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -17,5 +19,17 @@ public class ArrayUtil {
             }
         }
         return false;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T[] concat(T[] ... array) {
+        int idx = 0;
+        int size = Arrays.stream(array).mapToInt(arr -> arr.length).sum();
+        T[] arr = (T[]) Array.newInstance(Object.class, size);
+        for (T[] ts : array) {
+            System.arraycopy(ts, 0, arr, idx, ts.length);
+            idx += ts.length;
+        }
+        return arr;
     }
 }

@@ -2,6 +2,7 @@ package com.inferiority.asn1.mapping.mapping;
 
 import com.inferiority.asn1.analysis.common.Operator;
 import com.inferiority.asn1.analysis.model.Definition;
+import com.inferiority.asn1.analysis.util.ArrayUtil;
 import com.inferiority.asn1.analysis.util.RegexUtil;
 import com.inferiority.asn1.codec.oer.ASN1Sequence;
 import com.inferiority.asn1.mapping.model.MappingContext;
@@ -11,7 +12,6 @@ import com.squareup.javapoet.TypeSpec;
 
 import javax.lang.model.element.Modifier;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -40,17 +40,17 @@ public class SequenceMapping extends AbstractMapping {
         MethodSpec.Builder constructor1 = MethodSpec.constructorBuilder()
                 .addStatement("super($L)", extensionIdx != Integer.MAX_VALUE);
         MethodSpec.Builder constructor2 = MethodSpec.constructorBuilder()
-                .addStatement("super($L)", extensionIdx != Integer.MAX_VALUE);
+                .addStatement("super($L)");
 
         for (int i = 0; i < definition.getSubDefs().size(); i++) {
             Definition subDef = definition.getSubDefs().get(i);
             Map.Entry<String, Object[]> newValue = JavaPoetUtil.builderNewStatement(subDef, false);
             Map.Entry<String, Object[]> newDefault = JavaPoetUtil.builderNewStatement(subDef, true);
-            Object[] valueArgs = {subDef.getIdentifier(), i, i > extensionIdx, subDef.getOptional()};
-            Object[] args = Arrays.copyOf(valueArgs, valueArgs.length + newValue.getValue().length + newDefault.getValue().length);
-            System.arraycopy(newValue.getValue(), 0, args, valueArgs.length, newValue.getValue().length);
-            System.arraycopy(newDefault.getValue(), 0, args, valueArgs.length + newValue.getValue().length, newDefault.getValue().length);
-            constructor1.addStatement("setElement($S, $L, $L, $L, " + newValue.getKey() + ", " + newDefault.getKey() + ")", args);
+            Object[] args = {subDef.getIdentifier(), i, i > extensionIdx, subDef.getOptional()};
+            constructor1.addStatement("setElement($S, $L, $L, $L, " + newValue.getKey() + ", " + newDefault.getKey() + ")",
+                    ArrayUtil.concat(args, newValue.getValue(), newDefault.getValue()));
+            constructor2.addParameter(JavaPoetUtil.primitiveTypeName(subDef), subDef.getIdentifier())
+                    .addStatement();
         }
 
         TypeSpec.Builder sequencePoet = TypeSpec.classBuilder(definition.getIdentifier())

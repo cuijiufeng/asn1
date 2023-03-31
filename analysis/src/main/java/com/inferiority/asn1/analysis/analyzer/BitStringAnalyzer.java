@@ -60,7 +60,12 @@ public class BitStringAnalyzer extends AbstractAnalyzer {
                             .replaceAll(Operator.CLOSING_BRACE, "")
                             .split(Operator.COMMA))
                     .map(String::trim)
-                    .map(str -> new Definition(str.split("\\s+", 2)[0], str.split("\\s+", 2)[1]))
+                    .map(str -> new Definition(
+                            str.split("\\s+", 2)[0],
+                            str.split("\\s+", 2)[1]
+                                    .replaceAll(Operator.LEFT_BRACKET, "")
+                                    .replaceAll(Operator.RIGHT_BRACKET, "")
+                                    .trim()))
                     .collect(Collectors.toList());
             definition.setSubDefs(entries);
             return group;

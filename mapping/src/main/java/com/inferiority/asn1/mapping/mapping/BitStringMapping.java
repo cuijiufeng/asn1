@@ -30,12 +30,10 @@ public class BitStringMapping extends AbstractMapping {
 
         MethodSpec.Builder constructor1 = MethodSpec.constructorBuilder();
         MethodSpec.Builder constructor2 = MethodSpec.constructorBuilder();
+        MethodSpec.Builder constructor3 = MethodSpec.constructorBuilder();
 
         String bitLabels = "null";
         if (definition.getSubDefs() != null && !definition.getSubDefs().isEmpty()) {
-            //TODO 2023/3/30 18:03
-            MethodSpec.Builder constructor3 = MethodSpec.constructorBuilder()
-                    .addStatement("super(new byte[$L], $L, $L)", definition.getSubDefs().size(), "true", bitLabels);
             bitLabels = definition.getSubDefs()
                     .stream()
                     .sorted((d1, d2) -> Objects.compare(d1.getSubBodyText(), d2.getSubBodyText(), String.CASE_INSENSITIVE_ORDER))
@@ -61,6 +59,14 @@ public class BitStringMapping extends AbstractMapping {
                 constructor2.addParameter(byte.class, "bits")
                         .addStatement("super(new byte[]{$N}, $L, $L)", "bits", "true", bitLabels);
             }
+
+            if (definition.getSubDefs() != null && !definition.getSubDefs().isEmpty()) {
+                constructor3.addStatement("super(new byte[$L], $L, $L)", size, "true", bitLabels);
+                for (Definition subDef : definition.getSubDefs()) {
+                    constructor3.addParameter(boolean.class, subDef.getIdentifier())
+                            .addStatement("setBit($L, $L)", subDef.getBodyText(), subDef.getIdentifier());
+                }
+            }
         }
 
         TypeSpec.Builder bitStringPoet = TypeSpec.classBuilder(definition.getIdentifier())
@@ -70,6 +76,9 @@ public class BitStringMapping extends AbstractMapping {
                 .addField(sizeField.build())
                 .addMethod(constructor1.build())
                 .addMethod(constructor2.build());
+        if (definition.getSubDefs() != null && !definition.getSubDefs().isEmpty()) {
+            bitStringPoet.addMethod(constructor3.build());
+        }
         return bitStringPoet.build();
     }
 }
