@@ -2,8 +2,8 @@ package io.inferiority.asn1.mapping.mapping;
 
 import com.squareup.javapoet.TypeSpec;
 import io.inferiority.asn1.analysis.model.Definition;
-import io.inferiority.asn1.codec.oer.ASN1Null;
 import io.inferiority.asn1.mapping.model.MappingContext;
+import io.inferiority.asn1.mapping.utils.JavaPoetUtil;
 
 import javax.lang.model.element.Modifier;
 
@@ -21,7 +21,7 @@ public class NullMapping extends AbstractMapping {
         TypeSpec.Builder nullPoet = TypeSpec.classBuilder(definition.getIdentifier())
                 .addAnnotation(getGeneratedAnno(definition))
                 .addModifiers(context.isInnerClass() ? new Modifier[]{Modifier.PUBLIC, Modifier.STATIC} : new Modifier[]{Modifier.PUBLIC})
-                .superclass(ASN1Null.class);
+                .superclass(JavaPoetUtil.primitiveTypeName(definition));
         valuesField(nullPoet, definition, (field, value) -> field.initializer("new $N($L)", nullPoet.build(), value));
         return nullPoet.build();
     }

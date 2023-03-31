@@ -1,7 +1,8 @@
 package io.inferiority.asn1.mapping.mapping;
 
-import io.inferiority.asn1.codec.oer.ASN1Object;
-import io.inferiority.asn1.codec.oer.ASN1UTF8String;
+import com.squareup.javapoet.TypeName;
+import io.inferiority.asn1.analysis.model.Definition;
+import io.inferiority.asn1.mapping.utils.JavaPoetUtil;
 
 /**
  * @author cuijiufeng
@@ -11,7 +12,7 @@ public class UTF8StringMapping extends AbstractStringMapping {
     public static final UTF8StringMapping MAPPING = new UTF8StringMapping();
 
     @Override
-    public Class<? extends ASN1Object> getSuperclass() {
-        return ASN1UTF8String.class;
+    public TypeName getSuperclass(Definition definition) {
+        return JavaPoetUtil.primitiveTypeName(definition);
     }
 }

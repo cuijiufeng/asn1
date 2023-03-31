@@ -35,30 +35,33 @@ public class ChoiceMapping extends AbstractMapping {
                 .addSuperinterface(ASN1Choice.ASN1ChoiceEnum.class);
         boolean isExtension = false;
         List<TypeSpec> subDefInnerClasses = new ArrayList<>();
-        for (Definition subDef : definition.getSubDefs()) {
-            if (!RegexUtil.matches(Operator.ELLIPSIS, subDef.getIdentifier())) {
-                TypeName innerTypeName = subDefInnerClass(context, subDef, subDefInnerClasses::add);
 
-                Map.Entry<String, Object[]> newStatement = innerTypeName == null
-                        ? JavaPoetUtil.builderNewStatement(context, subDef, null, false)
-                        : new AbstractMap.SimpleEntry<>("new $T()", new Object[]{innerTypeName});
-                TypeSpec typeSpec = TypeSpec.anonymousClassBuilder("")
-                        .addMethod(MethodSpec.methodBuilder("isExtension")
-                                .addAnnotation(Override.class)
-                                .addModifiers(Modifier.PUBLIC)
-                                .returns(boolean.class)
-                                .addStatement("return $L", isExtension)
-                                .build())
-                        .addMethod(MethodSpec.methodBuilder("getInstance")
-                                .addAnnotation(Override.class)
-                                .addModifiers(Modifier.PUBLIC)
-                                .returns(ASN1Object.class)
-                                .addStatement("return " + newStatement.getKey(), newStatement.getValue())
-                                .build())
-                        .build();
-                enumBuilder.addEnumConstant(StringUtil.throughline2underline(subDef.getIdentifier()), typeSpec);
-            } else {
-                isExtension = true;
+        if (definition.getSubDefs() != null && !definition.getSubDefs().isEmpty()) {
+            for (Definition subDef : definition.getSubDefs()) {
+                if (!RegexUtil.matches(Operator.ELLIPSIS, subDef.getIdentifier())) {
+                    TypeName innerTypeName = subDefInnerClass(context, subDef, subDefInnerClasses::add);
+
+                    Map.Entry<String, Object[]> newStatement = innerTypeName == null
+                            ? JavaPoetUtil.builderNewStatement(context, subDef, null, false)
+                            : new AbstractMap.SimpleEntry<>("new $T()", new Object[]{innerTypeName});
+                    TypeSpec typeSpec = TypeSpec.anonymousClassBuilder("")
+                            .addMethod(MethodSpec.methodBuilder("isExtension")
+                                    .addAnnotation(Override.class)
+                                    .addModifiers(Modifier.PUBLIC)
+                                    .returns(boolean.class)
+                                    .addStatement("return $L", isExtension)
+                                    .build())
+                            .addMethod(MethodSpec.methodBuilder("getInstance")
+                                    .addAnnotation(Override.class)
+                                    .addModifiers(Modifier.PUBLIC)
+                                    .returns(ASN1Object.class)
+                                    .addStatement("return " + newStatement.getKey(), newStatement.getValue())
+                                    .build())
+                            .build();
+                    enumBuilder.addEnumConstant(StringUtil.throughline2underline(subDef.getIdentifier()), typeSpec);
+                } else {
+                    isExtension = true;
+                }
             }
         }
         TypeSpec enumPoet = enumBuilder.build();
@@ -77,7 +80,7 @@ public class ChoiceMapping extends AbstractMapping {
         TypeSpec.Builder choicePoet = TypeSpec.classBuilder(context.isInnerClass() ? StringUtil.throughline2hump(definition.getIdentifier(), true) : definition.getIdentifier())
                 .addAnnotation(getGeneratedAnno(definition))
                 .addModifiers(context.isInnerClass() ? new Modifier[]{Modifier.PUBLIC, Modifier.STATIC} : new Modifier[]{Modifier.PUBLIC})
-                .superclass(ASN1Choice.class)
+                .superclass(JavaPoetUtil.primitiveTypeName(definition))
                 .addType(enumPoet)
                 .addMethod(constructor1)
                 .addMethod(constructor2);

@@ -2,11 +2,11 @@ package io.inferiority.asn1.mapping.mapping;
 
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import io.inferiority.asn1.analysis.analyzer.AbstractAnalyzer;
 import io.inferiority.asn1.analysis.model.Definition;
 import io.inferiority.asn1.analysis.util.RegexUtil;
-import io.inferiority.asn1.codec.oer.ASN1Object;
 import io.inferiority.asn1.mapping.model.MappingContext;
 
 import javax.lang.model.element.Modifier;
@@ -17,7 +17,7 @@ import javax.lang.model.element.Modifier;
  */
 public abstract class AbstractStringMapping extends AbstractMapping {
 
-    public abstract Class<? extends ASN1Object> getSuperclass();
+    public abstract TypeName getSuperclass(Definition definition);
 
     @Override
     public TypeSpec mappingInternal(MappingContext context) {
@@ -50,7 +50,7 @@ public abstract class AbstractStringMapping extends AbstractMapping {
         TypeSpec.Builder stringPoet = TypeSpec.classBuilder(definition.getIdentifier())
                 .addAnnotation(getGeneratedAnno(definition))
                 .addModifiers(context.isInnerClass() ? new Modifier[]{Modifier.PUBLIC, Modifier.STATIC} : new Modifier[]{Modifier.PUBLIC})
-                .superclass(getSuperclass())
+                .superclass(getSuperclass(definition))
                 .addField(rangeMin.build())
                 .addField(rangeMax.build())
                 .addMethod(constructor1)

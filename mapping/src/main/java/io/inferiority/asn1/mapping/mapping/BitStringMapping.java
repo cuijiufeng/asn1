@@ -6,8 +6,8 @@ import com.squareup.javapoet.TypeSpec;
 import io.inferiority.asn1.analysis.analyzer.AbstractAnalyzer;
 import io.inferiority.asn1.analysis.model.Definition;
 import io.inferiority.asn1.analysis.util.RegexUtil;
-import io.inferiority.asn1.codec.oer.ASN1BitString;
 import io.inferiority.asn1.mapping.model.MappingContext;
+import io.inferiority.asn1.mapping.utils.JavaPoetUtil;
 
 import javax.lang.model.element.Modifier;
 import java.util.Objects;
@@ -75,7 +75,7 @@ public class BitStringMapping extends AbstractMapping {
         TypeSpec.Builder bitStringPoet = TypeSpec.classBuilder(definition.getIdentifier())
                 .addAnnotation(getGeneratedAnno(definition))
                 .addModifiers(context.isInnerClass() ? new Modifier[]{Modifier.PUBLIC, Modifier.STATIC} : new Modifier[]{Modifier.PUBLIC})
-                .superclass(ASN1BitString.class)
+                .superclass(JavaPoetUtil.primitiveTypeName(definition))
                 .addField(sizeField.build())
                 .addMethod(constructor1.build())
                 .addMethod(constructor2.build());

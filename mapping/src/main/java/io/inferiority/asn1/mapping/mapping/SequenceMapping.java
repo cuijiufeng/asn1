@@ -6,7 +6,6 @@ import io.inferiority.asn1.analysis.common.Operator;
 import io.inferiority.asn1.analysis.model.Definition;
 import io.inferiority.asn1.analysis.util.ArrayUtil;
 import io.inferiority.asn1.analysis.util.RegexUtil;
-import io.inferiority.asn1.codec.oer.ASN1Sequence;
 import io.inferiority.asn1.mapping.model.MappingContext;
 import io.inferiority.asn1.mapping.utils.JavaPoetUtil;
 import io.inferiority.asn1.mapping.utils.StringUtil;
@@ -29,12 +28,14 @@ public class SequenceMapping extends AbstractMapping {
 
         int extensionIdx = Integer.MAX_VALUE;
         List<TypeSpec> subDefInnerClasses = new ArrayList<>();
-        for (int i = 0; i < definition.getSubDefs().size(); i++) {
-            Definition subDef = definition.getSubDefs().get(i);
-            if (!RegexUtil.matches(Operator.ELLIPSIS, subDef.getIdentifier())) {
-                subDefInnerClass(context, subDef, subDefInnerClasses::add);
-            } else {
-                extensionIdx = i;
+        if (definition.getSubDefs() != null && !definition.getSubDefs().isEmpty()) {
+            for (int i = 0; i < definition.getSubDefs().size(); i++) {
+                Definition subDef = definition.getSubDefs().get(i);
+                if (!RegexUtil.matches(Operator.ELLIPSIS, subDef.getIdentifier())) {
+                    subDefInnerClass(context, subDef, subDefInnerClasses::add);
+                } else {
+                    extensionIdx = i;
+                }
             }
         }
 
@@ -45,28 +46,30 @@ public class SequenceMapping extends AbstractMapping {
                 .addModifiers(Modifier.PUBLIC)
                 .addStatement("super($L)", extensionIdx != Integer.MAX_VALUE);
 
-        for (int i = 0; i < definition.getSubDefs().size(); i++) {
-            Definition subDef = definition.getSubDefs().get(i);
-            if (RegexUtil.matches(Operator.ELLIPSIS, subDef.getIdentifier())) {
-                continue;
+        if (definition.getSubDefs() != null && !definition.getSubDefs().isEmpty()) {
+            for (int i = 0; i < definition.getSubDefs().size(); i++) {
+                Definition subDef = definition.getSubDefs().get(i);
+                if (RegexUtil.matches(Operator.ELLIPSIS, subDef.getIdentifier())) {
+                    continue;
+                }
+                String subIdentifier = StringUtil.throughline2hump(subDef.getIdentifier(), false);
+                Map.Entry<String, Object[]> newValue1 = JavaPoetUtil.builderNewStatement(context, subDef, null, false);
+                Map.Entry<String, Object[]> newDefault = JavaPoetUtil.builderNewStatement(context, subDef, null, true);
+                Object[] args = {subDef.getIdentifier(), i, i > extensionIdx, subDef.getOptional()};
+                constructor1.addModifiers(Modifier.PUBLIC)
+                        .addStatement("setElement($S, $L, $L, $L, " + newValue1.getKey() + ", " + newDefault.getKey() + ")",
+                                ArrayUtil.concat(args, newValue1.getValue(), newDefault.getValue()));
+                Map.Entry<String, Object[]> newValue2 = JavaPoetUtil.builderNewStatement(context, subDef, subIdentifier, false);
+                constructor2.addParameter(JavaPoetUtil.javaTypeName(context, subDef), subIdentifier)
+                        .addStatement("setElement($S, $L, $L, $L, " + newValue2.getKey() + ", " + newDefault.getKey() + ")",
+                                ArrayUtil.concat(args, newValue2.getValue(), newDefault.getValue()));
             }
-            String subIdentifier = StringUtil.throughline2hump(subDef.getIdentifier(), false);
-            Map.Entry<String, Object[]> newValue1 = JavaPoetUtil.builderNewStatement(context, subDef, null, false);
-            Map.Entry<String, Object[]> newDefault = JavaPoetUtil.builderNewStatement(context, subDef, null, true);
-            Object[] args = {subDef.getIdentifier(), i, i > extensionIdx, subDef.getOptional()};
-            constructor1.addModifiers(Modifier.PUBLIC)
-                    .addStatement("setElement($S, $L, $L, $L, " + newValue1.getKey() + ", " + newDefault.getKey() + ")",
-                    ArrayUtil.concat(args, newValue1.getValue(), newDefault.getValue()));
-            Map.Entry<String, Object[]> newValue2 = JavaPoetUtil.builderNewStatement(context, subDef, subIdentifier, false);
-            constructor2.addParameter(JavaPoetUtil.javaTypeName(context, subDef), subIdentifier)
-                    .addStatement("setElement($S, $L, $L, $L, " + newValue2.getKey() + ", " + newDefault.getKey() + ")",
-                            ArrayUtil.concat(args, newValue2.getValue(), newDefault.getValue()));
         }
 
         TypeSpec.Builder sequencePoet = TypeSpec.classBuilder(context.isInnerClass() ? StringUtil.throughline2hump(definition.getIdentifier(), true) : definition.getIdentifier())
                 .addAnnotation(getGeneratedAnno(definition))
                 .addModifiers(context.isInnerClass() ? new Modifier[]{Modifier.PUBLIC, Modifier.STATIC} : new Modifier[]{Modifier.PUBLIC})
-                .superclass(ASN1Sequence.class)
+                .superclass(JavaPoetUtil.primitiveTypeName(definition))
                 .addMethod(constructor1.build())
                 .addMethod(constructor2.build());
         subDefInnerClasses.forEach(sequencePoet::addType);

@@ -6,8 +6,8 @@ import com.squareup.javapoet.TypeSpec;
 import io.inferiority.asn1.analysis.analyzer.AbstractAnalyzer;
 import io.inferiority.asn1.analysis.model.Definition;
 import io.inferiority.asn1.analysis.util.RegexUtil;
-import io.inferiority.asn1.codec.oer.ASN1OctetString;
 import io.inferiority.asn1.mapping.model.MappingContext;
+import io.inferiority.asn1.mapping.utils.JavaPoetUtil;
 
 import javax.lang.model.element.Modifier;
 
@@ -49,7 +49,7 @@ public class OctetStringMapping extends AbstractMapping {
         TypeSpec.Builder octetStringPoet = TypeSpec.classBuilder(definition.getIdentifier())
                 .addAnnotation(getGeneratedAnno(definition))
                 .addModifiers(context.isInnerClass() ? new Modifier[]{Modifier.PUBLIC, Modifier.STATIC} : new Modifier[]{Modifier.PUBLIC})
-                .superclass(ASN1OctetString.class)
+                .superclass(JavaPoetUtil.primitiveTypeName(definition))
                 .addField(rangeMin.build())
                 .addField(rangeMax.build())
                 .addMethod(constructor1)

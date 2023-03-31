@@ -6,8 +6,8 @@ import com.squareup.javapoet.TypeSpec;
 import io.inferiority.asn1.analysis.common.Operator;
 import io.inferiority.asn1.analysis.model.Definition;
 import io.inferiority.asn1.analysis.util.RegexUtil;
-import io.inferiority.asn1.codec.oer.ASN1Enumerated;
 import io.inferiority.asn1.mapping.model.MappingContext;
+import io.inferiority.asn1.mapping.utils.JavaPoetUtil;
 
 import javax.lang.model.element.Modifier;
 
@@ -24,9 +24,11 @@ public class EnumeratedMapping extends AbstractMapping {
 
         TypeSpec.Builder enumBuilder = TypeSpec.enumBuilder(context.getEnumPrefix() + definition.getIdentifier() + context.getEnumSuffix())
                 .addModifiers(Modifier.PUBLIC);
-        for (Definition subDef : definition.getSubDefs()) {
-            if (!RegexUtil.matches(Operator.ELLIPSIS, subDef.getIdentifier())) {
-                enumBuilder.addEnumConstant(subDef.getIdentifier());
+        if (definition.getSubDefs() != null && !definition.getSubDefs().isEmpty()) {
+            for (Definition subDef : definition.getSubDefs()) {
+                if (!RegexUtil.matches(Operator.ELLIPSIS, subDef.getIdentifier())) {
+                    enumBuilder.addEnumConstant(subDef.getIdentifier());
+                }
             }
         }
         TypeSpec enumPoet = enumBuilder.build();
@@ -44,7 +46,7 @@ public class EnumeratedMapping extends AbstractMapping {
         TypeSpec.Builder enumeratedPoet = TypeSpec.classBuilder(definition.getIdentifier())
                 .addAnnotation(getGeneratedAnno(definition))
                 .addModifiers(context.isInnerClass() ? new Modifier[]{Modifier.PUBLIC, Modifier.STATIC} : new Modifier[]{Modifier.PUBLIC})
-                .superclass(ASN1Enumerated.class)
+                .superclass(JavaPoetUtil.primitiveTypeName(definition))
                 .addType(enumPoet)
                 .addMethod(constructor1)
                 .addMethod(constructor2);

@@ -2,17 +2,22 @@ package io.inferiority.asn1.mapping.utils;
 
 import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import io.inferiority.asn1.analysis.common.Reserved;
 import io.inferiority.asn1.analysis.model.Definition;
 import io.inferiority.asn1.analysis.util.ArrayUtil;
 import io.inferiority.asn1.analysis.util.RegexUtil;
+import io.inferiority.asn1.codec.oer.ASN1BitString;
 import io.inferiority.asn1.codec.oer.ASN1Boolean;
+import io.inferiority.asn1.codec.oer.ASN1Choice;
 import io.inferiority.asn1.codec.oer.ASN1Enumerated;
 import io.inferiority.asn1.codec.oer.ASN1IA5String;
 import io.inferiority.asn1.codec.oer.ASN1Integer;
 import io.inferiority.asn1.codec.oer.ASN1Null;
 import io.inferiority.asn1.codec.oer.ASN1OctetString;
+import io.inferiority.asn1.codec.oer.ASN1Sequence;
+import io.inferiority.asn1.codec.oer.ASN1SequenceOf;
 import io.inferiority.asn1.codec.oer.ASN1UTF8String;
 import io.inferiority.asn1.mapping.model.MappingContext;
 
@@ -183,6 +188,35 @@ public class JavaPoetUtil {
             return ArrayTypeName.get(byte[].class);
         } else if (RegexUtil.matches(Reserved.SEQUENCE + "\\s+" + Reserved.OF, definition.getPrimitiveType())) {
             throw new IllegalArgumentException("unsupported type");
+        }
+        return ClassName.bestGuess(definition.getPrimitiveType());
+    }
+
+    public static TypeName primitiveTypeName(Definition definition) {
+        if (Reserved.NULL.equals(definition.getPrimitiveType())) {
+            return ClassName.get(ASN1Null.class);
+        } else if (Reserved.BOOLEAN.equals(definition.getPrimitiveType())) {
+            return ClassName.get(ASN1Boolean.class);
+        } else if (Reserved.INTEGER.equals(definition.getPrimitiveType())) {
+            return ClassName.get(ASN1Integer.class);
+        } else if (Reserved.ENUMERATED.equals(definition.getPrimitiveType())) {
+            return ClassName.get(ASN1Enumerated.class);
+        } else if (Reserved.IA5String.equals(definition.getPrimitiveType())) {
+            return ClassName.get(ASN1IA5String.class);
+        } else if (Reserved.UTF8String.equals(definition.getPrimitiveType())) {
+            return ClassName.get(ASN1UTF8String.class);
+        } else if (Reserved.SEQUENCE.equals(definition.getPrimitiveType())) {
+            return ClassName.get(ASN1Sequence.class);
+        } else if (Reserved.CHOICE.equals(definition.getPrimitiveType())) {
+            return ClassName.get(ASN1Choice.class);
+        } else if (RegexUtil.matches(Reserved.BIT + "\\s+" + Reserved.STRING, definition.getPrimitiveType())) {
+            return ClassName.get(ASN1BitString.class);
+        } else if (RegexUtil.matches(Reserved.OCTET + "\\s+" + Reserved.STRING, definition.getPrimitiveType())) {
+            return ClassName.get(ASN1OctetString.class);
+        } else if (RegexUtil.matches(Reserved.SEQUENCE + "\\s+" + Reserved.OF, definition.getPrimitiveType())) {
+            String[] split = definition.getPrimitiveType().split("[ ]+");
+            String primitiveType = split[split.length - 1];
+            return ParameterizedTypeName.get(ClassName.get(ASN1SequenceOf.class), ClassName.bestGuess(primitiveType));
         }
         return ClassName.bestGuess(definition.getPrimitiveType());
     }

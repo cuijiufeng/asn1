@@ -6,8 +6,8 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
 import io.inferiority.asn1.analysis.model.Definition;
-import io.inferiority.asn1.codec.oer.ASN1SequenceOf;
 import io.inferiority.asn1.mapping.model.MappingContext;
+import io.inferiority.asn1.mapping.utils.JavaPoetUtil;
 
 import javax.lang.model.element.Modifier;
 import java.util.function.Supplier;
@@ -38,7 +38,7 @@ public class SequenceOfMapping extends AbstractMapping {
         TypeSpec.Builder sequenceOfPoet = TypeSpec.classBuilder(definition.getIdentifier())
                 .addAnnotation(getGeneratedAnno(definition))
                 .addModifiers(context.isInnerClass() ? new Modifier[]{Modifier.PUBLIC, Modifier.STATIC} : new Modifier[]{Modifier.PUBLIC})
-                .superclass(ParameterizedTypeName.get(ClassName.get(ASN1SequenceOf.class), ClassName.bestGuess(primitiveType)))
+                .superclass(JavaPoetUtil.primitiveTypeName(definition))
                 .addMethod(constructor1)
                 .addMethod(constructor2);
         return sequenceOfPoet.build();
