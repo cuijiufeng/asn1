@@ -3,14 +3,12 @@ package io.inferiority.asn1.mapping.mapping;
 import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
 import io.inferiority.asn1.analysis.model.Definition;
 import io.inferiority.asn1.mapping.model.MappingContext;
 import io.inferiority.asn1.mapping.utils.JavaPoetUtil;
 
 import javax.lang.model.element.Modifier;
-import java.util.function.Supplier;
 
 /**
  * @author cuijiufeng
@@ -27,8 +25,7 @@ public class SequenceOfMapping extends AbstractMapping {
 
         MethodSpec constructor1 = MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PUBLIC)
-                .addParameter(ParameterizedTypeName.get(ClassName.get(Supplier.class), ClassName.bestGuess(primitiveType)), "instance")
-                .addStatement("super($N)", "instance")
+                .addStatement("super($T::new)", ClassName.bestGuess(primitiveType))
                 .build();
         MethodSpec constructor2 = MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PUBLIC)
