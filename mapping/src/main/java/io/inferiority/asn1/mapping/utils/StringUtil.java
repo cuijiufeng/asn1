@@ -12,9 +12,9 @@ public class StringUtil {
         return identifier.replaceAll("-", "_");
     }
 
-    public static String throughline2hump(String identifier) {
+    public static String throughline2hump(String identifier, boolean firstCharUpper) {
         Objects.requireNonNull(identifier, "identifier can't be null");
-        boolean flag = true;
+        boolean flag = firstCharUpper;
         StringBuilder ret = new StringBuilder();
         for (int i = 0; i < identifier.length(); i++) {
             char ch = identifier.charAt(i);

@@ -72,7 +72,7 @@ public class ChoiceMapping extends AbstractMapping {
                 .addStatement("super($N, $N)", "choice", "value")
                 .build();
 
-        TypeSpec.Builder choicePoet = TypeSpec.classBuilder(context.isInnerClass() ? StringUtil.throughline2hump(definition.getIdentifier()) : definition.getIdentifier())
+        TypeSpec.Builder choicePoet = TypeSpec.classBuilder(context.isInnerClass() ? StringUtil.throughline2hump(definition.getIdentifier(), true) : definition.getIdentifier())
                 .addAnnotation(getGeneratedAnno(definition))
                 .addModifiers(context.isInnerClass() ? new Modifier[]{Modifier.PUBLIC, Modifier.STATIC} : new Modifier[]{Modifier.PUBLIC})
                 .superclass(ASN1Choice.class)

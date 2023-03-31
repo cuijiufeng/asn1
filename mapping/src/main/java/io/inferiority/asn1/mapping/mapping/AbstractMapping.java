@@ -80,8 +80,8 @@ public abstract class AbstractMapping {
     protected void valuesField(TypeSpec.Builder builder, Definition definition, BiConsumer<FieldSpec.Builder, String> consumer) {
         if (definition.getValues() != null) {
             for (Map.Entry<String, String> entry : definition.getValues()) {
-                FieldSpec.Builder initializer = FieldSpec.builder(ClassName.bestGuess(definition.getIdentifier()), entry.getKey(), Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                        .initializer("new $N($L)", builder.build(), entry.getValue());
+                FieldSpec.Builder initializer = FieldSpec.builder(ClassName.bestGuess(definition.getIdentifier()), entry.getKey(),
+                        Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL);
                 consumer.accept(initializer, entry.getValue());
                 builder.addField(initializer.build());
             }

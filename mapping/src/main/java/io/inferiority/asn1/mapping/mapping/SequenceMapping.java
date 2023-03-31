@@ -45,18 +45,19 @@ public class SequenceMapping extends AbstractMapping {
 
         for (int i = 0; i < definition.getSubDefs().size(); i++) {
             Definition subDef = definition.getSubDefs().get(i);
+            String subIdentifier = StringUtil.throughline2hump(subDef.getIdentifier(), false);
             Map.Entry<String, Object[]> newValue1 = JavaPoetUtil.builderNewStatement(context, subDef, null, false);
             Map.Entry<String, Object[]> newDefault = JavaPoetUtil.builderNewStatement(context, subDef, null, true);
             Object[] args = {subDef.getIdentifier(), i, i > extensionIdx, subDef.getOptional()};
             constructor1.addStatement("setElement($S, $L, $L, $L, " + newValue1.getKey() + ", " + newDefault.getKey() + ")",
                     ArrayUtil.concat(args, newValue1.getValue(), newDefault.getValue()));
-            Map.Entry<String, Object[]> newValue2 = JavaPoetUtil.builderNewStatement(context, subDef, subDef.getIdentifier(), false);
-            constructor2.addParameter(JavaPoetUtil.javaTypeName(context, subDef), subDef.getIdentifier())
-                    .addStatement("setElement($S, $L, $L, $L, " + newValue2.getKey() + "," + newDefault.getKey() + ")",
+            Map.Entry<String, Object[]> newValue2 = JavaPoetUtil.builderNewStatement(context, subDef, subIdentifier, false);
+            constructor2.addParameter(JavaPoetUtil.javaTypeName(context, subDef), subIdentifier)
+                    .addStatement("setElement($S, $L, $L, $L, " + newValue2.getKey() + ", " + newDefault.getKey() + ")",
                             ArrayUtil.concat(args, newValue2.getValue(), newDefault.getValue()));
         }
 
-        TypeSpec.Builder sequencePoet = TypeSpec.classBuilder(context.isInnerClass() ? StringUtil.throughline2hump(definition.getIdentifier()) : definition.getIdentifier())
+        TypeSpec.Builder sequencePoet = TypeSpec.classBuilder(context.isInnerClass() ? StringUtil.throughline2hump(definition.getIdentifier(), true) : definition.getIdentifier())
                 .addAnnotation(getGeneratedAnno(definition))
                 .addModifiers(context.isInnerClass() ? new Modifier[]{Modifier.PUBLIC, Modifier.STATIC} : new Modifier[]{Modifier.PUBLIC})
                 .superclass(ASN1Sequence.class)

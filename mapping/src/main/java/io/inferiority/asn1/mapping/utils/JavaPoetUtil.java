@@ -147,6 +147,16 @@ public class JavaPoetUtil {
         } else if (RegexUtil.matches(Reserved.SEQUENCE + "\\s+" + Reserved.OF, definition.getPrimitiveType())) {
             throw new IllegalArgumentException("unsupported type");
         }
+        if (withDefault) {
+            if (definition.getDefaulted() != null) {
+                return new AbstractMap.SimpleEntry<>("new $T($L)", new Object[]{
+                        ClassName.bestGuess(definition.getPrimitiveType()),
+                        definition.getDefaulted().replaceAll(Reserved.DEFAULT, "").trim()});
+            }
+            return new AbstractMap.SimpleEntry<>("null", new Object[0]);
+        } else if (withValue != null) {
+            return new AbstractMap.SimpleEntry<>("$L == null ? null : $L", new Object[]{withValue, withValue});
+        }
         return new AbstractMap.SimpleEntry<>("new $T()", new Object[]{ClassName.bestGuess(definition.getPrimitiveType())});
     }
 
