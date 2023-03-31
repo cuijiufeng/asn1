@@ -161,7 +161,7 @@ public class JavaPoetUtil {
             }
             return new AbstractMap.SimpleEntry<>("null", new Object[0]);
         } else if (withValue != null) {
-            return new AbstractMap.SimpleEntry<>("$L == null ? null : $L", new Object[]{withValue, withValue});
+            return new AbstractMap.SimpleEntry<>("$L", new Object[]{withValue});
         }
         return new AbstractMap.SimpleEntry<>("new $T()", new Object[]{
                 ClassName.get(AbstractMapping.getPrimitiveTypePackageName(context, definition), definition.getPrimitiveType())});
