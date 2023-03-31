@@ -14,18 +14,17 @@ public class StringUtil {
 
     public static String throughline2hump(String identifier) {
         Objects.requireNonNull(identifier, "identifier can't be null");
-        boolean flag = false;
-        char[] chars = identifier.toCharArray();
-        chars[0] = Character.toUpperCase(chars[0]);
-        for (int i = 1; i < chars.length; i++) {
+        boolean flag = true;
+        StringBuilder ret = new StringBuilder();
+        for (int i = 0; i < identifier.length(); i++) {
             if (flag) {
-                chars[i] = Character.toUpperCase(chars[i]);
+                ret.append(Character.toUpperCase(identifier.charAt(i)));
                 flag = false;
             }
-            if (chars[i] == '-') {
+            if (identifier.charAt(i) == '-') {
                 flag = true;
             }
         }
-        return String.valueOf(chars);
+        return ret.toString();
     }
 }

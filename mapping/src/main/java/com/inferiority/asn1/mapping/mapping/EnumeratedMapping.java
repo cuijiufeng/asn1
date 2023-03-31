@@ -7,7 +7,6 @@ import com.inferiority.asn1.codec.oer.ASN1Enumerated;
 import com.inferiority.asn1.mapping.model.MappingContext;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
 
 import javax.lang.model.element.Modifier;
@@ -33,10 +32,7 @@ public class EnumeratedMapping extends AbstractMapping {
         TypeSpec enumPoet = enumBuilder.build();
 
         MethodSpec constructor1 = MethodSpec.constructorBuilder()
-                .addParameter(ParameterizedTypeName.get(
-                        ClassName.get(Class.class),
-                        ClassName.bestGuess(context.getEnumPrefix() + definition.getIdentifier() + context.getEnumSuffix())), "clazz")
-                .addStatement("super($N)", "clazz")
+                .addStatement("super($T.class)", ClassName.bestGuess(context.getEnumPrefix() + definition.getIdentifier() + context.getEnumSuffix()))
                 .build();
         MethodSpec constructor2 = MethodSpec.constructorBuilder()
                 .addParameter(ClassName.bestGuess(context.getEnumPrefix() + definition.getIdentifier() + context.getEnumSuffix()), "enumerated")

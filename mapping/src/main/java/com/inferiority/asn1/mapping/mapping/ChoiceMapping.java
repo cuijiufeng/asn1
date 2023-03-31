@@ -10,10 +10,11 @@ import com.inferiority.asn1.mapping.utils.JavaPoetUtil;
 import com.inferiority.asn1.mapping.utils.StringUtil;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
 import javax.lang.model.element.Modifier;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +37,11 @@ public class ChoiceMapping extends AbstractMapping {
         List<TypeSpec> subDefInnerClasses = new ArrayList<>();
         for (Definition subDef : definition.getSubDefs()) {
             if (!RegexUtil.matches(Operator.ELLIPSIS, subDef.getIdentifier())) {
-                Map.Entry<String, Object[]> newStatement = JavaPoetUtil.builderNewStatement(subDef, false);
+                TypeName innerTypeName = subDefInnerClass(context, subDef, subDefInnerClasses::add);
+
+                Map.Entry<String, Object[]> newStatement = innerTypeName == null
+                        ? JavaPoetUtil.builderNewStatement(context, subDef, null, false)
+                        : new AbstractMap.SimpleEntry<>("new $T()", new Object[]{innerTypeName});
                 TypeSpec typeSpec = TypeSpec.anonymousClassBuilder("")
                         .addMethod(MethodSpec.methodBuilder("isExtension")
                                 .addAnnotation(Override.class)
@@ -52,8 +57,6 @@ public class ChoiceMapping extends AbstractMapping {
                                 .build())
                         .build();
                 enumBuilder.addEnumConstant(StringUtil.throughline2underline(subDef.getIdentifier()), typeSpec);
-
-                subDefInnerClass(context, subDef, subDefInnerClasses::add);
             } else {
                 isExtension = true;
             }
@@ -61,10 +64,7 @@ public class ChoiceMapping extends AbstractMapping {
         TypeSpec enumPoet = enumBuilder.build();
 
         MethodSpec constructor1 = MethodSpec.constructorBuilder()
-                .addParameter(ParameterizedTypeName.get(
-                        ClassName.get(Class.class),
-                        ClassName.bestGuess(context.getEnumPrefix() + definition.getIdentifier() + context.getEnumSuffix())), "clazz")
-                .addStatement("super($N)", "clazz")
+                .addStatement("super($T.class)", ClassName.bestGuess(context.getEnumPrefix() + definition.getIdentifier() + context.getEnumSuffix()))
                 .build();
         MethodSpec constructor2 = MethodSpec.constructorBuilder()
                 .addParameter(ClassName.bestGuess(context.getEnumPrefix() + definition.getIdentifier() + context.getEnumSuffix()), "choice")
@@ -72,7 +72,7 @@ public class ChoiceMapping extends AbstractMapping {
                 .addStatement("super($N, $N)", "choice", "value")
                 .build();
 
-        TypeSpec.Builder choicePoet = TypeSpec.classBuilder(definition.getIdentifier())
+        TypeSpec.Builder choicePoet = TypeSpec.classBuilder(context.isInnerClass() ? StringUtil.throughline2hump(definition.getIdentifier()) : definition.getIdentifier())
                 .addAnnotation(getGeneratedAnno(definition))
                 .addModifiers(context.isInnerClass() ? new Modifier[]{Modifier.PUBLIC, Modifier.STATIC} : new Modifier[]{Modifier.PUBLIC})
                 .superclass(ASN1Choice.class)

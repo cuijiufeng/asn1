@@ -2,18 +2,16 @@ package com.inferiority.asn1.mapping.utils;
 
 import com.inferiority.asn1.analysis.common.Reserved;
 import com.inferiority.asn1.analysis.model.Definition;
+import com.inferiority.asn1.analysis.util.ArrayUtil;
 import com.inferiority.asn1.analysis.util.RegexUtil;
-import com.inferiority.asn1.codec.oer.ASN1BitString;
 import com.inferiority.asn1.codec.oer.ASN1Boolean;
-import com.inferiority.asn1.codec.oer.ASN1Choice;
 import com.inferiority.asn1.codec.oer.ASN1Enumerated;
 import com.inferiority.asn1.codec.oer.ASN1IA5String;
 import com.inferiority.asn1.codec.oer.ASN1Integer;
 import com.inferiority.asn1.codec.oer.ASN1Null;
 import com.inferiority.asn1.codec.oer.ASN1OctetString;
-import com.inferiority.asn1.codec.oer.ASN1Sequence;
-import com.inferiority.asn1.codec.oer.ASN1SequenceOf;
 import com.inferiority.asn1.codec.oer.ASN1UTF8String;
+import com.inferiority.asn1.mapping.model.MappingContext;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 
@@ -31,104 +29,149 @@ import java.util.StringJoiner;
  */
 public class JavaPoetUtil {
 
-    public static Map.Entry<String, Object[]> builderNewStatement(Definition definition, boolean withDefault) {
+    public static Map.Entry<String, Object[]> builderNewStatement(MappingContext context, Definition definition, String withValue, boolean withDefault) {
         if (Reserved.NULL.equals(definition.getPrimitiveType())) {
-            return new AbstractMap.SimpleEntry<>("new $T()",
-                    new Object[]{ASN1Null.class});
+            return new AbstractMap.SimpleEntry<>("new $T()", new Object[]{ASN1Null.class});
         } else if (Reserved.BOOLEAN.equals(definition.getPrimitiveType())) {
-            if (withDefault && definition.getDefaulted() != null) {
-                String defaulted = definition.getDefaulted().replaceAll(Reserved.DEFAULT, "").trim();
-                return new AbstractMap.SimpleEntry<>("new $T($L)",
-                        new Object[]{ASN1Boolean.class, defaulted});
+            StringJoiner statement = new StringJoiner(", ", "new $T(", ")");
+            List<Object> args = new ArrayList<>(Collections.singletonList(ASN1Boolean.class));
+            if (withDefault) {
+                if (definition.getDefaulted() != null) {
+                    statement.add("$L");
+                    args.add(definition.getDefaulted().replaceAll(Reserved.DEFAULT, "").trim());
+                }
+                return new AbstractMap.SimpleEntry<>("null", new Object[0]);
+            } else if (withValue != null) {
+                return new AbstractMap.SimpleEntry<>("$L == null ? null : new $T($L)", new Object[]{withValue, ASN1Boolean.class, withValue});
             }
-            return new AbstractMap.SimpleEntry<>("new $T()",
-                    new Object[]{ASN1Boolean.class});
+            return new AbstractMap.SimpleEntry<>(statement.toString(), args.toArray());
         } else if (Reserved.INTEGER.equals(definition.getPrimitiveType())) {
             StringJoiner statement = new StringJoiner(", ", "new $T(", ")");
             List<Object> args = new ArrayList<>(Collections.singletonList(ASN1Integer.class));
             if (withDefault) {
                 if (definition.getDefaulted() != null) {
-                    String defaulted = definition.getDefaulted().replaceAll(Reserved.DEFAULT, "").trim();
                     statement.add("new $T($S)");
                     args.add(BigInteger.class);
-                    args.add(defaulted);
-                } else {
-                    statement.add("$L");
-                    args.add("null");
+                    args.add(definition.getDefaulted().replaceAll(Reserved.DEFAULT, "").trim());
                 }
+                return new AbstractMap.SimpleEntry<>("null", new Object[0]);
+            } else if (withValue != null) {
+                statement.add("$T.valueOf($L)");
+                args.add(BigInteger.class);
+                args.add(withValue);
             }
             if (definition.getRangeMin() != null) {
                 statement.add("new $T($L)");
                 args.add(BigInteger.class);
                 args.add(definition.getRangeMin());
             } else {
-                statement.add("$L");
-                args.add(definition.getRangeMin());
+                statement.add("null");
             }
             if (definition.getRangeMax() != null) {
                 statement.add("new $T($L)");
                 args.add(BigInteger.class);
                 args.add(definition.getRangeMax());
             } else {
-                statement.add("$L");
-                args.add(definition.getRangeMax());
+                statement.add("null");
             }
-            return new AbstractMap.SimpleEntry<>(statement.toString(), args.toArray());
+            return withValue != null
+                    ? new AbstractMap.SimpleEntry<>("$N == null ? null : " + statement.toString(), ArrayUtil.concat(new Object[]{withValue}, args.toArray()))
+                    : new AbstractMap.SimpleEntry<>(statement.toString(), args.toArray());
         } else if (Reserved.ENUMERATED.equals(definition.getPrimitiveType())) {
-            throw new IllegalArgumentException("unsupported type");
-            //return new AbstractMap.SimpleEntry<>("new $T()",
-            //        new Object[]{ASN1Enumerated.class});
+            StringJoiner statement = new StringJoiner(", ", "new $T(", ")");
+            List<Object> args = new ArrayList<>(Collections.singletonList(ASN1Enumerated.class));
+            statement.add("$T");
+            args.add(ClassName.bestGuess(context.getEnumPrefix() + definition.getIdentifier() + context.getEnumSuffix()));
+            return new AbstractMap.SimpleEntry<>(statement.toString(), args.toArray());
         } else if (Reserved.IA5String.equals(definition.getPrimitiveType())) {
-            return new AbstractMap.SimpleEntry<>("new $T($L, $L)",
-                    new Object[]{ASN1IA5String.class, definition.getRangeMin(), definition.getRangeMax()});
+            StringJoiner statement = new StringJoiner(", ", "new $T(", ")");
+            List<Object> args = new ArrayList<>(Collections.singletonList(ASN1IA5String.class));
+            if (withDefault) {
+                if (definition.getDefaulted() != null) {
+                    statement.add("$L");
+                    args.add(definition.getDefaulted().replaceAll(Reserved.DEFAULT, "").trim());
+                }
+                return new AbstractMap.SimpleEntry<>("null", new Object[0]);
+            } else if (withValue != null) {
+                return new AbstractMap.SimpleEntry<>("$L == null ? null : new $T($L, $L, $L)",
+                        new Object[]{withValue, ASN1IA5String.class, withValue, definition.getRangeMin(), definition.getRangeMax()});
+            }
+            statement.add("$L");
+            args.add(definition.getRangeMin());
+            statement.add("$L");
+            args.add(definition.getRangeMax());
+            return new AbstractMap.SimpleEntry<>(statement.toString(), args.toArray());
         } else if (Reserved.UTF8String.equals(definition.getPrimitiveType())) {
-            return new AbstractMap.SimpleEntry<>("new $T($L, $L)",
-                    new Object[]{ASN1UTF8String.class, definition.getRangeMin(), definition.getRangeMax()});
+            StringJoiner statement = new StringJoiner(", ", "new $T(", ")");
+            List<Object> args = new ArrayList<>(Collections.singletonList(ASN1UTF8String.class));
+            if (withDefault) {
+                if (definition.getDefaulted() != null) {
+                    statement.add("$L");
+                    args.add(definition.getDefaulted().replaceAll(Reserved.DEFAULT, "").trim());
+                }
+                return new AbstractMap.SimpleEntry<>("null", new Object[0]);
+            } else if (withValue != null) {
+                return new AbstractMap.SimpleEntry<>("$L == null ? null : new $T($L, $L, $L)",
+                        new Object[]{withValue, ASN1UTF8String.class, withValue, definition.getRangeMin(), definition.getRangeMax()});
+            }
+            statement.add("$L");
+            args.add(definition.getRangeMin());
+            statement.add("$L");
+            args.add(definition.getRangeMax());
+            return new AbstractMap.SimpleEntry<>(statement.toString(), args.toArray());
         } else if (Reserved.SEQUENCE.equals(definition.getPrimitiveType())) {
-            return new AbstractMap.SimpleEntry<>("new $T()",
-                    new Object[]{ClassName.bestGuess(StringUtil.throughline2hump(definition.getIdentifier()))});
+            throw new IllegalArgumentException("unsupported type");
         } else if (Reserved.CHOICE.equals(definition.getPrimitiveType())) {
-            return new AbstractMap.SimpleEntry<>("new $T()",
-                    new Object[]{ASN1Choice.class});
+            throw new IllegalArgumentException("unsupported type");
         } else if (RegexUtil.matches(Reserved.BIT + "\\s+" + Reserved.STRING, definition.getPrimitiveType())) {
             throw new IllegalArgumentException("unsupported type");
-            //return new AbstractMap.SimpleEntry<>("new $T()",
-            //        new Object[]{ASN1BitString.class});
         } else if (RegexUtil.matches(Reserved.OCTET + "\\s+" + Reserved.STRING, definition.getPrimitiveType())) {
-            return new AbstractMap.SimpleEntry<>("new $T($L, $L)",
-                    new Object[]{ASN1OctetString.class, definition.getRangeMin(), definition.getRangeMax()});
+            StringJoiner statement = new StringJoiner(", ", "new $T(", ")");
+            List<Object> args = new ArrayList<>(Collections.singletonList(ASN1OctetString.class));
+            if (withDefault) {
+                if (definition.getDefaulted() != null) {
+                    statement.add("$L");
+                    args.add(definition.getDefaulted().replaceAll(Reserved.DEFAULT, "").trim());
+                }
+                return new AbstractMap.SimpleEntry<>("null", new Object[0]);
+            } else if (withValue != null) {
+                return new AbstractMap.SimpleEntry<>("$L == null ? null : new $T($L, $L, $L)",
+                        new Object[]{withValue, ASN1OctetString.class, withValue, definition.getRangeMin(), definition.getRangeMax()});
+            }
+            statement.add("$L");
+            args.add(definition.getRangeMin());
+            statement.add("$L");
+            args.add(definition.getRangeMax());
+            return new AbstractMap.SimpleEntry<>(statement.toString(), args.toArray());
         } else if (RegexUtil.matches(Reserved.SEQUENCE + "\\s+" + Reserved.OF, definition.getPrimitiveType())) {
             throw new IllegalArgumentException("unsupported type");
-            //return new AbstractMap.SimpleEntry<>("new $T()",
-            //        new Object[]{ASN1SequenceOf.class});
         }
-        return new AbstractMap.SimpleEntry<>("new $T()",
-                new Object[]{ClassName.bestGuess(definition.getPrimitiveType())});
+        return new AbstractMap.SimpleEntry<>("new $T()", new Object[]{ClassName.bestGuess(definition.getPrimitiveType())});
     }
 
-    public static TypeName primitiveTypeName(Definition definition) {
+    public static TypeName javaTypeName(MappingContext context, Definition definition) {
         if (Reserved.NULL.equals(definition.getPrimitiveType())) {
-            return ClassName.get(ASN1Null.class);
+            return ClassName.get(Void.class);
         } else if (Reserved.BOOLEAN.equals(definition.getPrimitiveType())) {
-            return ClassName.get(ASN1Boolean.class);
+            return ClassName.get(Boolean.class);
         } else if (Reserved.INTEGER.equals(definition.getPrimitiveType())) {
-            return ClassName.get(ASN1Integer.class);
+            return ClassName.get(Long.class);
         } else if (Reserved.ENUMERATED.equals(definition.getPrimitiveType())) {
-            return ClassName.get(ASN1Enumerated.class);
+            return ClassName.bestGuess(context.getEnumPrefix() + definition.getIdentifier() + context.getEnumSuffix());
         } else if (Reserved.IA5String.equals(definition.getPrimitiveType())) {
-            return ClassName.get(ASN1IA5String.class);
+            return ClassName.get(String.class);
         } else if (Reserved.UTF8String.equals(definition.getPrimitiveType())) {
-            return ClassName.get(ASN1UTF8String.class);
+            return ClassName.get(String.class);
         } else if (Reserved.SEQUENCE.equals(definition.getPrimitiveType())) {
-            return ClassName.get(ASN1Sequence.class);
+            throw new IllegalArgumentException("unsupported type");
         } else if (Reserved.CHOICE.equals(definition.getPrimitiveType())) {
-            return ClassName.get(ASN1Choice.class);
+            throw new IllegalArgumentException("unsupported type");
         } else if (RegexUtil.matches(Reserved.BIT + "\\s+" + Reserved.STRING, definition.getPrimitiveType())) {
-            return ClassName.get(ASN1BitString.class);
+            return ClassName.get(byte[].class);
         } else if (RegexUtil.matches(Reserved.OCTET + "\\s+" + Reserved.STRING, definition.getPrimitiveType())) {
-            return ClassName.get(ASN1OctetString.class);
+            return ClassName.get(String.class);
         } else if (RegexUtil.matches(Reserved.SEQUENCE + "\\s+" + Reserved.OF, definition.getPrimitiveType())) {
-            return ClassName.get(ASN1SequenceOf.class);
+            throw new IllegalArgumentException("unsupported type");
         }
         return ClassName.bestGuess(definition.getPrimitiveType());
     }
