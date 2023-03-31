@@ -126,8 +126,10 @@ public abstract class AbstractAnalyzer {
             throws AnalysisException;
 
     public static String getPrimitiveType(String typeDef) {
-        String matcher = RegexUtil.matcher(typeDef.indexOf(Operator.ASSIGNMENT), "(" + AbstractAnalyzer.REGEX_IDENTIFIER + "\\s*)+", typeDef).trim();
-        if (RegexUtil.matches(Reserved.SEQUENCE + "\\s*" + Reserved.SIZE, matcher)) {
+        String matcher = RegexUtil.matcher(typeDef.indexOf(Operator.ASSIGNMENT),
+                "((" + Reserved.SEQUENCE + "\\s*" + SequenceOfAnalyzer.REGEX_SEQUENCE_OF_RANGE + ")|(" +
+                        AbstractAnalyzer.REGEX_IDENTIFIER + "\\s*))+", typeDef).trim();
+        if (RegexUtil.matches(Reserved.SEQUENCE + "\\s*" + SequenceOfAnalyzer.REGEX_SEQUENCE_OF_RANGE, matcher)) {
             typeDef = typeDef.replaceFirst(SequenceOfAnalyzer.REGEX_SEQUENCE_OF_RANGE, "");
             matcher = RegexUtil.matcher(typeDef.indexOf(Operator.ASSIGNMENT), "(" + AbstractAnalyzer.REGEX_IDENTIFIER + "\\s*)+", typeDef).trim();
         }

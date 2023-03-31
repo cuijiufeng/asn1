@@ -12,6 +12,6 @@
             <AppenderRef ref="Console"/>
         </Root>
 
-        <Logger name="com.inferiority.asn1.analysis" level="info" />
+        <Logger name="io.inferiority.asn1.analysis" level="info" />
     </Loggers>
 </configuration>
