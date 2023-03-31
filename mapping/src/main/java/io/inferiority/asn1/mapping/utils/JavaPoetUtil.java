@@ -1,5 +1,6 @@
 package io.inferiority.asn1.mapping.utils;
 
+import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 import io.inferiority.asn1.analysis.common.Reserved;
@@ -167,9 +168,9 @@ public class JavaPoetUtil {
         } else if (Reserved.CHOICE.equals(definition.getPrimitiveType())) {
             throw new IllegalArgumentException("unsupported type");
         } else if (RegexUtil.matches(Reserved.BIT + "\\s+" + Reserved.STRING, definition.getPrimitiveType())) {
-            return ClassName.get(byte[].class);
+            return ArrayTypeName.get(byte[].class);
         } else if (RegexUtil.matches(Reserved.OCTET + "\\s+" + Reserved.STRING, definition.getPrimitiveType())) {
-            return ClassName.get(String.class);
+            return ArrayTypeName.get(byte[].class);
         } else if (RegexUtil.matches(Reserved.SEQUENCE + "\\s+" + Reserved.OF, definition.getPrimitiveType())) {
             throw new IllegalArgumentException("unsupported type");
         }

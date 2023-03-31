@@ -17,13 +17,16 @@ public class StringUtil {
         boolean flag = true;
         StringBuilder ret = new StringBuilder();
         for (int i = 0; i < identifier.length(); i++) {
+            char ch = identifier.charAt(i);
             if (flag) {
-                ret.append(Character.toUpperCase(identifier.charAt(i)));
+                ch = Character.toUpperCase(ch);
                 flag = false;
             }
-            if (identifier.charAt(i) == '-') {
+            if (ch == '-') {
                 flag = true;
+                continue;
             }
+            ret.append(ch);
         }
         return ret.toString();
     }
