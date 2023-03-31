@@ -1,4 +1,4 @@
-package com.inferiority.protocol;
+package io.inferiority.protocol;
 
 /**
  * @author cuijiufeng

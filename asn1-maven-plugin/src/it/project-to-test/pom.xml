@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>project-to-test</artifactId>
-    <groupId>com.inferiority.protocol</groupId>
+    <groupId>io.inferiority.protocol</groupId>
     <version>1.0</version>
     <packaging>jar</packaging>
 
@@ -19,7 +19,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.inferiority.asn1</groupId>
+            <groupId>io.inferiority.asn1</groupId>
             <artifactId>codec</artifactId>
             <version>1.0.0</version>
         </dependency>
@@ -35,7 +35,7 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>com.inferiority.asn1</groupId>
+                <groupId>io.inferiority.asn1</groupId>
                 <artifactId>asn1-maven-plugin</artifactId>
                 <version>1.0.0</version>
                 <configuration>
