@@ -46,10 +46,10 @@ public class CodecTest {
 
     @Test
     public void testEnumerated() throws IOException, CodecException {
-        ASN1Enumerated enumerated = new ASN1Enumerated(EnumeratedType.B);
+        ASN1Enumerated<EnumeratedType> enumerated = new ASN1Enumerated<>(EnumeratedType.B);
         log.debug("   enumerated: {}", HexEncoder.encodeString(enumerated.getEncoded()));
         log.debug("   enumerated: {}", enumerated.getEnumerated());
-        ASN1Enumerated decodeEnumerated = new ASN1Enumerated(EnumeratedType.class);
+        ASN1Enumerated<EnumeratedType> decodeEnumerated = new ASN1Enumerated<>(EnumeratedType.class);
         decodeEnumerated.fromByteArray(enumerated.getEncoded());
         Assert.assertEquals(enumerated, decodeEnumerated);
         log.debug(decodeEnumerated.toObjectString());
@@ -519,9 +519,9 @@ public class CodecTest {
 
     @Test
     public void testChoice() throws CodecException {
-        ASN1Choice choice = new ASN1Choice(EnumeratedType.B, new ASN1Boolean(true));
+        ASN1Choice<EnumeratedType> choice = new ASN1Choice<>(EnumeratedType.B, new ASN1Boolean(true));
         log.debug("   choice: {}", HexEncoder.encodeString(choice.getEncoded()));
-        ASN1Choice decodeChoice = new ASN1Choice(EnumeratedType.class);
+        ASN1Choice<EnumeratedType> decodeChoice = new ASN1Choice<>(EnumeratedType.class);
         decodeChoice.fromByteArray(choice.getEncoded());
         Assert.assertEquals(choice, decodeChoice);
         EnumeratedType choice1 = choice.getChoice();

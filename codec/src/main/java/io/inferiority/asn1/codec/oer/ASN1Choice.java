@@ -13,17 +13,17 @@ import java.util.Objects;
  * @Class ASN1Choice
  * @Date 2023/2/23 11:21
  */
-public class ASN1Choice extends ASN1Object {
-    private final Class<? extends Enum<? extends ASN1ChoiceEnum>> choiceClass;
-    private Enum<? extends ASN1ChoiceEnum> choice;
+public class ASN1Choice<T extends Enum<T> & ASN1Choice.ASN1ChoiceEnum> extends ASN1Object {
+    private final Class<T> choiceClass;
+    private T choice;
     private ASN1Object value;
 
-    public ASN1Choice(Class<? extends Enum<? extends ASN1ChoiceEnum>> choiceClass) {
+    public ASN1Choice(Class<T> choiceClass) {
         Objects.requireNonNull(choiceClass, "choice class cannot be null");
         this.choiceClass = choiceClass;
     }
 
-    public ASN1Choice(Enum<? extends ASN1ChoiceEnum> choice, ASN1Object value) {
+    public ASN1Choice(T choice, ASN1Object value) {
         Objects.requireNonNull(choice, "choice cannot be null");
         Objects.requireNonNull(value, "value cannot be null");
         this.choice = choice;
@@ -35,7 +35,7 @@ public class ASN1Choice extends ASN1Object {
     public void encode(ASN1OutputStream os) throws CodecException {
         ASN1Tag tag = new ASN1Tag(ASN1Tag.TagClass.CONTEXT_SPECIFIC, this.choice.ordinal());
         tag.encode(os);
-        if (((ASN1ChoiceEnum) this.choice).isExtension()) {
+        if (this.choice.isExtension()) {
             os.writeOpenType(this.value);
         } else {
             this.value.encode(os);
@@ -46,11 +46,11 @@ public class ASN1Choice extends ASN1Object {
     public void decode(ASN1InputStream is) throws IOException {
         ASN1Tag tag = new ASN1Tag();
         tag.decode(is);
-        for (Enum<? extends ASN1ChoiceEnum> constant : this.choiceClass.getEnumConstants()) {
+        for (T constant : this.choiceClass.getEnumConstants()) {
             if (tag.getTagNumber() == constant.ordinal()) {
                 this.choice = constant;
-                this.value = ((ASN1ChoiceEnum) constant).getInstance();
-                if (((ASN1ChoiceEnum) constant).isExtension()) {
+                this.value = constant.getInstance();
+                if (constant.isExtension()) {
                     is.readOpenType(this.value);
                 } else {
                     this.value.decode(is);
@@ -60,14 +60,13 @@ public class ASN1Choice extends ASN1Object {
         }
     }
 
-    public <T extends ASN1ChoiceEnum> T getChoice() {
-        //noinspection unchecked
-        return (T) choice;
+    public T getChoice() {
+        return choice;
     }
 
-    public <T extends ASN1Object> T getValue() {
+    public <E extends ASN1Object> E getValue() {
         //noinspection unchecked
-        return (T) value;
+        return (E) value;
     }
 
     @Override
@@ -75,7 +74,7 @@ public class ASN1Choice extends ASN1Object {
         if (!(obj instanceof ASN1Choice)) {
             return false;
         }
-        ASN1Choice that = (ASN1Choice) obj;
+        ASN1Choice<?> that = (ASN1Choice<?>) obj;
         if (!Objects.equals(choice, that.choice)) return false;
         return Objects.equals(value, that.value);
     }

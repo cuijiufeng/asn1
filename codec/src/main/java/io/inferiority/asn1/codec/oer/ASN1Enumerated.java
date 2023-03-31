@@ -12,16 +12,16 @@ import java.util.Objects;
  * @Class ASN1Enumerated
  * @Date 2023/2/7 9:02
  */
-public class ASN1Enumerated extends ASN1Object {
-    private Enum<? extends Enum<?>> enumerated;
-    private final Class<? extends Enum<?>> enumClass;
+public class ASN1Enumerated<T extends Enum<T>> extends ASN1Object {
+    private T enumerated;
+    private final Class<T> enumClass;
 
-    public ASN1Enumerated(Class<? extends Enum<?>> enumClass) {
+    public ASN1Enumerated(Class<T> enumClass) {
         Objects.requireNonNull(enumClass, "enum class cannot be null");
         this.enumClass = enumClass;
     }
 
-    public ASN1Enumerated(Enum<? extends Enum<?>> enumerated) {
+    public ASN1Enumerated(T enumerated) {
         Objects.requireNonNull(enumerated, "enumerated cannot be null");
         this.enumerated = enumerated;
         this.enumClass = enumerated.getDeclaringClass();
@@ -35,7 +35,7 @@ public class ASN1Enumerated extends ASN1Object {
     @Override
     public void decode(ASN1InputStream is) throws EOFException {
         int ordinal = is.readEnumeratedValue();
-        for (Enum<? extends Enum<?>> constant : this.enumClass.getEnumConstants()) {
+        for (T constant : this.enumClass.getEnumConstants()) {
             if (ordinal == constant.ordinal()) {
                 this.enumerated = constant;
                 return;
@@ -43,9 +43,8 @@ public class ASN1Enumerated extends ASN1Object {
         }
     }
 
-    public <T extends Enum<?>> T getEnumerated() {
-        //noinspection unchecked
-        return (T) enumerated;
+    public T getEnumerated() {
+        return enumerated;
     }
 
     @Override
@@ -53,7 +52,7 @@ public class ASN1Enumerated extends ASN1Object {
         if (!(obj instanceof ASN1Enumerated)) {
             return false;
         }
-        return Objects.equals(enumerated, ((ASN1Enumerated) obj).enumerated);
+        return Objects.equals(enumerated, ((ASN1Enumerated<?>) obj).enumerated);
     }
 
     @Override
