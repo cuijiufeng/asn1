@@ -473,7 +473,7 @@ ExplicitCertificate ::= CertificateBase (WITH COMPONENTS {...,
     signature PRESENT
 })
 
-Reserved ::= CertificateBase (WITH COMPONENTS {...,
+ReservedCertificate ::= CertificateBase (WITH COMPONENTS {...,
     type(reserved),
     toBeSigned(WITH COMPONENTS {...,
       verifyKeyIndicator(WITH COMPONENTS {reconstructionValue})
@@ -483,7 +483,7 @@ Reserved ::= CertificateBase (WITH COMPONENTS {...,
 
 -- Certificates is explicit (type = explicit,
 -- toBeSigned includes verification key, signature present) or Reserved （Reserved for impilict cert）.
-Certificate ::= CertificateBase (ExplicitCertificate | Reserved)
+Certificate ::= CertificateBase (ExplicitCertificate | ReservedCertificate)
 SequenceOfCertificate ::= SEQUENCE OF Certificate
 
 
