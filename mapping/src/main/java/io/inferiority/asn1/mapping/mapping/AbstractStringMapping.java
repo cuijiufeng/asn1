@@ -17,7 +17,7 @@ import javax.lang.model.element.Modifier;
  */
 public abstract class AbstractStringMapping extends AbstractMapping {
 
-    public abstract TypeName getSuperclass(Definition definition);
+    public abstract TypeName getSuperclass(MappingContext context);
 
     @Override
     public TypeSpec mappingInternal(MappingContext context) {
@@ -50,7 +50,7 @@ public abstract class AbstractStringMapping extends AbstractMapping {
         TypeSpec.Builder stringPoet = TypeSpec.classBuilder(definition.getIdentifier())
                 .addAnnotation(getGeneratedAnno(definition))
                 .addModifiers(context.isInnerClass() ? new Modifier[]{Modifier.PUBLIC, Modifier.STATIC} : new Modifier[]{Modifier.PUBLIC})
-                .superclass(getSuperclass(definition))
+                .superclass(getSuperclass(context))
                 .addField(rangeMin.build())
                 .addField(rangeMax.build())
                 .addMethod(constructor1)

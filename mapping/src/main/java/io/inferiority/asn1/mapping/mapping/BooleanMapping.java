@@ -32,7 +32,7 @@ public class BooleanMapping extends AbstractMapping {
         TypeSpec.Builder booleanPoet = TypeSpec.classBuilder(definition.getIdentifier())
                 .addAnnotation(getGeneratedAnno(definition))
                 .addModifiers(context.isInnerClass() ? new Modifier[]{Modifier.PUBLIC, Modifier.STATIC} : new Modifier[]{Modifier.PUBLIC})
-                .superclass(JavaPoetUtil.primitiveTypeName(definition))
+                .superclass(JavaPoetUtil.primitiveTypeName(context))
                 .addMethod(constructor1)
                 .addMethod(constructor2);
         valuesField(booleanPoet, definition, (field, value) -> field.initializer("new $N($L)", booleanPoet.build(), value));

@@ -192,7 +192,8 @@ public class JavaPoetUtil {
         return ClassName.bestGuess(definition.getPrimitiveType());
     }
 
-    public static TypeName primitiveTypeName(Definition definition) {
+    public static TypeName primitiveTypeName(MappingContext context) {
+        Definition definition = context.getDefinition();
         if (Reserved.NULL.equals(definition.getPrimitiveType())) {
             return ClassName.get(ASN1Null.class);
         } else if (Reserved.BOOLEAN.equals(definition.getPrimitiveType())) {
@@ -200,7 +201,8 @@ public class JavaPoetUtil {
         } else if (Reserved.INTEGER.equals(definition.getPrimitiveType())) {
             return ClassName.get(ASN1Integer.class);
         } else if (Reserved.ENUMERATED.equals(definition.getPrimitiveType())) {
-            return ClassName.get(ASN1Enumerated.class);
+            return ParameterizedTypeName.get(ClassName.get(ASN1Enumerated.class),
+                    ClassName.bestGuess(definition.getIdentifier() + "." + context.getEnumPrefix() + definition.getIdentifier() + context.getEnumSuffix()));
         } else if (Reserved.IA5String.equals(definition.getPrimitiveType())) {
             return ClassName.get(ASN1IA5String.class);
         } else if (Reserved.UTF8String.equals(definition.getPrimitiveType())) {
@@ -208,7 +210,8 @@ public class JavaPoetUtil {
         } else if (Reserved.SEQUENCE.equals(definition.getPrimitiveType())) {
             return ClassName.get(ASN1Sequence.class);
         } else if (Reserved.CHOICE.equals(definition.getPrimitiveType())) {
-            return ClassName.get(ASN1Choice.class);
+            return ParameterizedTypeName.get(ClassName.get(ASN1Choice.class),
+                    ClassName.bestGuess(definition.getIdentifier() + "." + context.getEnumPrefix() + definition.getIdentifier() + context.getEnumSuffix()));
         } else if (RegexUtil.matches(Reserved.BIT + "\\s+" + Reserved.STRING, definition.getPrimitiveType())) {
             return ClassName.get(ASN1BitString.class);
         } else if (RegexUtil.matches(Reserved.OCTET + "\\s+" + Reserved.STRING, definition.getPrimitiveType())) {

@@ -21,7 +21,7 @@ public class NullMapping extends AbstractMapping {
         TypeSpec.Builder nullPoet = TypeSpec.classBuilder(definition.getIdentifier())
                 .addAnnotation(getGeneratedAnno(definition))
                 .addModifiers(context.isInnerClass() ? new Modifier[]{Modifier.PUBLIC, Modifier.STATIC} : new Modifier[]{Modifier.PUBLIC})
-                .superclass(JavaPoetUtil.primitiveTypeName(definition));
+                .superclass(JavaPoetUtil.primitiveTypeName(context));
         valuesField(nullPoet, definition, (field, value) -> field.initializer("new $N($L)", nullPoet.build(), value));
         return nullPoet.build();
     }

@@ -50,7 +50,7 @@ public class IntegerMapping extends AbstractMapping {
         TypeSpec.Builder integerPoet = TypeSpec.classBuilder(definition.getIdentifier())
                 .addAnnotation(getGeneratedAnno(definition))
                 .addModifiers(context.isInnerClass() ? new Modifier[]{Modifier.PUBLIC, Modifier.STATIC} : new Modifier[]{Modifier.PUBLIC})
-                .superclass(JavaPoetUtil.primitiveTypeName(definition))
+                .superclass(JavaPoetUtil.primitiveTypeName(context))
                 .addField(rangeMin.build())
                 .addField(rangeMax.build())
                 .addMethod(constructor1)

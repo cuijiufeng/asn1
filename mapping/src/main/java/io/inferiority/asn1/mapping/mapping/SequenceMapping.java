@@ -69,7 +69,7 @@ public class SequenceMapping extends AbstractMapping {
         TypeSpec.Builder sequencePoet = TypeSpec.classBuilder(context.isInnerClass() ? StringUtil.throughline2hump(definition.getIdentifier(), true) : definition.getIdentifier())
                 .addAnnotation(getGeneratedAnno(definition))
                 .addModifiers(context.isInnerClass() ? new Modifier[]{Modifier.PUBLIC, Modifier.STATIC} : new Modifier[]{Modifier.PUBLIC})
-                .superclass(JavaPoetUtil.primitiveTypeName(definition))
+                .superclass(JavaPoetUtil.primitiveTypeName(context))
                 .addMethod(constructor1.build())
                 .addMethod(constructor2.build());
         subDefInnerClasses.forEach(sequencePoet::addType);

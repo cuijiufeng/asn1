@@ -35,7 +35,7 @@ public class EnumeratedMapping extends AbstractMapping {
 
         MethodSpec constructor1 = MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PUBLIC)
-                .addStatement("super($T.class)", ClassName.bestGuess(context.getEnumPrefix() + definition.getIdentifier() + context.getEnumSuffix()))
+                .addStatement("super()")
                 .build();
         MethodSpec constructor2 = MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PUBLIC)
@@ -46,7 +46,7 @@ public class EnumeratedMapping extends AbstractMapping {
         TypeSpec.Builder enumeratedPoet = TypeSpec.classBuilder(definition.getIdentifier())
                 .addAnnotation(getGeneratedAnno(definition))
                 .addModifiers(context.isInnerClass() ? new Modifier[]{Modifier.PUBLIC, Modifier.STATIC} : new Modifier[]{Modifier.PUBLIC})
-                .superclass(JavaPoetUtil.primitiveTypeName(definition))
+                .superclass(JavaPoetUtil.primitiveTypeName(context))
                 .addType(enumPoet)
                 .addMethod(constructor1)
                 .addMethod(constructor2);

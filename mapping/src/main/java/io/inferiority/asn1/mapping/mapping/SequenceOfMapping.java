@@ -38,7 +38,7 @@ public class SequenceOfMapping extends AbstractMapping {
         TypeSpec.Builder sequenceOfPoet = TypeSpec.classBuilder(definition.getIdentifier())
                 .addAnnotation(getGeneratedAnno(definition))
                 .addModifiers(context.isInnerClass() ? new Modifier[]{Modifier.PUBLIC, Modifier.STATIC} : new Modifier[]{Modifier.PUBLIC})
-                .superclass(JavaPoetUtil.primitiveTypeName(definition))
+                .superclass(JavaPoetUtil.primitiveTypeName(context))
                 .addMethod(constructor1)
                 .addMethod(constructor2);
         return sequenceOfPoet.build();
