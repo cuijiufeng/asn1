@@ -15,6 +15,7 @@ import io.inferiority.asn1.mapping.model.MappingContext;
 import javax.annotation.Generated;
 import javax.lang.model.element.Modifier;
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -60,9 +61,11 @@ public abstract class AbstractMapping {
     public void mapping(MappingContext context) {
         try {
             TypeSpec typeSpec = mappingInternal(context);
+            Definition definition = context.getDefinition();
+            String packageName = context.getPackageMapping().getOrDefault(definition.getModule().getIdentifier(), definition.getModule().getIdentifier());
             //申明一个java文件输出对象
             JavaFile javaFile = JavaFile
-                    .builder(context.getPackageName(), typeSpec)
+                    .builder(packageName, typeSpec)
                     .build();
             //输出文件
             javaFile.writeTo(new File(context.getOutputPath()));
@@ -93,12 +96,18 @@ public abstract class AbstractMapping {
 
     protected TypeName subDefInnerClass(MappingContext context, Definition subDef, Consumer<TypeSpec> consumer) {
         if (subDef.getSubDefs() != null && !subDef.getSubDefs().isEmpty()) {
-            MappingContext subContext = new MappingContext(null, null, subDef, context.getEnumPrefix(), context.getEnumSuffix(), true);
+            MappingContext subContext = new MappingContext(null, context.getPackageMapping(), subDef, context.getEnumPrefix(), context.getEnumSuffix(), true);
             AbstractMapping instance = AbstractMapping.getInstance(subContext);
             TypeSpec typeSpec = instance.mappingInternal(subContext);
             consumer.accept(typeSpec);
             return ClassName.bestGuess(typeSpec.name);
         }
         return null;
+    }
+
+    public static String getPrimitiveTypePackageName(MappingContext context, Definition definition) {
+        List<Definition> dependencies = definition.getDependencies();
+        String packageName = dependencies.get(dependencies.size() - 1).getModule().getIdentifier();
+        return context.getPackageMapping().getOrDefault(packageName, packageName);
     }
 }

@@ -71,8 +71,7 @@ public class GenerateClassMojo extends AbstractMojo {
         for (Module module : modules) {
             for (Definition definition : module.getDefinitions()) {
                 try {
-                    String packageName = packageMapping.getOrDefault(definition.getModule().getIdentifier(), definition.getModule().getIdentifier());
-                    MAPPING.mapping(new MappingContext(outputDirectory, packageName, definition, enumPrefix, enumSuffix));
+                    MAPPING.mapping(new MappingContext(outputDirectory, packageMapping, definition, enumPrefix, enumSuffix));
                     getLog().debug(String.format("definition of %s in module %s mapping to class", definition.getIdentifier(), module.getIdentifier()));
                 } catch (Exception e) {
                     if (ignoreErrorDefinition) {

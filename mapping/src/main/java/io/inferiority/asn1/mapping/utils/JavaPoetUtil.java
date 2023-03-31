@@ -19,6 +19,7 @@ import io.inferiority.asn1.codec.oer.ASN1OctetString;
 import io.inferiority.asn1.codec.oer.ASN1Sequence;
 import io.inferiority.asn1.codec.oer.ASN1SequenceOf;
 import io.inferiority.asn1.codec.oer.ASN1UTF8String;
+import io.inferiority.asn1.mapping.mapping.AbstractMapping;
 import io.inferiority.asn1.mapping.model.MappingContext;
 
 import java.math.BigInteger;
@@ -155,14 +156,15 @@ public class JavaPoetUtil {
         if (withDefault) {
             if (definition.getDefaulted() != null) {
                 return new AbstractMap.SimpleEntry<>("new $T($L)", new Object[]{
-                        ClassName.bestGuess(definition.getPrimitiveType()),
+                        ClassName.get(AbstractMapping.getPrimitiveTypePackageName(context, definition), definition.getPrimitiveType()),
                         definition.getDefaulted().replaceAll(Reserved.DEFAULT, "").trim()});
             }
             return new AbstractMap.SimpleEntry<>("null", new Object[0]);
         } else if (withValue != null) {
             return new AbstractMap.SimpleEntry<>("$L == null ? null : $L", new Object[]{withValue, withValue});
         }
-        return new AbstractMap.SimpleEntry<>("new $T()", new Object[]{ClassName.bestGuess(definition.getPrimitiveType())});
+        return new AbstractMap.SimpleEntry<>("new $T()", new Object[]{
+                ClassName.get(AbstractMapping.getPrimitiveTypePackageName(context, definition), definition.getPrimitiveType())});
     }
 
     public static TypeName javaTypeName(MappingContext context, Definition definition) {
@@ -189,7 +191,7 @@ public class JavaPoetUtil {
         } else if (RegexUtil.matches(Reserved.SEQUENCE + "\\s+" + Reserved.OF, definition.getPrimitiveType())) {
             throw new IllegalArgumentException("unsupported type");
         }
-        return ClassName.bestGuess(definition.getPrimitiveType());
+        return ClassName.get(AbstractMapping.getPrimitiveTypePackageName(context, definition), definition.getPrimitiveType());
     }
 
     public static TypeName primitiveTypeName(MappingContext context) {
@@ -221,6 +223,6 @@ public class JavaPoetUtil {
             String primitiveType = split[split.length - 1];
             return ParameterizedTypeName.get(ClassName.get(ASN1SequenceOf.class), ClassName.bestGuess(primitiveType));
         }
-        return ClassName.bestGuess(definition.getPrimitiveType());
+        return ClassName.get(AbstractMapping.getPrimitiveTypePackageName(context, definition), definition.getPrimitiveType());
     }
 }
