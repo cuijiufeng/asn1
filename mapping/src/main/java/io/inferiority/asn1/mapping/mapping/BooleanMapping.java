@@ -5,6 +5,7 @@ import com.squareup.javapoet.TypeSpec;
 import io.inferiority.asn1.analysis.model.Definition;
 import io.inferiority.asn1.mapping.model.MappingContext;
 import io.inferiority.asn1.mapping.utils.JavaPoetUtil;
+import io.inferiority.asn1.mapping.utils.StringUtil;
 
 import javax.lang.model.element.Modifier;
 
@@ -29,7 +30,7 @@ public class BooleanMapping extends AbstractMapping {
                 .addStatement("super($N)", "value")
                 .build();
 
-        TypeSpec.Builder booleanPoet = TypeSpec.classBuilder(definition.getIdentifier())
+        TypeSpec.Builder booleanPoet = TypeSpec.classBuilder(StringUtil.delThroughline(definition.getIdentifier()))
                 .addAnnotation(getGeneratedAnno(definition))
                 .addModifiers(context.isInnerClass() ? new Modifier[]{Modifier.PUBLIC, Modifier.STATIC} : new Modifier[]{Modifier.PUBLIC})
                 .superclass(JavaPoetUtil.primitiveTypeName(context))

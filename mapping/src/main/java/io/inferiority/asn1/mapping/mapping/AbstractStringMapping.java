@@ -8,6 +8,7 @@ import io.inferiority.asn1.analysis.analyzer.AbstractAnalyzer;
 import io.inferiority.asn1.analysis.model.Definition;
 import io.inferiority.asn1.analysis.util.RegexUtil;
 import io.inferiority.asn1.mapping.model.MappingContext;
+import io.inferiority.asn1.mapping.utils.StringUtil;
 
 import javax.lang.model.element.Modifier;
 
@@ -47,7 +48,7 @@ public abstract class AbstractStringMapping extends AbstractMapping {
                 .addStatement("super($N, $N, $N)", "string", rangeMin.build(), rangeMax.build())
                 .build();
 
-        TypeSpec.Builder stringPoet = TypeSpec.classBuilder(definition.getIdentifier())
+        TypeSpec.Builder stringPoet = TypeSpec.classBuilder(StringUtil.delThroughline(definition.getIdentifier()))
                 .addAnnotation(getGeneratedAnno(definition))
                 .addModifiers(context.isInnerClass() ? new Modifier[]{Modifier.PUBLIC, Modifier.STATIC} : new Modifier[]{Modifier.PUBLIC})
                 .superclass(getSuperclass(context))

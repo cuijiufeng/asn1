@@ -239,8 +239,8 @@ SymmetricEncryptionKey ::= CHOICE  {
 }
 
 EncryptionKey ::= CHOICE  {
-    public               PublicEncryptionKey,
-    symmetric            SymmetricEncryptionKey
+    public-key               PublicEncryptionKey,
+    symmetric-key            SymmetricEncryptionKey
 }
 
 PublicVerificationKey ::= CHOICE {
@@ -1353,9 +1353,9 @@ FROM ScmsLaRaInterface
   }
 
   AcaResponse ::= CHOICE {
-    plain     AcaEeCertResponsePlainSpdu,
-    private   AcaEeCertResponsePrivateSpdu,
-    cubk      AcaEeCertResponseCubkSpdu,
+    plain-spdu     AcaEeCertResponsePlainSpdu,
+    private-spdu   AcaEeCertResponsePrivateSpdu,
+    cubk-spdu      AcaEeCertResponseCubkSpdu,
     ...
   }
 

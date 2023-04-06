@@ -55,7 +55,7 @@ public class SequenceMapping extends AbstractMapping {
                 String subIdentifier = StringUtil.throughline2hump(subDef.getIdentifier(), false);
                 Map.Entry<String, Object[]> newValue1 = JavaPoetUtil.builderNewStatement(context, subDef, null, false);
                 Map.Entry<String, Object[]> newDefault = JavaPoetUtil.builderNewStatement(context, subDef, null, true);
-                Object[] args = {subDef.getIdentifier(), i, i > extensionIdx, subDef.getOptional()};
+                Object[] args = {subDef.getIdentifier(), i > extensionIdx ? i - 1 : i, i > extensionIdx, subDef.getOptional()};
                 constructor1.addModifiers(Modifier.PUBLIC)
                         .addStatement("setElement($S, $L, $L, $L, " + newValue1.getKey() + ", " + newDefault.getKey() + ")",
                                 ArrayUtil.concat(args, newValue1.getValue(), newDefault.getValue()));
@@ -66,7 +66,9 @@ public class SequenceMapping extends AbstractMapping {
             }
         }
 
-        TypeSpec.Builder sequencePoet = TypeSpec.classBuilder(context.isInnerClass() ? StringUtil.throughline2hump(definition.getIdentifier(), true) : definition.getIdentifier())
+        TypeSpec.Builder sequencePoet = TypeSpec.classBuilder(context.isInnerClass()
+                    ? StringUtil.throughline2hump(definition.getIdentifier(), true)
+                    : StringUtil.delThroughline(definition.getIdentifier()))
                 .addAnnotation(getGeneratedAnno(definition))
                 .addModifiers(context.isInnerClass() ? new Modifier[]{Modifier.PUBLIC, Modifier.STATIC} : new Modifier[]{Modifier.PUBLIC})
                 .superclass(JavaPoetUtil.primitiveTypeName(context))

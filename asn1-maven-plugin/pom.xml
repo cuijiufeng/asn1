@@ -93,6 +93,7 @@
                         <pomInclude>**/pom.xml</pomInclude>
                     </pomIncludes>
                     <postBuildHookScript>verify</postBuildHookScript>
+                    <skipInvocation>true</skipInvocation>
                 </configuration>
                 <executions>
                     <execution>

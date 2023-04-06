@@ -45,12 +45,12 @@ public abstract class AbstractMapping {
             return SequenceMapping.MAPPING;
         } else if (Reserved.CHOICE.equals(definition.getPrimitiveType())) {
             return ChoiceMapping.MAPPING;
+        } else if (RegexUtil.matches(Reserved.SEQUENCE + "\\s+" + Reserved.OF, definition.getPrimitiveType())) {
+            return SequenceOfMapping.MAPPING;
         } else if (RegexUtil.matches(Reserved.BIT + "\\s+" + Reserved.STRING, definition.getPrimitiveType())) {
             return BitStringMapping.MAPPING;
         } else if (RegexUtil.matches(Reserved.OCTET + "\\s+" + Reserved.STRING, definition.getPrimitiveType())) {
             return OctetStringMapping.MAPPING;
-        } else if (RegexUtil.matches(Reserved.SEQUENCE + "\\s*" + Reserved.OF, definition.getPrimitiveType())) {
-            return SequenceOfMapping.MAPPING;
         }
         if (definition.getDependencies() == null || definition.getDependencies().isEmpty()) {
             throw new IllegalArgumentException("unsupported type");

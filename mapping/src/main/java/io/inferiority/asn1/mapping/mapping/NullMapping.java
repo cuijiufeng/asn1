@@ -4,6 +4,7 @@ import com.squareup.javapoet.TypeSpec;
 import io.inferiority.asn1.analysis.model.Definition;
 import io.inferiority.asn1.mapping.model.MappingContext;
 import io.inferiority.asn1.mapping.utils.JavaPoetUtil;
+import io.inferiority.asn1.mapping.utils.StringUtil;
 
 import javax.lang.model.element.Modifier;
 
@@ -18,7 +19,7 @@ public class NullMapping extends AbstractMapping {
     protected TypeSpec mappingInternal(MappingContext context) {
         Definition definition = context.getDefinition();
 
-        TypeSpec.Builder nullPoet = TypeSpec.classBuilder(definition.getIdentifier())
+        TypeSpec.Builder nullPoet = TypeSpec.classBuilder(StringUtil.delThroughline(definition.getIdentifier()))
                 .addAnnotation(getGeneratedAnno(definition))
                 .addModifiers(context.isInnerClass() ? new Modifier[]{Modifier.PUBLIC, Modifier.STATIC} : new Modifier[]{Modifier.PUBLIC})
                 .superclass(JavaPoetUtil.primitiveTypeName(context));

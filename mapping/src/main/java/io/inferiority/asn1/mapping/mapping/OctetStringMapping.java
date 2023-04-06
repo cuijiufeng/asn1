@@ -8,6 +8,7 @@ import io.inferiority.asn1.analysis.model.Definition;
 import io.inferiority.asn1.analysis.util.RegexUtil;
 import io.inferiority.asn1.mapping.model.MappingContext;
 import io.inferiority.asn1.mapping.utils.JavaPoetUtil;
+import io.inferiority.asn1.mapping.utils.StringUtil;
 
 import javax.lang.model.element.Modifier;
 
@@ -46,7 +47,7 @@ public class OctetStringMapping extends AbstractMapping {
                 .addStatement("super($N, $N, $N)", "value", rangeMin.build(), rangeMax.build())
                 .build();
 
-        TypeSpec.Builder octetStringPoet = TypeSpec.classBuilder(definition.getIdentifier())
+        TypeSpec.Builder octetStringPoet = TypeSpec.classBuilder(StringUtil.delThroughline(definition.getIdentifier()))
                 .addAnnotation(getGeneratedAnno(definition))
                 .addModifiers(context.isInnerClass() ? new Modifier[]{Modifier.PUBLIC, Modifier.STATIC} : new Modifier[]{Modifier.PUBLIC})
                 .superclass(JavaPoetUtil.primitiveTypeName(context))

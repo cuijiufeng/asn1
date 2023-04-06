@@ -8,6 +8,10 @@ import java.util.Objects;
  */
 public class StringUtil {
 
+    public static String delThroughline(String identifier) {
+        return identifier.replaceAll("-", "");
+    }
+
     public static String throughline2underline(String identifier) {
         return identifier.replaceAll("-", "_");
     }
