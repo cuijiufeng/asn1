@@ -28,7 +28,12 @@ public class ASN1Sequence extends ASN1Object {
     }
 
     public void setElement(int position, boolean extensible, boolean optional, @Nullable ASN1Object value, @Nullable ASN1Object defaulted) {
-        this.setElement("Label", position, extensible, optional, value, defaulted);
+        //31 Canonical Octet Encoding Rules ==>
+        //In the encoding of a sequence or set type, each component that is marked DEFAULT shall be encoded as absent if its value is identical to the default value.
+        if (Objects.equals(value, defaulted)) {
+            value = null;
+        }
+        this.setElement(value.getClass().getSimpleName(), position, extensible, optional, value, defaulted);
     }
 
     public void setElement(String label, int position, boolean extensible, boolean optional, @Nullable ASN1Object value, @Nullable ASN1Object defaulted) {
