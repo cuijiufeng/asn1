@@ -30,6 +30,7 @@ public class ASN1BitString extends ASN1Object {
     public ASN1BitString(@Nullable Integer bytes, @Nullable String[] bitLabels) {
         this.bytes = bytes;
         this.bitLabels = bitLabels;
+        this.bits = new byte[bytes];
     }
 
     public ASN1BitString(byte[] bits, boolean fixed, @Nullable String[] bitLabels) {
